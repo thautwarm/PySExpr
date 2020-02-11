@@ -1,0 +1,30 @@
+
+module : 'module' 'Python' '=' '{'
+
+       '}'
+       ;
+
+builtin_type:
+    ('identifier' | 'int' | 'string' | 'object' | 'constant')
+    { $0 }
+    ;
+
+type:   type '*'      { default_list }
+      | type '?'      { default_none }
+      | builtin_type  { no_default }
+      | ident         { no_default }
+      ;
+
+
+args : '(' ')' { [] }
+     | '(' separated_list(',',  ann) ')' { $1 }
+     ;
+
+attributes : 'attributes' args ;
+
+case : ident args { case($0, $1) };
+
+pattern : ident '=' separated_list('|', case)
+          [attributes]
+          ;
+

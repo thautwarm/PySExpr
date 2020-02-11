@@ -2,107 +2,35 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e396ee31-3c32-4337-9ac2-ac208600d621" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Std/.idea/Std.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Std/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Std/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Std/Lisp.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Std/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Std/ast.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Std/lispkeyword.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/__init__.py" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/asdl.exrbnf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/asdl.rlex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/PySExpr.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PySExpr.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/.idea/Std.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/Lisp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/LispInterpreter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/ast.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/etoken.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/grammar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/lispParser.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/lispkeyword.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Std/testLang.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
-    <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.7827869">
-      <split-first>
-        <leaf>
-          <file leaf-file-name="LispInterpreter.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Std/LispInterpreter.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="184">
-                  <caret line="16" column="17" lean-forward="false" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="ast.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/Std/ast.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="272">
-                  <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Lisp.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Std/Lisp.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="368">
-                  <caret line="23" column="62" lean-forward="false" selection-start-line="23" selection-start-column="54" selection-end-line="23" selection-end-column="62" />
-                  <folding>
-                    <element signature="e#0#21#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="lispkeyword.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Std/lispkeyword.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="32">
-                  <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="etoken.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Std/etoken.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="48">
-                  <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="lispParser.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Std/lispParser.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="128">
-                  <caret line="9" column="36" lean-forward="false" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
-                  <folding>
-                    <element signature="e#1#90#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf>
-          <file leaf-file-name="grammar" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/Std/grammar">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="32">
-                  <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+  <component name="ElmWorkspace">
+    <elmProjects />
+    <settings elmCompilerPath="" elmFormatPath="" elmTestPath="" isElmFormatOnSaveEnabled="false" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -111,30 +39,8 @@
       </list>
     </option>
   </component>
-  <component name="FindInProjectRecents">
-    <replaceStrings>
-      <replace />
-      <replace>SExpr</replace>
-    </replaceStrings>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/Base/lispParser.py" />
-        <option value="$PROJECT_DIR$/Base/LispInterpreter.py" />
-        <option value="$PROJECT_DIR$/Base/grammar" />
-        <option value="$PROJECT_DIR$/Base/ast.py" />
-        <option value="$PROJECT_DIR$/LispInterpreter.py" />
-        <option value="$PROJECT_DIR$/grammar" />
-        <option value="$PROJECT_DIR$/Lisp.py" />
-        <option value="$PROJECT_DIR$/ast.py" />
-        <option value="$PROJECT_DIR$/Std/Lisp.py" />
-        <option value="$PROJECT_DIR$/Std/lispkeyword.py" />
-      </list>
-    </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="123" />
@@ -142,44 +48,18 @@
     <option name="width" value="997" />
     <option name="height" value="692" />
   </component>
-  <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-      <flattenPackages />
-      <showMembers />
-      <showModules />
-      <showLibraryContents />
-      <hideEmptyPackages />
-      <abbreviatePackageNames />
-      <autoscrollToSource />
-      <autoscrollFromSource />
-      <sortByType />
-      <manualOrder />
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="PySExpr" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PySExpr" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PySExpr" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PySExpr" type="462c0819:PsiDirectoryNode" />
-              <item name="Std" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
-    </panes>
+  <component name="ProjectId" id="1Xej1vWVMzoOcPhCy19Wzlh12wE" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/Std" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ast-compat" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -187,20 +67,9 @@
       <recent name="$PROJECT_DIR$/" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
-  <component name="RunManager" selected="Python.LispInterpreter">
+  <component name="RunManager">
     <configuration name="LispInterpreter" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="PySExpr" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -211,20 +80,36 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PySExpr" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Std/LispInterpreter.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="true" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="Python.LispInterpreter" />
+      <list>
+        <item itemvalue="Python.LispInterpreter" />
       </list>
     </recent_temporary>
   </component>
-  <component name="ShelveChangesManager" show_recycled="false">
-    <option name="remove_strategy" value="false" />
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -233,100 +118,43 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1508789608045</updated>
+      <workItem from="1581413243887" duration="2419000" />
+      <workItem from="1581415681004" duration="11000" />
+      <workItem from="1581423345165" duration="3320000" />
     </task>
     <servers />
   </component>
-  <component name="ToolWindowManager">
-    <frame x="65" y="-6" width="1301" height="774" extended-state="6" />
-    <editor active="true" />
-    <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24980783" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39530686" sideWeight="0.40220663" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32851985" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32882884" sideWeight="0.5977934" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32882884" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3993994" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-    </layout>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
   </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager />
-    <watches-manager />
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Std/LispInterpreter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="16" column="17" lean-forward="false" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Std/grammar">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="32">
-          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Std/etoken.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="48">
-          <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Std/lispParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="9" column="36" lean-forward="false" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
-          <folding>
-            <element signature="e#1#90#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Std/lispkeyword.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="32">
-          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Std/Lisp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="23" column="62" lean-forward="false" selection-start-line="23" selection-start-column="54" selection-end-line="23" selection-end-column="62" />
-          <folding>
-            <element signature="e#0#21#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Std/ast.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+  <component name="WindowStateProjectService">
+    <state x="580" y="189" key="FileChooserDialogImpl" timestamp="1581415315963">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state x="580" y="189" key="FileChooserDialogImpl/0.0.1600.860@0.0.1600.860" timestamp="1581415315963" />
+    <state width="1557" height="221" key="GridCell.Tab.0.bottom" timestamp="1581426656432">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="221" key="GridCell.Tab.0.bottom/0.0.1600.860@0.0.1600.860" timestamp="1581426656432" />
+    <state width="1557" height="221" key="GridCell.Tab.0.center" timestamp="1581426656432">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="221" key="GridCell.Tab.0.center/0.0.1600.860@0.0.1600.860" timestamp="1581426656432" />
+    <state width="1557" height="221" key="GridCell.Tab.0.left" timestamp="1581426656432">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="221" key="GridCell.Tab.0.left/0.0.1600.860@0.0.1600.860" timestamp="1581426656432" />
+    <state width="1557" height="221" key="GridCell.Tab.0.right" timestamp="1581426656432">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="221" key="GridCell.Tab.0.right/0.0.1600.860@0.0.1600.860" timestamp="1581426656432" />
+    <state x="303" y="76" key="SettingsEditor" timestamp="1581413599787">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state x="303" y="76" key="SettingsEditor/0.0.1600.860@0.0.1600.860" timestamp="1581413599787" />
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup" timestamp="1581423354173">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup/0.0.1600.860@0.0.1600.860" timestamp="1581423354173" />
   </component>
 </project>
