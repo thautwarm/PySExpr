@@ -1,5 +1,7 @@
+import ast
 from rbnf.py_tools.unparse import Unparser
-from py_sexpr import *
+from py_sexpr.terms import *
+
 print('PROG1'.center(20, '='))
 main = define(
     "main", [],

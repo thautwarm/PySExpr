@@ -5,8 +5,9 @@ world, via transforming LISPs to the Python ASTs in applicative normal form,
 enhanced by multiple techniques of register allocation optimizations.
 
 ```python
+import ast
 from rbnf.py_tools.unparse import Unparser
-from py_sexpr import *
+from py_sexpr.terms import *
 print('PROG1'.center(20, '='))
 main = define(
     "main", [],
