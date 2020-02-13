@@ -20,18 +20,16 @@ main = define(
         call(extern("print"), const(1)),
         call(var("add1"), const(2)),
     ))
-#
-cfg = CFG(set(), (1, 1))
+
+cfg = CFG(set(), (1, 1), default_return_tos=True)
 main.run(cfg)
 
 node = ast.fix_missing_locations(astc.Module(cfg.build()))
-# pprint(node)
 Unparser(node)
 ```
+=>
 
-```
-=======PROG1========
-
+```python
 def _pysexpr_main(this=None):
     _pysexpropt_1 = 1
     _pysexpropt_2 = 2

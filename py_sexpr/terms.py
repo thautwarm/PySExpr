@@ -41,10 +41,12 @@ def define(func_name_: Optional[str], args_: List[str], body_: Term):
 
         sub = self.sub_cfg()
 
-        with body.run(sub).use(sub) as body:
-            # return TOP by default?
-            # if so:
-            sub.add_stmt(astc.Return(body))
+        body = body.run(sub)
+        # return TOP by default?
+        # if so:
+        if sub.ret_tos:
+            with body.use(sub) as body:
+                sub.add_stmt(astc.Return(body))
 
         args = [astc.arg(arg=prefixed(n)) for n in args]
         args.append(astc.arg(arg='this'))
@@ -59,6 +61,12 @@ def define(func_name_: Optional[str], args_: List[str], body_: Term):
 
 
 def const(constant):
+    """
+    a constant can be
+    - a tuple made of constants
+    - a float/int/str/complex/bool
+    - None
+    """
     @Term
     def run(self: CFG):
         return self.push(astc.Constant(constant), can_elim=True)
@@ -108,13 +116,31 @@ def isa(value_: Term, ty_: Term):
 
 
 def new(ty_: Term, *args_: Term):
+    """
+    It's made for supporting javascript style new.
+    e.g., for following JS code
+        function MyType(x, y) {
+            this.x = x
+            this.y = y
+        }
+        inst = new MyType(1, 2)
+    you can use this PySExpr expression to build
+        block(
+            define(
+                "MyType", ["x", "y"],
+                block(set_index(this, const("x"), var("x")),
+                      set_index(this, const("y"), var("y")))),
+            assign("inst", new(var("MyType"), const(1), const(2))))
+    """
     @Term
     def run(self: CFG):
         args = (each.run(self) for each in args_)
         with ty_.run(self).use(self) as ty, use_many(args, self) as args:
             inst = astc.Dict(keys=[astc.Constant('.t')], values=[ty])
-            args.append(inst)
-            return self.push(astc.Call(func=ty, args=args), can_elim=True)
+            with self.push(inst, can_elim=True).use(self) as inst:
+                args.append(inst)
+                self.add_stmt(astc.Expr(astc.Call(func=ty, args=args)))
+                return self.push(inst, can_elim=True)
 
     return run
 
@@ -125,6 +151,13 @@ def var(n: str):
         return self.push(name_of_id(prefixed(n), RHS), can_elim=True)
 
     return run
+
+
+@Term
+def this(self: CFG):
+    """indicating the instance itself, like `self` in Python or `this` in C/CPP
+    """
+    return self.push(name_of_id("this", RHS), can_elim=True)
 
 
 def extern(n: str):

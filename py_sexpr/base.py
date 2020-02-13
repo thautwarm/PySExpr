@@ -38,11 +38,15 @@ class ReallocationVisitor(ast.NodeVisitor):
 
 
 class CFG:
-    def __init__(self, temp_ns: set, loc: Tuple[int, int]):
+    def __init__(self,
+                 temp_ns: set,
+                 loc: Tuple[int, int],
+                 default_return_tos: bool = False):
         self.temp_names = temp_ns
         self.loc = loc
         self.builders = []
         self.lifetime = {}  # type: Dict[str, LiveInterval]
+        self.ret_tos = default_return_tos
 
     def free(self, tmp: str):
         """Free a temporary variable,
@@ -76,7 +80,7 @@ class CFG:
         self.builders.append(lambda: s)
 
     def sub_cfg(self):
-        return CFG(set(), self.loc)
+        return CFG(set(), self.loc, self.ret_tos)
 
     def start_life(self, n: str):
         life = self.lifetime[n] = LiveInterval()
