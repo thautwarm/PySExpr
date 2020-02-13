@@ -1,7 +1,9 @@
-# PySExpr
+# PySExpr of [Python-Compiler-Tools](https://github.com/python-compiler-tools)
 
+[![PyPI version](https://img.shields.io/pypi/v/pysexpr.svg)](https://pypi.org/project/pysexpr)
 [![Build Status](https://travis-ci.com/thautwarm/PySExpr.svg?branch=master)](https://travis-ci.com/thautwarm/PySExpr)
 [![codecov](https://codecov.io/gh/thautwarm/PySExpr/branch/master/graph/badge.svg)](https://codecov.io/gh/thautwarm/PySExpr)
+[![MIT License](https://img.shields.io/badge/license-MIT-Green.svg?style=flat)](https://github.com/thautwarm/EBNFParser/blob/boating-new/LICENSE)
 
 A general-purpose package for gaining expression-first capability in Python
 world, via transforming LISPs to the Python ASTs in applicative normal form,
