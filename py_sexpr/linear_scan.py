@@ -1,3 +1,6 @@
+"""Implementation of infinite register based linear scan,
+to optimize the allocations of temporary variables.
+"""
 from sortedcontainers import SortedDict
 from py_sexpr.facility import prefixed, PREFIX_OPT
 from typing import Dict, List, Tuple

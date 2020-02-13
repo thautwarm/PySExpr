@@ -1,3 +1,5 @@
+"""Basic constructs of a tagless final style ANF transformation.
+"""
 import ast_compat as astc
 import ast
 from contextlib import contextmanager

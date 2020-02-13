@@ -1,3 +1,5 @@
+"""Utilities for building Python ASTs
+"""
 import ast_compat as astc
 import ast
 from enum import Enum

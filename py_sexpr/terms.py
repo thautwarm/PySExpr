@@ -1,3 +1,8 @@
+"""This module provides interfaces to build S-expression.
+
+**If you don't care about the implementation details, you only need to check this module.**
+"""
+
 import ast_compat as astc
 from typing import List, Optional, Tuple
 from py_sexpr.base import Term, CFG, use_many
@@ -130,19 +135,24 @@ def isa(value_: Term, ty_: Term):
 def new(ty_: Term, *args_: Term):
     """
     It's made for supporting javascript style new.
+
     e.g., for following JS code
+    ```javascript
         function MyType(x, y) {
             this.x = x
             this.y = y
         }
         inst = new MyType(1, 2)
+    ```
     you can use this PySExpr expression to build
+    ```python
         block(
             define(
                 "MyType", ["x", "y"],
                 block(set_index(this, const("x"), var("x")),
                       set_index(this, const("y"), var("y")))),
             assign("inst", new(var("MyType"), const(1), const(2))))
+    ```
     """
     @Term
     def run(self: CFG):
@@ -165,18 +175,20 @@ def var(n: str):
     return run
 
 
-@Term
-def this(self: CFG):
+def _this(self: CFG):
     """indicating the instance itself, like `self` in Python or `this` in C/CPP
     """
     return self.push(name_of_id("this", RHS), can_elim=True)
+
+
+this = _this
+"""indicating the instance itself, like `self` in Python or `this` in C/CPP"""
 
 
 def extern(n: str):
     """
     Use this to disable mangling to get Python's builtin objects.
     e.g, `extern("print")` is Python's `print`.
-
     """
     @Term
     def run(self: CFG):
@@ -186,6 +198,7 @@ def extern(n: str):
 
 
 def mktuple(*values_: Term):
+    """Make a tuple"""
     @Term
     def run(self: CFG):
         values = (each.run(self) for each in values_)
@@ -197,6 +210,7 @@ def mktuple(*values_: Term):
 
 
 def set_index(base_: Term, item_: Term, value_: Term):
+    """Basically, `base_[item_] = value_`, and the return value is `None`"""
     @Term
     def run(self: CFG):
         base, item, value = base_.run(self), item_.run(self), value_.run(self)
@@ -212,6 +226,12 @@ def set_index(base_: Term, item_: Term, value_: Term):
 
 
 def block(*suite: Term):
+    """A block of s-expressions.
+
+    If `suite` is empty, return value is `None`.
+
+    Otherwise, the last expression in the block will be returned.
+    """
     @Term
     def run(self: CFG):
         if not suite:
@@ -224,6 +244,15 @@ def block(*suite: Term):
 
 
 def for_range(n_: str, low_: Term, high_: Term, body: Term):
+    """
+    Basically it's
+    ```python
+    for n_ in range(low_, high_):
+        body
+    ```
+
+    The return value is `None`.
+    """
     @Term
     def run(self: CFG):
         n = prefixed(n_)
@@ -243,6 +272,15 @@ def for_range(n_: str, low_: Term, high_: Term, body: Term):
 
 
 def for_in(n_: str, obj_: Term, body_: Term):
+    """
+   Basically it's
+   ```python
+   for n_ in obj_:
+       body_
+   ```
+
+   The return value is `None`.
+   """
     @Term
     def run(self: CFG):
         n = prefixed(n_)
@@ -259,6 +297,17 @@ def for_in(n_: str, obj_: Term, body_: Term):
 
 
 def ite(cond_: Term, te: Term, fe: Term):
+    """
+    Basically it's
+    ```python
+    if cond_:
+        te
+    else:
+        fe
+    ```
+
+    Take care that the return value is `None`.
+    """
     @Term
     def run(self: CFG):
         with cond_.run(self).use(self) as cond:
@@ -290,6 +339,8 @@ def ret(value_: Term = None):
 
 
 def loc(line: int, column: int, term: Term):
+    """Set location to s-expressions.
+    """
     @Term
     def run(self: CFG):
         self.loc = (line, column)
