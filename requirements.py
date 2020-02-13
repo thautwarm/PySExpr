@@ -19,7 +19,7 @@ except ImportError:
         if not callable(main):
             raise ImportError
 
-requires = ['sortedcontainers', 'astor']
+requires = ['sortedcontainers', 'astor', 'ast-compat']
 
 if __name__ == '__main__':
     for package in requires:
