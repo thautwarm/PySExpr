@@ -102,6 +102,18 @@ def throw(value_: Term):
 
 
 def isa(value_: Term, ty_: Term):
+    """Check if the left is instance of the right.
+
+    Note that it doesn't use Python's isinstance protocol,
+    even nor Python's object protocol.
+
+    In fact, `isa(t1, t2)` means `t1['.t'] is t2`.
+
+    We use only `dict`s to represent objects,
+    and `dict['.t']` is the type.
+
+    Inheritance feature is omitted, due to the lack of use cases.
+    """
     @Term
     def run(self: CFG):
         with value_.run(self).use(self) as value, ty_.run(self).use(
@@ -161,6 +173,11 @@ def this(self: CFG):
 
 
 def extern(n: str):
+    """
+    Use this to disable mangling to get Python's builtin objects.
+    e.g, `extern("print")` is Python's `print`.
+
+    """
     @Term
     def run(self: CFG):
         return self.push(name_of_id(n, RHS), can_elim=True)
