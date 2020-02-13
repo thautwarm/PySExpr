@@ -1,10 +1,12 @@
 import ast
 import astor
-
+import sys
 from py_sexpr.terms import *
 
 
 def Unparser(x):
+    if sys.version_info >= (3, 8):
+        return
     print(astor.to_source(x))
 
 
@@ -113,7 +115,6 @@ cfg = CFG(set(), (1, 1))
 main.run(cfg)
 node = ast.fix_missing_locations(astc.Module(cfg.build()))
 Unparser(node)
-
 
 print()
 print('PROG11'.center(30, '='))

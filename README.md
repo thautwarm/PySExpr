@@ -1,5 +1,8 @@
 # PySExpr
 
+[![Build Status](https://travis-ci.com/thautwarm/PySExpr.svg?branch=master)](https://travis-ci.com/thautwarm/PySExpr)
+[![codecov](https://codecov.io/gh/thautwarm/PySExpr/branch/master/graph/badge.svg)](https://codecov.io/gh/thautwarm/PySExpr)
+
 A general-purpose package for gaining expression-first capability in Python
 world, via transforming LISPs to the Python ASTs in applicative normal form,
 enhanced by multiple techniques of register allocation optimizations.
