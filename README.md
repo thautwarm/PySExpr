@@ -6,6 +6,8 @@ enhanced by multiple techniques of register allocation optimizations.
 
 See [Documentation](http://htmlpreview.github.io/?https://github.com/thautwarm/PySExpr/blob/gh-pages/docs/py_sexpr/index.html).
 
+All constructors of PySExpr are documented [here](https://htmlpreview.github.io/?https://raw.githubusercontent.com/thautwarm/PySExpr/gh-pages/docs/py_sexpr/terms.html).
+
 ## Preview
 
 ```python
