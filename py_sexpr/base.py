@@ -53,7 +53,7 @@ class CFG:
         accept the name string.
         """
         if tmp in self.lifetime:
-            self.lifetime[tmp].end = len(self.builders)
+            self.end_life(tmp)
 
     def alloc(self):
         """allocate a temporary variable,

@@ -6,7 +6,7 @@ python:
   - "3.8"
 
 install:
-  - python requirements.py
+  - pip install sortedcontainers astor
   - pip install codecov coveralls
   - python setup.py install
 
