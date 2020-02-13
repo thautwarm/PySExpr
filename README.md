@@ -1,12 +1,12 @@
 # PySExpr
 
-See [Documentation](http://htmlpreview.github.io/?https://github.com/thautwarm/PySExpr/blob/gh-pages/docs/py_sexpr/index.html).
-
-## Introduction
-
 A general-purpose package for gaining expression-first capability in Python
 world, via transforming LISPs to the Python ASTs in applicative normal form,
 enhanced by multiple techniques of register allocation optimizations.
+
+See [Documentation](http://htmlpreview.github.io/?https://github.com/thautwarm/PySExpr/blob/gh-pages/docs/py_sexpr/index.html).
+
+## Preview
 
 ```python
 import ast
@@ -32,7 +32,6 @@ node = ast.fix_missing_locations(astc.Module(cfg.build()))
 Unparser(node)
 ```
 =>
-
 ```python
 def _pysexpr_main(this=None):
     _pysexpropt_1 = 1
