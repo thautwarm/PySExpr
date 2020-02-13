@@ -175,13 +175,13 @@ def var(n: str):
     return run
 
 
-def _this(self: CFG):
+def this(self: CFG):
     """indicating the instance itself, like `self` in Python or `this` in C/CPP
     """
     return self.push(name_of_id("this", RHS), can_elim=True)
 
 
-this = _this
+this = Term(this)
 """indicating the instance itself, like `self` in Python or `this` in C/CPP"""
 
 
