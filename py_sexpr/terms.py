@@ -74,7 +74,7 @@ def const(constant):
     return run
 
 
-def dict(kv_pairs: List[Tuple[str, Term]]):
+def mkdict(kv_pairs: List[Tuple[str, Term]]):
     @Term
     def run(self: CFG):
 
@@ -185,7 +185,7 @@ def extern(n: str):
     return run
 
 
-def tuple(*values_: Term):
+def mktuple(*values_: Term):
     @Term
     def run(self: CFG):
         values = (each.run(self) for each in values_)
@@ -249,7 +249,7 @@ def for_in(n_: str, obj_: Term, body_: Term):
         with obj_.run(self).use(self) as obj:
             sub = self.sub_cfg()
             body_.run(sub)
-            ast_for = astc.For(target=[name_of_id(n, LHS)],
+            ast_for = astc.For(target=name_of_id(n, LHS),
                                iter=obj,
                                body=sub.build())
             self.add_stmt(ast_for)

@@ -71,6 +71,8 @@ class CFG:
         suite = sum((each() for each in self.builders), [])
         for each in suite:
             realloc.visit(each)
+        if not suite:
+            suite.append(astc.Pass())
         return suite
 
     def add_stmt(self, s: ast.stmt):

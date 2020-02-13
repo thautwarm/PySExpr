@@ -1,6 +1,12 @@
 import ast
-from rbnf.py_tools.unparse import Unparser
+import astor
+
 from py_sexpr.terms import *
+
+
+def Unparser(x):
+    print(astor.to_source(x))
+
 
 print()
 print('PROG1'.center(30, '='))
@@ -60,8 +66,58 @@ Unparser(node)
 
 print()
 print('PROG5'.center(30, '='))
-main = for_in("a", dict([("a", const(1)), ("b", const("bb"))]),
+main = for_in("a", mkdict([("a", const(1)), ("b", const("bb"))]),
               call(extern("print"), var("a")))
+
+cfg = CFG(set(), (1, 1))
+main.run(cfg)
+node = ast.fix_missing_locations(astc.Module(cfg.build()))
+Unparser(node)
+
+print()
+print('PROG6'.center(30, '='))
+main = call((define(None, ["x"], ret(mktuple(var("x"), var("x"))))), var("1"))
+cfg = CFG(set(), (1, 1), default_return_tos=True)
+main.run(cfg)
+node = ast.fix_missing_locations(astc.Module(cfg.build()))
+Unparser(node)
+
+print()
+print('PROG7'.center(30, '='))
+main = call(extern("print"), mkdict([]))
+cfg = CFG(set(), (1, 1), default_return_tos=True)
+main.run(cfg)
+node = ast.fix_missing_locations(astc.Module(cfg.build()))
+Unparser(node)
+
+print()
+print('PROG8'.center(30, '='))
+main = throw(mkdict([]))
+cfg = CFG(set(), (1, 1), default_return_tos=True)
+main.run(cfg)
+node = ast.fix_missing_locations(astc.Module(cfg.build()))
+Unparser(node)
+
+print()
+print('PROG9'.center(30, '='))
+main = for_in("a", mkdict([("a", const(1)), ("b", const("bb"))]), block())
+cfg = CFG(set(), (1, 1))
+main.run(cfg)
+node = ast.fix_missing_locations(astc.Module(cfg.build()))
+Unparser(node)
+
+print()
+print('PROG10'.center(30, '='))
+main = define("a", [], block(ret()))
+cfg = CFG(set(), (1, 1))
+main.run(cfg)
+node = ast.fix_missing_locations(astc.Module(cfg.build()))
+Unparser(node)
+
+
+print()
+print('PROG11'.center(30, '='))
+main = define("a", [], loc(2, 3, ret(const(2))))
 cfg = CFG(set(), (1, 1))
 main.run(cfg)
 node = ast.fix_missing_locations(astc.Module(cfg.build()))
