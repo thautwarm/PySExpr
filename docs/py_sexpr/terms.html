@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>py_sexpr.terms API documentation</title>
+<meta name="description" content="This module provides interfaces to build S-expression …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>py_sexpr.terms</code></h1>
+</header>
+<section id="section-intro">
+<p>This module provides interfaces to build S-expression.</p>
+<p><strong>If you don't care about the implementation details, you only need to check this module.</strong></p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;This module provides interfaces to build S-expression.
+
+**If you don&#39;t care about the implementation details, you only need to check this module.**
+&#34;&#34;&#34;
+
+import ast_compat as astc
+from typing import List, Optional, Tuple
+from py_sexpr.base import Term, CFG, use_many
+from py_sexpr.facility import *
+
+
+def call(f_: Term, *args_: Term):
+    @Term
+    def run(self: CFG):
+        f = f_.run(self)
+        args = (arg.run(self) for arg in args_)
+        with f.use(self) as f, use_many(args, self) as args:
+            ast_call = astc.Call(func=f, args=list(args))
+            return self.push(ast_call, can_elim=False)
+
+    return run
+
+
+def assign(n: str, value_: Term):
+    @Term
+    def run(self: CFG):
+        value = value_.run(self)
+        with value.use(self) as value:
+            self.add_stmt(astc.Assign([name_of_id(n, LHS)], value))
+            return self.push(NONE, can_elim=True)
+
+    return run
+
+
+def define(func_name_: Optional[str], args_: List[str], body_: Term):
+    @Term
+    def run(self: CFG):
+        func_name = func_name_
+        args = args_
+        body = body_
+
+        if func_name is None:
+            func_name = self.alloc()
+        else:
+            func_name = prefixed(func_name)
+
+        sub = self.sub_cfg()
+
+        body = body.run(sub)
+        # return TOP by default?
+        # if so:
+        if sub.ret_tos:
+            with body.use(sub) as body:
+                sub.add_stmt(astc.Return(body))
+
+        args = [astc.arg(arg=prefixed(n)) for n in args]
+        args.append(astc.arg(arg=&#39;this&#39;))
+        args = astc.arguments(args=args, defaults=[NONE])
+
+        body = sub.build()
+        self.add_stmt(astc.FunctionDef(name=func_name, args=args, body=body))
+
+        return self.push(name_of_id(func_name, RHS), can_elim=True)
+
+    return run
+
+
+def const(constant):
+    &#34;&#34;&#34;
+    a constant can be
+    - a tuple made of constants
+    - a float/int/str/complex/bool
+    - None
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        return self.push(astc.Constant(constant), can_elim=True)
+
+    return run
+
+
+def mkdict(kv_pairs: List[Tuple[str, Term]]):
+    @Term
+    def run(self: CFG):
+
+        if not kv_pairs:
+            keys, values = (), ()
+        else:
+            keys, values = zip(*kv_pairs)
+            values = (v.run(self) for v in values)
+        with use_many(values, self) as values:
+            ast_dict = astc.Dict(keys=[astc.Constant(k) for k in keys],
+                                 values=values)
+            return self.push(ast_dict, can_elim=True)
+
+    return run
+
+
+def throw(value_: Term):
+    @Term
+    def run(self: CFG):
+        with value_.run(self).use(self) as value:
+            self.add_stmt(astc.Raise(exc=value))
+            return self.push(NONE, can_elim=True)
+
+    return run
+
+
+def isa(value_: Term, ty_: Term):
+    &#34;&#34;&#34;Check if the left is instance of the right.
+
+    Note that it doesn&#39;t use Python&#39;s isinstance protocol,
+    even nor Python&#39;s object protocol.
+
+    In fact, `isa(t1, t2)` means `t1[&#39;.t&#39;] is t2`.
+
+    We use only `dict`s to represent objects,
+    and `dict[&#39;.t&#39;]` is the type.
+
+    Inheritance feature is omitted, due to the lack of use cases.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        with value_.run(self).use(self) as value, ty_.run(self).use(
+                self) as ty:
+            lookup = astc.Attribute(value=value, attr=&#39;get&#39;, ctx=RHS)
+            cmp = same_as(astc.Call(func=lookup, args=[astc.Constant(&#39;.t&#39;)]),
+                          ty)
+
+            return self.push(cmp, can_elim=True)
+
+    return run
+
+
+def new(ty_: Term, *args_: Term):
+    &#34;&#34;&#34;
+    It&#39;s made for supporting javascript style new.
+
+    e.g., for following JS code
+    ```javascript
+        function MyType(x, y) {
+            this.x = x
+            this.y = y
+        }
+        inst = new MyType(1, 2)
+    ```
+    you can use this PySExpr expression to build
+    ```python
+        block(
+            define(
+                &#34;MyType&#34;, [&#34;x&#34;, &#34;y&#34;],
+                block(set_index(this, const(&#34;x&#34;), var(&#34;x&#34;)),
+                      set_index(this, const(&#34;y&#34;), var(&#34;y&#34;)))),
+            assign(&#34;inst&#34;, new(var(&#34;MyType&#34;), const(1), const(2))))
+    ```
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        args = (each.run(self) for each in args_)
+        with ty_.run(self).use(self) as ty, use_many(args, self) as args:
+            inst = astc.Dict(keys=[astc.Constant(&#39;.t&#39;)], values=[ty])
+            with self.push(inst, can_elim=True).use(self) as inst:
+                args.append(inst)
+                self.add_stmt(astc.Expr(astc.Call(func=ty, args=args)))
+                return self.push(inst, can_elim=True)
+
+    return run
+
+
+def var(n: str):
+    @Term
+    def run(self: CFG):
+        return self.push(name_of_id(prefixed(n), RHS), can_elim=True)
+
+    return run
+
+
+def _this(self: CFG):
+    &#34;&#34;&#34;indicating the instance itself, like `self` in Python or `this` in C/CPP
+    &#34;&#34;&#34;
+    return self.push(name_of_id(&#34;this&#34;, RHS), can_elim=True)
+
+
+this = _this
+&#34;&#34;&#34;indicating the instance itself, like `self` in Python or `this` in C/CPP&#34;&#34;&#34;
+
+
+def extern(n: str):
+    &#34;&#34;&#34;
+    Use this to disable mangling to get Python&#39;s builtin objects.
+    e.g, `extern(&#34;print&#34;)` is Python&#39;s `print`.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        return self.push(name_of_id(n, RHS), can_elim=True)
+
+    return run
+
+
+def mktuple(*values_: Term):
+    &#34;&#34;&#34;Make a tuple&#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        values = (each.run(self) for each in values_)
+        with use_many(values, self) as values:
+            ast_tuple = astc.Tuple(elts=values, ctx=RHS)
+            return self.push(ast_tuple, can_elim=True)
+
+    return run
+
+
+def set_index(base_: Term, item_: Term, value_: Term):
+    &#34;&#34;&#34;Basically, `base_[item_] = value_`, and the return value is `None`&#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        base, item, value = base_.run(self), item_.run(self), value_.run(self)
+        with base.use(self) as base, item.use(self) as item, value.use(
+                self) as value:
+            lhs = astc.Subscript(value=base,
+                                 slice=astc.Index(value=item),
+                                 ctx=LHS)
+            self.add_stmt(astc.Assign(targets=[lhs], value=value))
+            return self.push(NONE, can_elim=True)
+
+    return run
+
+
+def block(*suite: Term):
+    &#34;&#34;&#34;A block of s-expressions.
+
+    If `suite` is empty, return value is `None`.
+
+    Otherwise, the last expression in the block will be returned.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        if not suite:
+            return self.push(NONE, can_elim=True)
+        *init, end = (each.run(self) for each in suite)
+        with end.use(self) as end:
+            return self.push(end, can_elim=True)
+
+    return run
+
+
+def for_range(n_: str, low_: Term, high_: Term, body: Term):
+    &#34;&#34;&#34;
+    Basically it&#39;s
+    ```python
+    for n_ in range(low_, high_):
+        body
+    ```
+
+    The return value is `None`.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        n = prefixed(n_)
+        sub = self.sub_cfg()
+        low = low_.run(self)
+        high = high_.run(self)
+        with low.use(self) as low, high.use(self) as high:
+            body.run(sub)
+            ast_for = astc.For(target=name_of_id(n, LHS),
+                               iter=astc.Call(name_of_id(&#39;range&#39;, RHS),
+                                              args=[low, high]),
+                               body=sub.build())
+            self.add_stmt(ast_for)
+            return self.push(NONE, can_elim=True)
+
+    return run
+
+
+def for_in(n_: str, obj_: Term, body_: Term):
+    &#34;&#34;&#34;
+   Basically it&#39;s
+   ```python
+   for n_ in obj_:
+       body_
+   ```
+
+   The return value is `None`.
+   &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        n = prefixed(n_)
+        with obj_.run(self).use(self) as obj:
+            sub = self.sub_cfg()
+            body_.run(sub)
+            ast_for = astc.For(target=name_of_id(n, LHS),
+                               iter=obj,
+                               body=sub.build())
+            self.add_stmt(ast_for)
+            return self.push(NONE, can_elim=True)
+
+    return run
+
+
+def ite(cond_: Term, te: Term, fe: Term):
+    &#34;&#34;&#34;
+    Basically it&#39;s
+    ```python
+    if cond_:
+        te
+    else:
+        fe
+    ```
+
+    Take care that the return value is `None`.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        with cond_.run(self).use(self) as cond:
+            sub1 = self.sub_cfg()
+            sub2 = self.sub_cfg()
+
+            te.run(sub1)
+            fe.run(sub2)
+
+            ast_if = astc.If(test=cond, body=sub1.build(), orelse=sub2.build())
+            self.add_stmt(ast_if)
+            return self.push(NONE, can_elim=True)
+
+    return run
+
+
+def ret(value_: Term = None):
+    @Term
+    def run(self: CFG):
+        if value_ is None:
+            self.add_stmt(astc.Return())
+        else:
+            with value_.run(self).use(self) as value:
+                ast_ret = astc.Return(value)
+                self.add_stmt(ast_ret)
+        return self.push(NONE, can_elim=True)
+
+    return run
+
+
+def loc(line: int, column: int, term: Term):
+    &#34;&#34;&#34;Set location to s-expressions.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        self.loc = (line, column)
+        return term.run(self)
+
+    return run</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="py_sexpr.terms.assign"><code class="name flex">
+<span>def <span class="ident">assign</span></span>(<span>n, value_)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assign(n: str, value_: Term):
+    @Term
+    def run(self: CFG):
+        value = value_.run(self)
+        with value.use(self) as value:
+            self.add_stmt(astc.Assign([name_of_id(n, LHS)], value))
+            return self.push(NONE, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.block"><code class="name flex">
+<span>def <span class="ident">block</span></span>(<span>*suite)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A block of s-expressions.</p>
+<p>If <code>suite</code> is empty, return value is <code>None</code>.</p>
+<p>Otherwise, the last expression in the block will be returned.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def block(*suite: Term):
+    &#34;&#34;&#34;A block of s-expressions.
+
+    If `suite` is empty, return value is `None`.
+
+    Otherwise, the last expression in the block will be returned.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        if not suite:
+            return self.push(NONE, can_elim=True)
+        *init, end = (each.run(self) for each in suite)
+        with end.use(self) as end:
+            return self.push(end, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>f_, *args_)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(f_: Term, *args_: Term):
+    @Term
+    def run(self: CFG):
+        f = f_.run(self)
+        args = (arg.run(self) for arg in args_)
+        with f.use(self) as f, use_many(args, self) as args:
+            ast_call = astc.Call(func=f, args=list(args))
+            return self.push(ast_call, can_elim=False)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.const"><code class="name flex">
+<span>def <span class="ident">const</span></span>(<span>constant)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>a constant can be
+- a tuple made of constants
+- a float/int/str/complex/bool
+- None</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def const(constant):
+    &#34;&#34;&#34;
+    a constant can be
+    - a tuple made of constants
+    - a float/int/str/complex/bool
+    - None
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        return self.push(astc.Constant(constant), can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.define"><code class="name flex">
+<span>def <span class="ident">define</span></span>(<span>func_name_, args_, body_)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def define(func_name_: Optional[str], args_: List[str], body_: Term):
+    @Term
+    def run(self: CFG):
+        func_name = func_name_
+        args = args_
+        body = body_
+
+        if func_name is None:
+            func_name = self.alloc()
+        else:
+            func_name = prefixed(func_name)
+
+        sub = self.sub_cfg()
+
+        body = body.run(sub)
+        # return TOP by default?
+        # if so:
+        if sub.ret_tos:
+            with body.use(sub) as body:
+                sub.add_stmt(astc.Return(body))
+
+        args = [astc.arg(arg=prefixed(n)) for n in args]
+        args.append(astc.arg(arg=&#39;this&#39;))
+        args = astc.arguments(args=args, defaults=[NONE])
+
+        body = sub.build()
+        self.add_stmt(astc.FunctionDef(name=func_name, args=args, body=body))
+
+        return self.push(name_of_id(func_name, RHS), can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.extern"><code class="name flex">
+<span>def <span class="ident">extern</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Use this to disable mangling to get Python's builtin objects.
+e.g, <code>extern("print")</code> is Python's <code>print</code>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def extern(n: str):
+    &#34;&#34;&#34;
+    Use this to disable mangling to get Python&#39;s builtin objects.
+    e.g, `extern(&#34;print&#34;)` is Python&#39;s `print`.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        return self.push(name_of_id(n, RHS), can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.for_in"><code class="name flex">
+<span>def <span class="ident">for_in</span></span>(<span>n_, obj_, body_)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Basically it's</p>
+<pre><code class="python">for n_ in obj_:
+    body_
+</code></pre>
+<p>The return value is <code>None</code>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def for_in(n_: str, obj_: Term, body_: Term):
+    &#34;&#34;&#34;
+   Basically it&#39;s
+   ```python
+   for n_ in obj_:
+       body_
+   ```
+
+   The return value is `None`.
+   &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        n = prefixed(n_)
+        with obj_.run(self).use(self) as obj:
+            sub = self.sub_cfg()
+            body_.run(sub)
+            ast_for = astc.For(target=name_of_id(n, LHS),
+                               iter=obj,
+                               body=sub.build())
+            self.add_stmt(ast_for)
+            return self.push(NONE, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.for_range"><code class="name flex">
+<span>def <span class="ident">for_range</span></span>(<span>n_, low_, high_, body)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Basically it's</p>
+<pre><code class="python">for n_ in range(low_, high_):
+    body
+</code></pre>
+<p>The return value is <code>None</code>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def for_range(n_: str, low_: Term, high_: Term, body: Term):
+    &#34;&#34;&#34;
+    Basically it&#39;s
+    ```python
+    for n_ in range(low_, high_):
+        body
+    ```
+
+    The return value is `None`.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        n = prefixed(n_)
+        sub = self.sub_cfg()
+        low = low_.run(self)
+        high = high_.run(self)
+        with low.use(self) as low, high.use(self) as high:
+            body.run(sub)
+            ast_for = astc.For(target=name_of_id(n, LHS),
+                               iter=astc.Call(name_of_id(&#39;range&#39;, RHS),
+                                              args=[low, high]),
+                               body=sub.build())
+            self.add_stmt(ast_for)
+            return self.push(NONE, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.isa"><code class="name flex">
+<span>def <span class="ident">isa</span></span>(<span>value_, ty_)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Check if the left is instance of the right.</p>
+<p>Note that it doesn't use Python's isinstance protocol,
+even nor Python's object protocol.</p>
+<p>In fact, <code>isa(t1, t2)</code> means <code>t1['.t'] is t2</code>.</p>
+<p>We use only <code>dict</code>s to represent objects,
+and <code>dict['.t']</code> is the type.</p>
+<p>Inheritance feature is omitted, due to the lack of use cases.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isa(value_: Term, ty_: Term):
+    &#34;&#34;&#34;Check if the left is instance of the right.
+
+    Note that it doesn&#39;t use Python&#39;s isinstance protocol,
+    even nor Python&#39;s object protocol.
+
+    In fact, `isa(t1, t2)` means `t1[&#39;.t&#39;] is t2`.
+
+    We use only `dict`s to represent objects,
+    and `dict[&#39;.t&#39;]` is the type.
+
+    Inheritance feature is omitted, due to the lack of use cases.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        with value_.run(self).use(self) as value, ty_.run(self).use(
+                self) as ty:
+            lookup = astc.Attribute(value=value, attr=&#39;get&#39;, ctx=RHS)
+            cmp = same_as(astc.Call(func=lookup, args=[astc.Constant(&#39;.t&#39;)]),
+                          ty)
+
+            return self.push(cmp, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.ite"><code class="name flex">
+<span>def <span class="ident">ite</span></span>(<span>cond_, te, fe)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Basically it's</p>
+<pre><code class="python">if cond_:
+    te
+else:
+    fe
+</code></pre>
+<p>Take care that the return value is <code>None</code>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ite(cond_: Term, te: Term, fe: Term):
+    &#34;&#34;&#34;
+    Basically it&#39;s
+    ```python
+    if cond_:
+        te
+    else:
+        fe
+    ```
+
+    Take care that the return value is `None`.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        with cond_.run(self).use(self) as cond:
+            sub1 = self.sub_cfg()
+            sub2 = self.sub_cfg()
+
+            te.run(sub1)
+            fe.run(sub2)
+
+            ast_if = astc.If(test=cond, body=sub1.build(), orelse=sub2.build())
+            self.add_stmt(ast_if)
+            return self.push(NONE, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.loc"><code class="name flex">
+<span>def <span class="ident">loc</span></span>(<span>line, column, term)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Set location to s-expressions.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loc(line: int, column: int, term: Term):
+    &#34;&#34;&#34;Set location to s-expressions.
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        self.loc = (line, column)
+        return term.run(self)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.mkdict"><code class="name flex">
+<span>def <span class="ident">mkdict</span></span>(<span>kv_pairs)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mkdict(kv_pairs: List[Tuple[str, Term]]):
+    @Term
+    def run(self: CFG):
+
+        if not kv_pairs:
+            keys, values = (), ()
+        else:
+            keys, values = zip(*kv_pairs)
+            values = (v.run(self) for v in values)
+        with use_many(values, self) as values:
+            ast_dict = astc.Dict(keys=[astc.Constant(k) for k in keys],
+                                 values=values)
+            return self.push(ast_dict, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.mktuple"><code class="name flex">
+<span>def <span class="ident">mktuple</span></span>(<span>*values_)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Make a tuple</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mktuple(*values_: Term):
+    &#34;&#34;&#34;Make a tuple&#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        values = (each.run(self) for each in values_)
+        with use_many(values, self) as values:
+            ast_tuple = astc.Tuple(elts=values, ctx=RHS)
+            return self.push(ast_tuple, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.new"><code class="name flex">
+<span>def <span class="ident">new</span></span>(<span>ty_, *args_)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>It's made for supporting javascript style new.</p>
+<p>e.g., for following JS code</p>
+<pre><code class="javascript">    function MyType(x, y) {
+        this.x = x
+        this.y = y
+    }
+    inst = new MyType(1, 2)
+</code></pre>
+<p>you can use this PySExpr expression to build</p>
+<pre><code class="python">    block(
+        define(
+            &quot;MyType&quot;, [&quot;x&quot;, &quot;y&quot;],
+            block(set_index(this, const(&quot;x&quot;), var(&quot;x&quot;)),
+                  set_index(this, const(&quot;y&quot;), var(&quot;y&quot;)))),
+        assign(&quot;inst&quot;, new(var(&quot;MyType&quot;), const(1), const(2))))
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new(ty_: Term, *args_: Term):
+    &#34;&#34;&#34;
+    It&#39;s made for supporting javascript style new.
+
+    e.g., for following JS code
+    ```javascript
+        function MyType(x, y) {
+            this.x = x
+            this.y = y
+        }
+        inst = new MyType(1, 2)
+    ```
+    you can use this PySExpr expression to build
+    ```python
+        block(
+            define(
+                &#34;MyType&#34;, [&#34;x&#34;, &#34;y&#34;],
+                block(set_index(this, const(&#34;x&#34;), var(&#34;x&#34;)),
+                      set_index(this, const(&#34;y&#34;), var(&#34;y&#34;)))),
+            assign(&#34;inst&#34;, new(var(&#34;MyType&#34;), const(1), const(2))))
+    ```
+    &#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        args = (each.run(self) for each in args_)
+        with ty_.run(self).use(self) as ty, use_many(args, self) as args:
+            inst = astc.Dict(keys=[astc.Constant(&#39;.t&#39;)], values=[ty])
+            with self.push(inst, can_elim=True).use(self) as inst:
+                args.append(inst)
+                self.add_stmt(astc.Expr(astc.Call(func=ty, args=args)))
+                return self.push(inst, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.ret"><code class="name flex">
+<span>def <span class="ident">ret</span></span>(<span>value_=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ret(value_: Term = None):
+    @Term
+    def run(self: CFG):
+        if value_ is None:
+            self.add_stmt(astc.Return())
+        else:
+            with value_.run(self).use(self) as value:
+                ast_ret = astc.Return(value)
+                self.add_stmt(ast_ret)
+        return self.push(NONE, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.set_index"><code class="name flex">
+<span>def <span class="ident">set_index</span></span>(<span>base_, item_, value_)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Basically, <code>base_[item_] = value_</code>, and the return value is <code>None</code></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_index(base_: Term, item_: Term, value_: Term):
+    &#34;&#34;&#34;Basically, `base_[item_] = value_`, and the return value is `None`&#34;&#34;&#34;
+    @Term
+    def run(self: CFG):
+        base, item, value = base_.run(self), item_.run(self), value_.run(self)
+        with base.use(self) as base, item.use(self) as item, value.use(
+                self) as value:
+            lhs = astc.Subscript(value=base,
+                                 slice=astc.Index(value=item),
+                                 ctx=LHS)
+            self.add_stmt(astc.Assign(targets=[lhs], value=value))
+            return self.push(NONE, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.this"><code class="name flex">
+<span>def <span class="ident">this</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>indicating the instance itself, like <code>self</code> in Python or <a title="py_sexpr.terms.this" href="#py_sexpr.terms.this"><code>_this()</code></a> in C/CPP</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _this(self: CFG):
+    &#34;&#34;&#34;indicating the instance itself, like `self` in Python or `this` in C/CPP
+    &#34;&#34;&#34;
+    return self.push(name_of_id(&#34;this&#34;, RHS), can_elim=True)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.throw"><code class="name flex">
+<span>def <span class="ident">throw</span></span>(<span>value_)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def throw(value_: Term):
+    @Term
+    def run(self: CFG):
+        with value_.run(self).use(self) as value:
+            self.add_stmt(astc.Raise(exc=value))
+            return self.push(NONE, can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.var"><code class="name flex">
+<span>def <span class="ident">var</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def var(n: str):
+    @Term
+    def run(self: CFG):
+        return self.push(name_of_id(prefixed(n), RHS), can_elim=True)
+
+    return run</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="py_sexpr" href="index.html">py_sexpr</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="py_sexpr.terms.assign" href="#py_sexpr.terms.assign">assign</a></code></li>
+<li><code><a title="py_sexpr.terms.block" href="#py_sexpr.terms.block">block</a></code></li>
+<li><code><a title="py_sexpr.terms.call" href="#py_sexpr.terms.call">call</a></code></li>
+<li><code><a title="py_sexpr.terms.const" href="#py_sexpr.terms.const">const</a></code></li>
+<li><code><a title="py_sexpr.terms.define" href="#py_sexpr.terms.define">define</a></code></li>
+<li><code><a title="py_sexpr.terms.extern" href="#py_sexpr.terms.extern">extern</a></code></li>
+<li><code><a title="py_sexpr.terms.for_in" href="#py_sexpr.terms.for_in">for_in</a></code></li>
+<li><code><a title="py_sexpr.terms.for_range" href="#py_sexpr.terms.for_range">for_range</a></code></li>
+<li><code><a title="py_sexpr.terms.isa" href="#py_sexpr.terms.isa">isa</a></code></li>
+<li><code><a title="py_sexpr.terms.ite" href="#py_sexpr.terms.ite">ite</a></code></li>
+<li><code><a title="py_sexpr.terms.loc" href="#py_sexpr.terms.loc">loc</a></code></li>
+<li><code><a title="py_sexpr.terms.mkdict" href="#py_sexpr.terms.mkdict">mkdict</a></code></li>
+<li><code><a title="py_sexpr.terms.mktuple" href="#py_sexpr.terms.mktuple">mktuple</a></code></li>
+<li><code><a title="py_sexpr.terms.new" href="#py_sexpr.terms.new">new</a></code></li>
+<li><code><a title="py_sexpr.terms.ret" href="#py_sexpr.terms.ret">ret</a></code></li>
+<li><code><a title="py_sexpr.terms.set_index" href="#py_sexpr.terms.set_index">set_index</a></code></li>
+<li><code><a title="py_sexpr.terms.this" href="#py_sexpr.terms.this">this</a></code></li>
+<li><code><a title="py_sexpr.terms.throw" href="#py_sexpr.terms.throw">throw</a></code></li>
+<li><code><a title="py_sexpr.terms.var" href="#py_sexpr.terms.var">var</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
