@@ -19,6 +19,12 @@ All constructors of PySExpr are documented [here](https://htmlpreview.github.io/
 pip install pysexpr
 ```
 
+## What `PySExpr` is & is not?
+
+PySExpr is a framework for better(cross-version, efficient, expressiveness) metaprogramming in Python.
+
+PySExpr is not a programming language, but a code generation back end good to be targeted.
+
 ## Preview
 
 ```python
