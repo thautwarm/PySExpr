@@ -4,10 +4,10 @@ from pathlib import Path
 with Path('README.md').open() as readme:
     readme = readme.read()
 
-version = 0.1
+version = 0.2
 
 setup(
-    name='pysexpr',
+    name='py-sexpr',
     version=version if isinstance(version, str) else str(version),
     keywords="",
     description="",
@@ -20,7 +20,7 @@ setup(
     author_email='twshere@outlook.com',
     packages=find_packages(),
     entry_points={"console_scripts": []},
-    install_requires=['sortedcontainers'],
+    install_requires=['attrs', 'bytecode>=0.10.0'],
     platforms="any",
     classifiers=[
         "Programming Language :: Python :: 3.5",
@@ -32,4 +32,3 @@ setup(
     ],
     zip_safe=False,
 )
-
