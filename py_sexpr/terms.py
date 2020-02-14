@@ -38,7 +38,21 @@ __all__ = [
 ]
 THIS_NAME = ".this"
 
-SExpr = Union[Tuple['SExpr', ...], int, float, complex, None, str, bool]
+if __debug__:
+    """
+    workaround pdoc
+    """
+
+    class TT(type):
+        def __repr__(self):
+            return 'SExpr'
+
+    TT.__module__ = 'typing'
+    SExpr = TT("SExpr", (), {})
+    SExpr.__module__ = 'typing'
+else:
+    SExpr = Union[Tuple['SExpr', ...], int, float, complex, None, str, bool]
+    SExpr = SExpr
 
 
 def call(f: SExpr, *args: SExpr) -> SExpr:
