@@ -51,7 +51,7 @@ class Sym:
     # if shared to other function objects
     name = None  # type: str
     ty = None  # type: SymType
-    scope: Optional['ScopeSolver']
+    scope = None # type: Optional['ScopeSolver']
 
     def __init__(self, name: str, ty: SymType, scope=None):
         self.name = name
