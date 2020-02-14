@@ -2,15 +2,21 @@
 
 **If you don't care about the implementation details, you only need to check this module.**
 
+------------------
+
 `SExpr` is the type of our terms, and Python leaf types are also belong to `SExpr`, such as
 `int`, `float`, `bool`, `complex`, `None`, `str`.
 
 To construct non-leaf `SExpr`s, you shall use SExpr constructors provided in this module.
 
 For instance, to construct
+
 - a variable, use `var("<varname>")`,
-- a function call, use `call(f, arg1, arg2, ...)`, where `f`, `arg1`, ...,  are all `SExpr`.
-- ...
+
+- a function call, use `call(f, arg1, arg2, ...)`, where `f`, `arg1`, ...,  are `SExpr`s,
+
+- etc..
+
 """
 from py_sexpr.stack_vm.instructions import BinOp, UOp
 from bytecode.instr import Compare
@@ -84,8 +90,11 @@ def const(constant: SExpr) -> SExpr:
     otherwise `const(a)` is equal to `a`.
 
     A constant can be
+
     - a tuple made of constants
+
     - a float/int/str/complex/bool/None
+
     - None
     """
     return 'const', constant
