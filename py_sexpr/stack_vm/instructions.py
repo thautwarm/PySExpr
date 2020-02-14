@@ -149,6 +149,11 @@ def MAKE_FUNCTION(flag):
     return Instr(instr_names.MAKE_FUNCTION, flag)
 
 
+def MAKE_CLOSURE(argc):
+    assert isinstance(argc, int)
+    return Instr(instr_names.MAKE_CLOSURE, argc)
+
+
 def PRINT_EXPR():
     return Instr(instr_names.PRINT_EXPR)
 

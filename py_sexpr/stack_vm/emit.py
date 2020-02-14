@@ -507,7 +507,8 @@ class Builder:
             ]
 
             if frees:  # handle closure conversions
-                mk_fn_flag |= I.MK_FN_HAS_CLOSURE
+                if not PY35:
+                    mk_fn_flag |= I.MK_FN_HAS_CLOSURE
 
                 for n in frees:
                     if n in analysed.syms_bound:
@@ -524,7 +525,8 @@ class Builder:
             ins.extend([
                 I.LOAD_CONST(py_code),
                 I.LOAD_CONST(name),
-                I.MAKE_FUNCTION(mk_fn_flag)
+                I.MAKE_CLOSURE(mk_fn_flag)
+                if PY35 and frees else I.MAKE_FUNCTION(mk_fn_flag),
             ])
 
             # if not anonymous function,
