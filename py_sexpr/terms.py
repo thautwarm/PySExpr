@@ -10,6 +10,12 @@ from typing import List, Optional, Tuple
 
 THIS_NAME = ".this"
 
+Compare
+"""enumeration of comparison operations"""
+
+BinOp
+"""enumeration of binary operations"""
+
 
 def call(f, *args):
     return ('call', f, *args)
