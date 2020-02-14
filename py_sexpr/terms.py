@@ -2,12 +2,40 @@
 
 **If you don't care about the implementation details, you only need to check this module.**
 """
-
-import ast_compat as astc
 from py_sexpr.stack_vm.instructions import BinOp, UOp
 from bytecode.instr import Compare
-from typing import List, Optional, Tuple
-
+from typing import List, Optional
+assert UOp
+__all__ = [
+    'Compare',
+    'BinOp',
+    'call',
+    'assign',
+    'define',
+    'const',
+    'record',
+    'lens',
+    'throw',
+    'this',
+    'isa',
+    'cmp',
+    'binop',
+    'document',
+    'metadata',
+    'new',
+    'var',
+    'mktuple',
+    'set_item',
+    'set_attr',
+    'get_item',
+    'get_attr',
+    'block',
+    'for_range',
+    'for_in',
+    'ite',
+    'loop',
+    'ret',
+]
 THIS_NAME = ".this"
 
 Compare
