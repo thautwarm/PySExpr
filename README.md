@@ -12,6 +12,12 @@ See [documentation](http://htmlpreview.github.io/?https://github.com/thautwarm/P
 
 All constructors of PySExpr are documented [here](https://htmlpreview.github.io/?https://raw.githubusercontent.com/thautwarm/PySExpr/gh-pages/docs/py_sexpr/terms.html).
 
+## Installation
+
+```shell
+pip install pysexpr
+```
+
 ## Preview
 
 ```python

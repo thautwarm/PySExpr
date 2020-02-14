@@ -7,7 +7,7 @@ with Path('README.md').open() as readme:
 version = 0.2
 
 setup(
-    name='py-sexpr',
+    name='pysexpr',
     version=version if isinstance(version, str) else str(version),
     keywords="",
     description="",
