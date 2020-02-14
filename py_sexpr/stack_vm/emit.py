@@ -7,6 +7,7 @@ from py_sexpr.stack_vm import instructions as I
 from py_sexpr.stack_vm.blockaddr import NamedLabel
 from sys import version_info
 PY38 = version_info >= (3, 8)
+PY35 = version_info < (3, 6)
 _app = lambda arg: lambda f: f(arg)
 
 THIS_TEMP_REG = 'reg.@this@'
@@ -265,11 +266,17 @@ class Builder:
 
     def record(self, *kwargs):
         set_lineno = _set_lineno(self.st.line)
+        n = len(kwargs)
         if not kwargs:
             self << set_lineno(lambda: [I.BUILD_MAP(0)])
+        elif PY35:
+            eval = self.eval
+            for key, val in kwargs:
+                eval(key)
+                eval(val)
+            self << set_lineno(lambda: [I.BUILD_MAP(n)])
         else:
             keys, vals = zip(*kwargs)
-            n = len(keys)
             self.eval_all(vals)
             self.const(keys)
             self << set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])
