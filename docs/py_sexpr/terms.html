@@ -22,6 +22,23 @@
 <section id="section-intro">
 <p>This module provides interfaces to build S-expression.</p>
 <p><strong>If you don't care about the implementation details, you only need to check this module.</strong></p>
+<hr>
+<p><code>SExpr</code> is the type of our terms, and Python leaf types are also belong to <code>SExpr</code>, such as
+<code>int</code>, <code>float</code>, <code>bool</code>, <code>complex</code>, <code>None</code>, <code>str</code>.</p>
+<p>To construct non-leaf <code>SExpr</code>s, you shall use SExpr constructors provided in this module.</p>
+<p>For instance, to construct</p>
+<ul>
+<li>
+<p>a variable, use <code>var("&lt;varname&gt;")</code>,</p>
+</li>
+<li>
+<p>a function call, use <code>call(f, arg1, arg2, ...)</code>, where <code>f</code>, <code>arg1</code>, &hellip;,
+are <code>SExpr</code>s,</p>
+</li>
+<li>
+<p>etc..</p>
+</li>
+</ul>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -29,6 +46,22 @@
 <pre><code class="python">&#34;&#34;&#34;This module provides interfaces to build S-expression.
 
 **If you don&#39;t care about the implementation details, you only need to check this module.**
+
+------------------
+
+`SExpr` is the type of our terms, and Python leaf types are also belong to `SExpr`, such as
+`int`, `float`, `bool`, `complex`, `None`, `str`.
+
+To construct non-leaf `SExpr`s, you shall use SExpr constructors provided in this module.
+
+For instance, to construct
+
+- a variable, use `var(&#34;&lt;varname&gt;&#34;)`,
+
+- a function call, use `call(f, arg1, arg2, ...)`, where `f`, `arg1`, ...,  are `SExpr`s,
+
+- etc..
+
 &#34;&#34;&#34;
 from py_sexpr.stack_vm.instructions import BinOp, UOp
 from bytecode.instr import Compare
@@ -102,8 +135,11 @@ def const(constant: SExpr) -&gt; SExpr:
     otherwise `const(a)` is equal to `a`.
 
     A constant can be
+
     - a tuple made of constants
+
     - a float/int/str/complex/bool/None
+
     - None
     &#34;&#34;&#34;
     return &#39;const&#39;, constant
@@ -366,10 +402,18 @@ this = var(THIS_NAME)  # type: SExpr</code></pre>
 <dd>
 <section class="desc"><p>This is necessary only if you needs tuple constants,
 otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
-<p>A constant can be
-- a tuple made of constants
-- a float/int/str/complex/bool/None
-- None</p></section>
+<p>A constant can be</p>
+<ul>
+<li>
+<p>a tuple made of constants</p>
+</li>
+<li>
+<p>a float/int/str/complex/bool/None</p>
+</li>
+<li>
+<p>None</p>
+</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -380,8 +424,11 @@ otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
     otherwise `const(a)` is equal to `a`.
 
     A constant can be
+
     - a tuple made of constants
+
     - a float/int/str/complex/bool/None
+
     - None
     &#34;&#34;&#34;
     return &#39;const&#39;, constant</code></pre>
