@@ -1,6 +1,6 @@
 from py_sexpr.stack_vm import instr_names
 from py_sexpr.stack_vm.blockaddr import NamedLabel
-from enum import Enum, auto as _auto
+from enum import Enum
 from bytecode import Instr
 from bytecode.instr import FreeVar, CellVar
 from typing import Union, Type
@@ -168,6 +168,12 @@ def PUSH_BLOCK(l: NamedLabel):
 
 def POP_BLOCK():
     return Instr(instr_names.POP_BLOCK)
+
+
+def _auto(*, _cnt=[0]):
+    r = _cnt[0]
+    _cnt[0] += 1
+    return r
 
 
 class UOp(Enum):

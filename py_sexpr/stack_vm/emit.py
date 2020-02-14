@@ -1,7 +1,7 @@
 import attr
 import bytecode as BC
 from typing import List, Dict, Callable, Optional, Set, Union
-from enum import Enum, auto as enum
+from enum import Enum
 from functools import lru_cache
 from py_sexpr.stack_vm import instructions as I
 from py_sexpr.stack_vm.blockaddr import NamedLabel
@@ -37,9 +37,9 @@ def _new_structural_label(s):
 
 
 class SymType(Enum):
-    cell = enum()
-    glob = enum()
-    bound = enum()
+    cell = 'cell'
+    glob = 'global'
+    bound = 'bound'
 
 
 @lru_cache()
@@ -51,7 +51,7 @@ class Sym:
     # if shared to other function objects
     name = None  # type: str
     ty = None  # type: SymType
-    scope = None # type: Optional['ScopeSolver']
+    scope = None  # type: Optional['ScopeSolver']
 
     def __init__(self, name: str, ty: SymType, scope=None):
         self.name = name
