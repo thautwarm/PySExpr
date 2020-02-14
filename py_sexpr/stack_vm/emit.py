@@ -1,12 +1,13 @@
 import attr
 import bytecode as BC
 from typing import List, Dict, Callable, Optional, Set, Union
-from enum import Enum, auto as enum
+from enum import Enum
 from functools import lru_cache
 from py_sexpr.stack_vm import instructions as I
 from py_sexpr.stack_vm.blockaddr import NamedLabel
 from sys import version_info
 PY38 = version_info >= (3, 8)
+PY35 = version_info < (3, 6)
 _app = lambda arg: lambda f: f(arg)
 
 THIS_TEMP_REG = 'reg.@this@'
@@ -37,9 +38,9 @@ def _new_structural_label(s):
 
 
 class SymType(Enum):
-    cell = enum()
-    glob = enum()
-    bound = enum()
+    cell = 'cell'
+    glob = 'global'
+    bound = 'bound'
 
 
 @lru_cache()
@@ -51,7 +52,7 @@ class Sym:
     # if shared to other function objects
     name = None  # type: str
     ty = None  # type: SymType
-    scope: Optional['ScopeSolver']
+    scope = None  # type: Optional['ScopeSolver']
 
     def __init__(self, name: str, ty: SymType, scope=None):
         self.name = name
@@ -265,11 +266,17 @@ class Builder:
 
     def record(self, *kwargs):
         set_lineno = _set_lineno(self.st.line)
+        n = len(kwargs)
         if not kwargs:
             self << set_lineno(lambda: [I.BUILD_MAP(0)])
+        elif PY35:
+            eval = self.eval
+            for key, val in kwargs:
+                eval(key)
+                eval(val)
+            self << set_lineno(lambda: [I.BUILD_MAP(n)])
         else:
             keys, vals = zip(*kwargs)
-            n = len(keys)
             self.eval_all(vals)
             self.const(keys)
             self << set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])
@@ -500,7 +507,8 @@ class Builder:
             ]
 
             if frees:  # handle closure conversions
-                mk_fn_flag |= I.MK_FN_HAS_CLOSURE
+                if not PY35:
+                    mk_fn_flag |= I.MK_FN_HAS_CLOSURE
 
                 for n in frees:
                     if n in analysed.syms_bound:
@@ -517,7 +525,8 @@ class Builder:
             ins.extend([
                 I.LOAD_CONST(py_code),
                 I.LOAD_CONST(name),
-                I.MAKE_FUNCTION(mk_fn_flag)
+                I.MAKE_CLOSURE(mk_fn_flag)
+                if PY35 and frees else I.MAKE_FUNCTION(mk_fn_flag),
             ])
 
             # if not anonymous function,

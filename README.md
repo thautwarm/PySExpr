@@ -6,11 +6,24 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-Green.svg?style=flat)](https://github.com/thautwarm/EBNFParser/blob/boating-new/LICENSE)
 
 A general-purpose package for gaining expression-first capability in Python
-world. Current by taking advantage of Python bytecode. 
+world. Current implemented by taking advantage of Python bytecode, and available since Python 3.5, i.e.,
+by using PySExpr as a cross-version compiler, you don't have to worry about the Python version. 
 
 See [documentation](http://htmlpreview.github.io/?https://github.com/thautwarm/PySExpr/blob/gh-pages/docs/py_sexpr/index.html).
 
 All constructors of PySExpr are documented [here](https://htmlpreview.github.io/?https://raw.githubusercontent.com/thautwarm/PySExpr/gh-pages/docs/py_sexpr/terms.html).
+
+## Installation
+
+```shell
+pip install pysexpr
+```
+
+## What `PySExpr` is & is not?
+
+PySExpr is a framework for better(cross-version, efficient, expressiveness) metaprogramming in Python.
+
+PySExpr is not a programming language, but a code generation back end good to be targeted.
 
 ## Preview
 

@@ -4,13 +4,14 @@ from pathlib import Path
 with Path('README.md').open() as readme:
     readme = readme.read()
 
-version = 0.2
+version = "0.2.1"
 
 setup(
-    name='py-sexpr',
+    name='pysexpr',
     version=version if isinstance(version, str) else str(version),
-    keywords="",
-    description="",
+    keywords=
+    "Python, LISP s-expressions, expression-first, compiler, bytecode, metaprogramming",
+    description="Best s-expression builder targeting Python bytecode",
     long_description=readme,
     long_description_content_type="text/markdown",
     license='mit',

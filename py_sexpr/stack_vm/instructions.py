@@ -1,6 +1,6 @@
 from py_sexpr.stack_vm import instr_names
 from py_sexpr.stack_vm.blockaddr import NamedLabel
-from enum import Enum, auto as _auto
+from enum import Enum
 from bytecode import Instr
 from bytecode.instr import FreeVar, CellVar
 from typing import Union, Type
@@ -149,6 +149,11 @@ def MAKE_FUNCTION(flag):
     return Instr(instr_names.MAKE_FUNCTION, flag)
 
 
+def MAKE_CLOSURE(argc):
+    assert isinstance(argc, int)
+    return Instr(instr_names.MAKE_CLOSURE, argc)
+
+
 def PRINT_EXPR():
     return Instr(instr_names.PRINT_EXPR)
 
@@ -168,6 +173,12 @@ def PUSH_BLOCK(l: NamedLabel):
 
 def POP_BLOCK():
     return Instr(instr_names.POP_BLOCK)
+
+
+def _auto(*, _cnt=[0]):
+    r = _cnt[0]
+    _cnt[0] += 1
+    return r
 
 
 class UOp(Enum):
