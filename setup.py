@@ -20,7 +20,7 @@ setup(
     author_email='twshere@outlook.com',
     packages=find_packages(),
     entry_points={"console_scripts": []},
-    install_requires=['sortedcontainers', 'ast-compat'],
+    install_requires=['attrs', 'bytecode'],
     platforms="any",
     classifiers=[
         "Programming Language :: Python :: 3.5",
@@ -32,4 +32,3 @@ setup(
     ],
     zip_safe=False,
 )
-

@@ -4,14 +4,6 @@ import sys
 from py_sexpr.terms import *
 
 
-def Unparser(x):
-    if sys.version_info >= (3, 8):
-        return
-    print(astor.to_source(x))
-
-
-print()
-print('PROG1'.center(30, '='))
 main = define(
     "main", [],
     block(
