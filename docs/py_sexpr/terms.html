@@ -30,26 +30,64 @@
 
 **If you don&#39;t care about the implementation details, you only need to check this module.**
 &#34;&#34;&#34;
-
-import ast_compat as astc
 from py_sexpr.stack_vm.instructions import BinOp, UOp
 from bytecode.instr import Compare
-from typing import List, Optional, Tuple
-
+from typing import List, Optional, Union, Tuple
+assert UOp
+__all__ = [
+    &#39;Compare&#39;,
+    &#39;BinOp&#39;,
+    &#39;call&#39;,
+    &#39;assign&#39;,
+    &#39;define&#39;,
+    &#39;const&#39;,
+    &#39;record&#39;,
+    &#39;lens&#39;,
+    &#39;throw&#39;,
+    &#39;this&#39;,
+    &#39;isa&#39;,
+    &#39;cmp&#39;,
+    &#39;binop&#39;,
+    &#39;document&#39;,
+    &#39;metadata&#39;,
+    &#39;new&#39;,
+    &#39;var&#39;,
+    &#39;mktuple&#39;,
+    &#39;set_item&#39;,
+    &#39;set_attr&#39;,
+    &#39;get_item&#39;,
+    &#39;get_attr&#39;,
+    &#39;block&#39;,
+    &#39;for_range&#39;,
+    &#39;for_in&#39;,
+    &#39;ite&#39;,
+    &#39;loop&#39;,
+    &#39;ret&#39;,
+]
 THIS_NAME = &#34;.this&#34;
 
-Compare
-&#34;&#34;&#34;enumeration of comparison operations&#34;&#34;&#34;
+if __debug__:
+    &#34;&#34;&#34;
+    workaround pdoc
+    &#34;&#34;&#34;
 
-BinOp
-&#34;&#34;&#34;enumeration of binary operations&#34;&#34;&#34;
+    class TT(type):
+        def __repr__(self):
+            return &#39;SExpr&#39;
+
+    TT.__module__ = &#39;typing&#39;
+    SExpr = TT(&#34;SExpr&#34;, (), {})
+    SExpr.__module__ = &#39;typing&#39;
+else:
+    SExpr = Union[Tuple[&#39;SExpr&#39;, ...], int, float, complex, None, str, bool]
+    SExpr = SExpr
 
 
-def call(f, *args):
+def call(f: SExpr, *args: SExpr) -&gt; SExpr:
     return (&#39;call&#39;, f, *args)
 
 
-def assign(n: str, value):
+def assign(n: str, value: SExpr) -&gt; SExpr:
     return &#39;assign&#39;, n, value
 
 
@@ -58,29 +96,32 @@ def define(func_name: Optional[str], args: List[str], body):
     return &#34;func&#34;, args, body, func_name, [const(None)]
 
 
-def const(constant):
+def const(constant: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
-    a constant can be
+    This is necessary only if you needs tuple constants,
+    otherwise `const(a)` is equal to `a`.
+
+    A constant can be
     - a tuple made of constants
-    - a float/int/str/complex/bool
+    - a float/int/str/complex/bool/None
     - None
     &#34;&#34;&#34;
     return &#39;const&#39;, constant
 
 
-def record(*args, **kv_pairs):
+def record(*args: SExpr, **kv_pairs: SExpr) -&gt; SExpr:
     return (&#39;record&#39;, *args, *kv_pairs.items())
 
 
-def lens(l, r):
+def lens(l: SExpr, r: SExpr) -&gt; SExpr:
     return &#39;lens&#39;, l, r
 
 
-def throw(value):
+def throw(value: SExpr) -&gt; SExpr:
     return &#39;throw&#39;, value
 
 
-def isa(value, ty):
+def isa(value: SExpr, ty: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Check if the left is instance of the right.
 
     Note that it doesn&#39;t use Python&#39;s isinstance protocol,
@@ -97,19 +138,19 @@ def isa(value, ty):
     return &#39;cmp&#39;, lhs, Compare.IS, ty
 
 
-def cmp(l, op: Compare, r):
+def cmp(l: SExpr, op: Compare, r: SExpr) -&gt; SExpr:
     return &#39;cmp&#39;, l, op, r
 
 
-def binop(l, op: BinOp, r):
+def binop(l: SExpr, op: BinOp, r: SExpr) -&gt; SExpr:
     return &#39;bin&#39;, l, op, r
 
 
-def document(doc: str, term):
+def document(doc: str, term: SExpr) -&gt; SExpr:
     return &#39;doc&#39;, doc, term
 
 
-def new(ty, *args):
+def new(ty: SExpr, *args: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     It&#39;s made for supporting javascript style new.
 
@@ -134,36 +175,36 @@ def new(ty, *args):
     return (&#39;new&#39;, ty, *args)
 
 
-def var(n: str):
+def var(n: str) -&gt; SExpr:
     return &#34;var&#34;, n
 
 
-def mktuple(*values):
+def mktuple(*values: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Make a tuple&#34;&#34;&#34;
     return (&#39;tuple&#39;, *values)
 
 
-def set_item(base, item, val):
+def set_item(base: SExpr, item: SExpr, val: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Basically, `base[item] = value`, and the return value is `None`&#34;&#34;&#34;
     return &#34;set_item&#34;, base, item, val
 
 
-def get_item(base, item):
+def get_item(base: SExpr, item: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;`base[item]`&#34;&#34;&#34;
     return &#34;get_item&#34;, base, item
 
 
-def set_attr(base, attr: str, val):
+def set_attr(base: SExpr, attr: str, val: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Basically, `base[item] = value`, and the return value is `None`&#34;&#34;&#34;
     return &#34;set_attr&#34;, base, attr, val
 
 
-def get_attr(base, attr: str):
+def get_attr(base: SExpr, attr: str) -&gt; SExpr:
     &#34;&#34;&#34;`base[attr]`&#34;&#34;&#34;
     return &#34;get_attr&#34;, base, attr
 
 
-def block(*suite):
+def block(*suite: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;A block of s-expressions.
 
     If `suite` is empty, return value is `None`.
@@ -173,7 +214,7 @@ def block(*suite):
     return (&#39;block&#39;, *suite)
 
 
-def for_range(n: str, low, high, body):
+def for_range(n: str, low: SExpr, high: SExpr, body: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     Basically it&#39;s
     ```python
@@ -186,7 +227,7 @@ def for_range(n: str, low, high, body):
     return for_in(n, call(var(&#34;range&#34;), low, high), body)
 
 
-def for_in(n: str, obj, body):
+def for_in(n: str, obj: SExpr, body: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
    Basically it&#39;s
    ```python
@@ -199,7 +240,7 @@ def for_in(n: str, obj, body):
     return &#39;for_in&#39;, n, obj, body
 
 
-def ite(cond, te, fe):
+def ite(cond: SExpr, te: SExpr, fe: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     Basically it&#39;s
     ```python
@@ -211,7 +252,7 @@ def ite(cond, te, fe):
     return &#39;ite&#39;, cond, te, fe
 
 
-def loop(cond, body):
+def loop(cond: SExpr, body: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     Basically it&#39;s
     ```python
@@ -226,17 +267,17 @@ def loop(cond, body):
     return &#39;loop&#39;, cond, body
 
 
-def ret(value=None):
+def ret(value: SExpr = None) -&gt; SExpr:
     return &#39;ret&#39;, value
 
 
-def metadata(line: int, column: int, filename: str, term):
+def metadata(line: int, column: int, filename: str, term: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Set metadata to s-expressions.
     &#34;&#34;&#34;
     return &#39;line&#39;, line, (&#39;filename&#39;, filename, term)
 
 
-this = var(THIS_NAME)</code></pre>
+this = var(THIS_NAME)  # type: SExpr</code></pre>
 </details>
 </section>
 <section>
@@ -247,7 +288,7 @@ this = var(THIS_NAME)</code></pre>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="py_sexpr.terms.assign"><code class="name flex">
-<span>def <span class="ident">assign</span></span>(<span>n, value)</span>
+<span>def <span class="ident">assign</span></span>(<span>n: str, value: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -255,12 +296,12 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def assign(n: str, value):
+<pre><code class="python">def assign(n: str, value: SExpr) -&gt; SExpr:
     return &#39;assign&#39;, n, value</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.binop"><code class="name flex">
-<span>def <span class="ident">binop</span></span>(<span>l, op, r)</span>
+<span>def <span class="ident">binop</span></span>(<span>l: SExpr, op: <a title="py_sexpr.stack_vm.instructions.BinOp" href="stack_vm/instructions.html#py_sexpr.stack_vm.instructions.BinOp">BinOp</a>, r: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -268,12 +309,12 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def binop(l, op: BinOp, r):
+<pre><code class="python">def binop(l: SExpr, op: BinOp, r: SExpr) -&gt; SExpr:
     return &#39;bin&#39;, l, op, r</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.block"><code class="name flex">
-<span>def <span class="ident">block</span></span>(<span>*suite)</span>
+<span>def <span class="ident">block</span></span>(<span>*suite: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>A block of s-expressions.</p>
@@ -283,7 +324,7 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def block(*suite):
+<pre><code class="python">def block(*suite: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;A block of s-expressions.
 
     If `suite` is empty, return value is `None`.
@@ -294,7 +335,7 @@ this = var(THIS_NAME)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.call"><code class="name flex">
-<span>def <span class="ident">call</span></span>(<span>f, *args)</span>
+<span>def <span class="ident">call</span></span>(<span>f: SExpr, *args: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -302,12 +343,12 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def call(f, *args):
+<pre><code class="python">def call(f: SExpr, *args: SExpr) -&gt; SExpr:
     return (&#39;call&#39;, f, *args)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.cmp"><code class="name flex">
-<span>def <span class="ident">cmp</span></span>(<span>l, op, r)</span>
+<span>def <span class="ident">cmp</span></span>(<span>l: SExpr, op: bytecode.instr.Compare, r: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -315,34 +356,39 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cmp(l, op: Compare, r):
+<pre><code class="python">def cmp(l: SExpr, op: Compare, r: SExpr) -&gt; SExpr:
     return &#39;cmp&#39;, l, op, r</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.const"><code class="name flex">
-<span>def <span class="ident">const</span></span>(<span>constant)</span>
+<span>def <span class="ident">const</span></span>(<span>constant: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
-<section class="desc"><p>a constant can be
+<section class="desc"><p>This is necessary only if you needs tuple constants,
+otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
+<p>A constant can be
 - a tuple made of constants
-- a float/int/str/complex/bool
+- a float/int/str/complex/bool/None
 - None</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def const(constant):
+<pre><code class="python">def const(constant: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
-    a constant can be
+    This is necessary only if you needs tuple constants,
+    otherwise `const(a)` is equal to `a`.
+
+    A constant can be
     - a tuple made of constants
-    - a float/int/str/complex/bool
+    - a float/int/str/complex/bool/None
     - None
     &#34;&#34;&#34;
     return &#39;const&#39;, constant</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.define"><code class="name flex">
-<span>def <span class="ident">define</span></span>(<span>func_name, args, body)</span>
+<span>def <span class="ident">define</span></span>(<span>func_name: Union[str, NoneType], args: List[str], body)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -356,7 +402,7 @@ this = var(THIS_NAME)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.document"><code class="name flex">
-<span>def <span class="ident">document</span></span>(<span>doc, term)</span>
+<span>def <span class="ident">document</span></span>(<span>doc: str, term: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -364,12 +410,12 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def document(doc: str, term):
+<pre><code class="python">def document(doc: str, term: SExpr) -&gt; SExpr:
     return &#39;doc&#39;, doc, term</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.for_in"><code class="name flex">
-<span>def <span class="ident">for_in</span></span>(<span>n, obj, body)</span>
+<span>def <span class="ident">for_in</span></span>(<span>n: str, obj: SExpr, body: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Basically it's</p>
@@ -381,7 +427,7 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def for_in(n: str, obj, body):
+<pre><code class="python">def for_in(n: str, obj: SExpr, body: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
    Basically it&#39;s
    ```python
@@ -395,7 +441,7 @@ this = var(THIS_NAME)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.for_range"><code class="name flex">
-<span>def <span class="ident">for_range</span></span>(<span>n, low, high, body)</span>
+<span>def <span class="ident">for_range</span></span>(<span>n: str, low: SExpr, high: SExpr, body: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Basically it's</p>
@@ -407,7 +453,7 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def for_range(n: str, low, high, body):
+<pre><code class="python">def for_range(n: str, low: SExpr, high: SExpr, body: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     Basically it&#39;s
     ```python
@@ -421,7 +467,7 @@ this = var(THIS_NAME)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.get_attr"><code class="name flex">
-<span>def <span class="ident">get_attr</span></span>(<span>base, attr)</span>
+<span>def <span class="ident">get_attr</span></span>(<span>base: SExpr, attr: str) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p><code>base[attr]</code></p></section>
@@ -429,13 +475,13 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_attr(base, attr: str):
+<pre><code class="python">def get_attr(base: SExpr, attr: str) -&gt; SExpr:
     &#34;&#34;&#34;`base[attr]`&#34;&#34;&#34;
     return &#34;get_attr&#34;, base, attr</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.get_item"><code class="name flex">
-<span>def <span class="ident">get_item</span></span>(<span>base, item)</span>
+<span>def <span class="ident">get_item</span></span>(<span>base: SExpr, item: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p><code>base[item]</code></p></section>
@@ -443,13 +489,13 @@ this = var(THIS_NAME)</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_item(base, item):
+<pre><code class="python">def get_item(base: SExpr, item: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;`base[item]`&#34;&#34;&#34;
     return &#34;get_item&#34;, base, item</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.isa"><code class="name flex">
-<span>def <span class="ident">isa</span></span>(<span>value, ty)</span>
+<span>def <span class="ident">isa</span></span>(<span>value: SExpr, ty: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Check if the left is instance of the right.</p>
@@ -463,7 +509,7 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def isa(value, ty):
+<pre><code class="python">def isa(value: SExpr, ty: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Check if the left is instance of the right.
 
     Note that it doesn&#39;t use Python&#39;s isinstance protocol,
@@ -481,7 +527,7 @@ and <code>dict['.t']</code> is the type.</p>
 </details>
 </dd>
 <dt id="py_sexpr.terms.ite"><code class="name flex">
-<span>def <span class="ident">ite</span></span>(<span>cond, te, fe)</span>
+<span>def <span class="ident">ite</span></span>(<span>cond: SExpr, te: SExpr, fe: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Basically it's</p>
@@ -492,7 +538,7 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def ite(cond, te, fe):
+<pre><code class="python">def ite(cond: SExpr, te: SExpr, fe: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     Basically it&#39;s
     ```python
@@ -505,7 +551,7 @@ and <code>dict['.t']</code> is the type.</p>
 </details>
 </dd>
 <dt id="py_sexpr.terms.lens"><code class="name flex">
-<span>def <span class="ident">lens</span></span>(<span>l, r)</span>
+<span>def <span class="ident">lens</span></span>(<span>l: SExpr, r: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -513,12 +559,12 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def lens(l, r):
+<pre><code class="python">def lens(l: SExpr, r: SExpr) -&gt; SExpr:
     return &#39;lens&#39;, l, r</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.loop"><code class="name flex">
-<span>def <span class="ident">loop</span></span>(<span>cond, body)</span>
+<span>def <span class="ident">loop</span></span>(<span>cond: SExpr, body: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Basically it's</p>
@@ -531,7 +577,7 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loop(cond, body):
+<pre><code class="python">def loop(cond: SExpr, body: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     Basically it&#39;s
     ```python
@@ -547,7 +593,7 @@ and <code>dict['.t']</code> is the type.</p>
 </details>
 </dd>
 <dt id="py_sexpr.terms.metadata"><code class="name flex">
-<span>def <span class="ident">metadata</span></span>(<span>line, column, filename, term)</span>
+<span>def <span class="ident">metadata</span></span>(<span>line: int, column: int, filename: str, term: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Set metadata to s-expressions.</p></section>
@@ -555,14 +601,14 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def metadata(line: int, column: int, filename: str, term):
+<pre><code class="python">def metadata(line: int, column: int, filename: str, term: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Set metadata to s-expressions.
     &#34;&#34;&#34;
     return &#39;line&#39;, line, (&#39;filename&#39;, filename, term)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.mktuple"><code class="name flex">
-<span>def <span class="ident">mktuple</span></span>(<span>*values)</span>
+<span>def <span class="ident">mktuple</span></span>(<span>*values: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Make a tuple</p></section>
@@ -570,13 +616,13 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def mktuple(*values):
+<pre><code class="python">def mktuple(*values: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Make a tuple&#34;&#34;&#34;
     return (&#39;tuple&#39;, *values)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.new"><code class="name flex">
-<span>def <span class="ident">new</span></span>(<span>ty, *args)</span>
+<span>def <span class="ident">new</span></span>(<span>ty: SExpr, *args: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>It's made for supporting javascript style new.</p>
@@ -599,7 +645,7 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def new(ty, *args):
+<pre><code class="python">def new(ty: SExpr, *args: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;
     It&#39;s made for supporting javascript style new.
 
@@ -625,7 +671,7 @@ and <code>dict['.t']</code> is the type.</p>
 </details>
 </dd>
 <dt id="py_sexpr.terms.record"><code class="name flex">
-<span>def <span class="ident">record</span></span>(<span>*args, **kv_pairs)</span>
+<span>def <span class="ident">record</span></span>(<span>*args: SExpr, **kv_pairs: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -633,12 +679,12 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def record(*args, **kv_pairs):
+<pre><code class="python">def record(*args: SExpr, **kv_pairs: SExpr) -&gt; SExpr:
     return (&#39;record&#39;, *args, *kv_pairs.items())</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.ret"><code class="name flex">
-<span>def <span class="ident">ret</span></span>(<span>value=None)</span>
+<span>def <span class="ident">ret</span></span>(<span>value: SExpr = None) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -646,12 +692,12 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def ret(value=None):
+<pre><code class="python">def ret(value: SExpr = None) -&gt; SExpr:
     return &#39;ret&#39;, value</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.set_attr"><code class="name flex">
-<span>def <span class="ident">set_attr</span></span>(<span>base, attr, val)</span>
+<span>def <span class="ident">set_attr</span></span>(<span>base: SExpr, attr: str, val: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Basically, <code>base[item] = value</code>, and the return value is <code>None</code></p></section>
@@ -659,13 +705,13 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_attr(base, attr: str, val):
+<pre><code class="python">def set_attr(base: SExpr, attr: str, val: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Basically, `base[item] = value`, and the return value is `None`&#34;&#34;&#34;
     return &#34;set_attr&#34;, base, attr, val</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.set_item"><code class="name flex">
-<span>def <span class="ident">set_item</span></span>(<span>base, item, val)</span>
+<span>def <span class="ident">set_item</span></span>(<span>base: SExpr, item: SExpr, val: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Basically, <code>base[item] = value</code>, and the return value is <code>None</code></p></section>
@@ -673,13 +719,13 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_item(base, item, val):
+<pre><code class="python">def set_item(base: SExpr, item: SExpr, val: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Basically, `base[item] = value`, and the return value is `None`&#34;&#34;&#34;
     return &#34;set_item&#34;, base, item, val</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.throw"><code class="name flex">
-<span>def <span class="ident">throw</span></span>(<span>value)</span>
+<span>def <span class="ident">throw</span></span>(<span>value: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -687,12 +733,12 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def throw(value):
+<pre><code class="python">def throw(value: SExpr) -&gt; SExpr:
     return &#39;throw&#39;, value</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.var"><code class="name flex">
-<span>def <span class="ident">var</span></span>(<span>n)</span>
+<span>def <span class="ident">var</span></span>(<span>n: str) -> SExpr</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -700,13 +746,183 @@ and <code>dict['.t']</code> is the type.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def var(n: str):
+<pre><code class="python">def var(n: str) -&gt; SExpr:
     return &#34;var&#34;, n</code></pre>
 </details>
 </dd>
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="py_sexpr.terms.BinOp"><code class="flex name class">
+<span>class <span class="ident">BinOp</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BinOp(Enum):
+    POWER = _auto()
+    MULTIPLY = _auto()
+    MATRIX_MULTIPLY = _auto()
+    FLOOR_DIVIDE = _auto()
+    TRUE_DIVIDE = _auto()
+    MODULO = _auto()
+    ADD = _auto()
+    SUBTRACT = _auto()
+    SUBSCR = _auto()
+    LSHIFT = _auto()
+    RSHIFT = _auto()
+    AND = _auto()
+    XOR = _auto()
+    OR = _auto()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.terms.BinOp.ADD"><code class="name">var <span class="ident">ADD</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.AND"><code class="name">var <span class="ident">AND</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.FLOOR_DIVIDE"><code class="name">var <span class="ident">FLOOR_DIVIDE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.LSHIFT"><code class="name">var <span class="ident">LSHIFT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.MATRIX_MULTIPLY"><code class="name">var <span class="ident">MATRIX_MULTIPLY</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.MODULO"><code class="name">var <span class="ident">MODULO</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.MULTIPLY"><code class="name">var <span class="ident">MULTIPLY</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.OR"><code class="name">var <span class="ident">OR</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.POWER"><code class="name">var <span class="ident">POWER</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.RSHIFT"><code class="name">var <span class="ident">RSHIFT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.SUBSCR"><code class="name">var <span class="ident">SUBSCR</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.SUBTRACT"><code class="name">var <span class="ident">SUBTRACT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.TRUE_DIVIDE"><code class="name">var <span class="ident">TRUE_DIVIDE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.BinOp.XOR"><code class="name">var <span class="ident">XOR</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="py_sexpr.terms.Compare"><code class="flex name class">
+<span>class <span class="ident">Compare</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Compare(enum.IntEnum):
+    LT = 0
+    LE = 1
+    EQ = 2
+    NE = 3
+    GT = 4
+    GE = 5
+    IN = 6
+    NOT_IN = 7
+    IS = 8
+    IS_NOT = 9
+    EXC_MATCH = 10</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.terms.Compare.EQ"><code class="name">var <span class="ident">EQ</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.EXC_MATCH"><code class="name">var <span class="ident">EXC_MATCH</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.GE"><code class="name">var <span class="ident">GE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.GT"><code class="name">var <span class="ident">GT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.IN"><code class="name">var <span class="ident">IN</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.IS"><code class="name">var <span class="ident">IS</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.IS_NOT"><code class="name">var <span class="ident">IS_NOT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.LE"><code class="name">var <span class="ident">LE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.LT"><code class="name">var <span class="ident">LT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.NE"><code class="name">var <span class="ident">NE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.Compare.NOT_IN"><code class="name">var <span class="ident">NOT_IN</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -747,6 +963,45 @@ and <code>dict['.t']</code> is the type.</p>
 <li><code><a title="py_sexpr.terms.set_item" href="#py_sexpr.terms.set_item">set_item</a></code></li>
 <li><code><a title="py_sexpr.terms.throw" href="#py_sexpr.terms.throw">throw</a></code></li>
 <li><code><a title="py_sexpr.terms.var" href="#py_sexpr.terms.var">var</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="py_sexpr.terms.BinOp" href="#py_sexpr.terms.BinOp">BinOp</a></code></h4>
+<ul class="two-column">
+<li><code><a title="py_sexpr.terms.BinOp.ADD" href="#py_sexpr.terms.BinOp.ADD">ADD</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.AND" href="#py_sexpr.terms.BinOp.AND">AND</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.FLOOR_DIVIDE" href="#py_sexpr.terms.BinOp.FLOOR_DIVIDE">FLOOR_DIVIDE</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.LSHIFT" href="#py_sexpr.terms.BinOp.LSHIFT">LSHIFT</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.MATRIX_MULTIPLY" href="#py_sexpr.terms.BinOp.MATRIX_MULTIPLY">MATRIX_MULTIPLY</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.MODULO" href="#py_sexpr.terms.BinOp.MODULO">MODULO</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.MULTIPLY" href="#py_sexpr.terms.BinOp.MULTIPLY">MULTIPLY</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.OR" href="#py_sexpr.terms.BinOp.OR">OR</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.POWER" href="#py_sexpr.terms.BinOp.POWER">POWER</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.RSHIFT" href="#py_sexpr.terms.BinOp.RSHIFT">RSHIFT</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.SUBSCR" href="#py_sexpr.terms.BinOp.SUBSCR">SUBSCR</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.SUBTRACT" href="#py_sexpr.terms.BinOp.SUBTRACT">SUBTRACT</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.TRUE_DIVIDE" href="#py_sexpr.terms.BinOp.TRUE_DIVIDE">TRUE_DIVIDE</a></code></li>
+<li><code><a title="py_sexpr.terms.BinOp.XOR" href="#py_sexpr.terms.BinOp.XOR">XOR</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.terms.Compare" href="#py_sexpr.terms.Compare">Compare</a></code></h4>
+<ul class="two-column">
+<li><code><a title="py_sexpr.terms.Compare.EQ" href="#py_sexpr.terms.Compare.EQ">EQ</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.EXC_MATCH" href="#py_sexpr.terms.Compare.EXC_MATCH">EXC_MATCH</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.GE" href="#py_sexpr.terms.Compare.GE">GE</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.GT" href="#py_sexpr.terms.Compare.GT">GT</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.IN" href="#py_sexpr.terms.Compare.IN">IN</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.IS" href="#py_sexpr.terms.Compare.IS">IS</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.IS_NOT" href="#py_sexpr.terms.Compare.IS_NOT">IS_NOT</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.LE" href="#py_sexpr.terms.Compare.LE">LE</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.LT" href="#py_sexpr.terms.Compare.LT">LT</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.NE" href="#py_sexpr.terms.Compare.NE">NE</a></code></li>
+<li><code><a title="py_sexpr.terms.Compare.NOT_IN" href="#py_sexpr.terms.Compare.NOT_IN">NOT_IN</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -307,7 +307,7 @@ class BinOp(Enum):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.instructions.CALL_FUNCTION"><code class="name flex">
-<span>def <span class="ident">CALL_FUNCTION</span></span>(<span>n)</span>
+<span>def <span class="ident">CALL_FUNCTION</span></span>(<span>n: int)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -359,7 +359,7 @@ class BinOp(Enum):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.instructions.FOR_ITER"><code class="name flex">
-<span>def <span class="ident">FOR_ITER</span></span>(<span>l)</span>
+<span>def <span class="ident">FOR_ITER</span></span>(<span>l: <a title="py_sexpr.stack_vm.blockaddr.NamedLabel" href="blockaddr.html#py_sexpr.stack_vm.blockaddr.NamedLabel">NamedLabel</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -437,7 +437,7 @@ class BinOp(Enum):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.instructions.LOAD_CLOSURE"><code class="name flex">
-<span>def <span class="ident">LOAD_CLOSURE</span></span>(<span>n, cls)</span>
+<span>def <span class="ident">LOAD_CLOSURE</span></span>(<span>n, cls: Union[Type[bytecode.instr.FreeVar], Type[bytecode.instr.CellVar]])</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -464,7 +464,7 @@ class BinOp(Enum):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.instructions.LOAD_DEREF"><code class="name flex">
-<span>def <span class="ident">LOAD_DEREF</span></span>(<span>n, cls)</span>
+<span>def <span class="ident">LOAD_DEREF</span></span>(<span>n, cls: Union[Type[bytecode.instr.FreeVar], Type[bytecode.instr.CellVar]])</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -583,7 +583,7 @@ class BinOp(Enum):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.instructions.PUSH_BLOCK"><code class="name flex">
-<span>def <span class="ident">PUSH_BLOCK</span></span>(<span>l)</span>
+<span>def <span class="ident">PUSH_BLOCK</span></span>(<span>l: <a title="py_sexpr.stack_vm.blockaddr.NamedLabel" href="blockaddr.html#py_sexpr.stack_vm.blockaddr.NamedLabel">NamedLabel</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -661,7 +661,7 @@ class BinOp(Enum):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.instructions.STORE_DEREF"><code class="name flex">
-<span>def <span class="ident">STORE_DEREF</span></span>(<span>n, cls)</span>
+<span>def <span class="ident">STORE_DEREF</span></span>(<span>n, cls: Union[Type[bytecode.instr.FreeVar], Type[bytecode.instr.CellVar]])</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -727,7 +727,7 @@ class BinOp(Enum):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.instructions.UNPACK_SEQUENCE"><code class="name flex">
-<span>def <span class="ident">UNPACK_SEQUENCE</span></span>(<span>n)</span>
+<span>def <span class="ident">UNPACK_SEQUENCE</span></span>(<span>n: int)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>

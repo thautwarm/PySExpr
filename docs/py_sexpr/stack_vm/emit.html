@@ -621,7 +621,7 @@ def module_code(sexpr,
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="py_sexpr.stack_vm.emit.glob_sym"><code class="name flex">
-<span>def <span class="ident">glob_sym</span></span>(<span>n)</span>
+<span>def <span class="ident">glob_sym</span></span>(<span>n: str)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -635,7 +635,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.make_code_obj"><code class="name flex">
-<span>def <span class="ident">make_code_obj</span></span>(<span>name, filename, lineno, doc, args, frees, cells, instructions)</span>
+<span>def <span class="ident">make_code_obj</span></span>(<span>name: str, filename: str, lineno: int, doc: str, args: List[str], frees: List[str], cells: List[str], instructions: List[bytecode.instr.Instr])</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Create code object from given metadata and instructions</p></section>
@@ -670,7 +670,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.module_code"><code class="name flex">
-<span>def <span class="ident">module_code</span></span>(<span>sexpr, name=&#x27;&lt;unknown&gt;&#x27;, filename=&#x27;&lt;unknown&gt;&#x27;, lineno=1, doc='')</span>
+<span>def <span class="ident">module_code</span></span>(<span>sexpr, name: str = &#x27;&lt;unknown&gt;&#x27;, filename: str = &#x27;&lt;unknown&gt;&#x27;, lineno: int = 1, doc: str = '')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Create a module's code object from given metadata and s-expression.</p></section>
@@ -1126,7 +1126,7 @@ def glob_sym(n: str):
 <h3>Methods</h3>
 <dl>
 <dt id="py_sexpr.stack_vm.emit.Builder.assign"><code class="name flex">
-<span>def <span class="ident">assign</span></span>(<span>self, n, v)</span>
+<span>def <span class="ident">assign</span></span>(<span>self, n: str, v)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1141,7 +1141,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.bin"><code class="name flex">
-<span>def <span class="ident">bin</span></span>(<span>self, l, op, r)</span>
+<span>def <span class="ident">bin</span></span>(<span>self, l, op: <a title="py_sexpr.stack_vm.instructions.BinOp" href="instructions.html#py_sexpr.stack_vm.instructions.BinOp">BinOp</a>, r)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1237,7 +1237,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.cmp"><code class="name flex">
-<span>def <span class="ident">cmp</span></span>(<span>self, l, op, r)</span>
+<span>def <span class="ident">cmp</span></span>(<span>self, l, op: bytecode.instr.Compare, r)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1270,7 +1270,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.doc"><code class="name flex">
-<span>def <span class="ident">doc</span></span>(<span>self, doc, it)</span>
+<span>def <span class="ident">doc</span></span>(<span>self, doc: str, it)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1316,7 +1316,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.filename"><code class="name flex">
-<span>def <span class="ident">filename</span></span>(<span>self, fname, it)</span>
+<span>def <span class="ident">filename</span></span>(<span>self, fname: str, it)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1330,7 +1330,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.for_in"><code class="name flex">
-<span>def <span class="ident">for_in</span></span>(<span>self, n, seq, body)</span>
+<span>def <span class="ident">for_in</span></span>(<span>self, n: str, seq, body)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1355,7 +1355,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.func"><code class="name flex">
-<span>def <span class="ident">func</span></span>(<span>self, args, body, name=None, defaults=())</span>
+<span>def <span class="ident">func</span></span>(<span>self, args: List[str], body, name: str = None, defaults: list = ())</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1457,7 +1457,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.get_attr"><code class="name flex">
-<span>def <span class="ident">get_attr</span></span>(<span>self, val, n)</span>
+<span>def <span class="ident">get_attr</span></span>(<span>self, val, n: str)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1472,7 +1472,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.get_item"><code class="name flex">
-<span>def <span class="ident">get_item</span></span>(<span>self, base, item)</span>
+<span>def <span class="ident">get_item</span></span>(<span>self, base, item: str)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1543,7 +1543,7 @@ def glob_sym(n: str):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.line"><code class="name flex">
-<span>def <span class="ident">line</span></span>(<span>self, line, it)</span>
+<span>def <span class="ident">line</span></span>(<span>self, line: int, it)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1665,7 +1665,7 @@ The value of <code>f</code> is 8</p></section>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.set_attr"><code class="name flex">
-<span>def <span class="ident">set_attr</span></span>(<span>self, base, n, val)</span>
+<span>def <span class="ident">set_attr</span></span>(<span>self, base, n: str, val)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1728,7 +1728,7 @@ The value of <code>f</code> is 8</p></section>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.var"><code class="name flex">
-<span>def <span class="ident">var</span></span>(<span>self, n)</span>
+<span>def <span class="ident">var</span></span>(<span>self, n: str)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1874,7 +1874,7 @@ def outermost(cls):
 <h3>Methods</h3>
 <dl>
 <dt id="py_sexpr.stack_vm.emit.ScopeSolver.enter"><code class="name flex">
-<span>def <span class="ident">enter</span></span>(<span>self, n)</span>
+<span>def <span class="ident">enter</span></span>(<span>self, n: str)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1887,7 +1887,7 @@ def outermost(cls):
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.ScopeSolver.require"><code class="name flex">
-<span>def <span class="ident">require</span></span>(<span>self, n)</span>
+<span>def <span class="ident">require</span></span>(<span>self, n: str)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -1995,7 +1995,7 @@ def outermost(cls):
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Sym"><code class="flex name class">
 <span>class <span class="ident">Sym</span></span>
-<span>(</span><span>name, ty, scope=None)</span>
+<span>(</span><span>name: str, ty: <a title="py_sexpr.stack_vm.emit.SymType" href="#py_sexpr.stack_vm.emit.SymType">SymType</a>, scope=None)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
