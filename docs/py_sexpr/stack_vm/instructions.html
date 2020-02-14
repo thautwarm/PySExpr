@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>py_sexpr.stack_vm.instructions API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>py_sexpr.stack_vm.instructions</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from py_sexpr.stack_vm import instr_names
+from py_sexpr.stack_vm.blockaddr import NamedLabel
+from enum import Enum, auto as _auto
+from bytecode import Instr
+from bytecode.instr import FreeVar, CellVar
+from typing import Union, Type
+
+MK_FN_HAS_DEFAULTS = 0x01
+MK_FN_HAS_CLOSURE = 0x08
+
+
+def LOAD_CONST(val):
+    return Instr(instr_names.LOAD_CONST, val)
+
+
+def LOAD_FAST(n):
+    return Instr(instr_names.LOAD_FAST, n)
+
+
+def LOAD_GLOBAL(n):
+    return Instr(instr_names.LOAD_GLOBAL, n)
+
+
+def STORE_GLOBAL(n):
+    return Instr(instr_names.STORE_GLOBAL, n)
+
+
+def COMPARE_OP(n):
+    return Instr(instr_names.COMPARE_OP, n)
+
+
+def RAISE_VARARGS(i):
+    return Instr(instr_names.RAISE_VARARGS, i)
+
+
+def LOAD_DEREF(n, cls: Union[Type[FreeVar], Type[CellVar]]):
+    # will resolve free/cell var later
+    return Instr(instr_names.LOAD_DEREF, cls(n))
+
+
+def STORE_FAST(n):
+    return Instr(instr_names.STORE_FAST, n)
+
+
+def STORE_DEREF(n, cls: Union[Type[FreeVar], Type[CellVar]]):
+    # will resolve free/cell var later
+    return Instr(instr_names.STORE_DEREF, cls(n))
+
+
+def LOAD_CLOSURE(n, cls: Union[Type[FreeVar], Type[CellVar]]):
+    # will resolve free/cell var later
+    return Instr(instr_names.LOAD_CLOSURE, cls(n))
+
+
+def POP_TOP():
+    return Instr(instr_names.POP_TOP)
+
+
+def ROT3():
+    return Instr(instr_names.ROT_THREE)
+
+
+def ROT2():
+    return Instr(instr_names.ROT_TWO)
+
+
+def DUP():
+    return Instr(instr_names.DUP_TOP)
+
+
+def DUP2():
+    return Instr(instr_names.DUP_TOP_TWO)
+
+
+def POP_JUMP_IF_TRUE(i):
+    return Instr(instr_names.POP_JUMP_IF_TRUE, i)
+
+
+def POP_JUMP_IF_FALSE(i):
+    return Instr(instr_names.POP_JUMP_IF_FALSE, i)
+
+
+def JUMP_ABSOLUTE(i):
+    return Instr(instr_names.JUMP_ABSOLUTE, i)
+
+
+def BINARY(bin_op):
+    return Instr(&#39;BINARY_&#39; + bin_op.name)
+
+
+def INPLACE_BINARY(bin_op):
+    return Instr(&#39;INPLACE_&#39; + bin_op.name)
+
+
+def UNARY(u_op):
+    return Instr(&#39;UNARY_&#39; + u_op.name)
+
+
+def UNPACK_SEQUENCE(n: int):
+    return Instr(instr_names.UNPACK_SEQUENCE, n)
+
+
+def LOAD_ATTR(n):
+    return Instr(instr_names.LOAD_ATTR, n)
+
+
+def STORE_ATTR(n):
+    return Instr(instr_names.STORE_ATTR, n)
+
+
+def STORE_SUBSCR():
+    return Instr(instr_names.STORE_SUBSCR)
+
+
+def CALL_FUNCTION(n: int):
+    return Instr(instr_names.CALL_FUNCTION, n)
+
+
+def BUILD_LIST(n):
+    return Instr(instr_names.BUILD_LIST, n)
+
+
+def BUILD_TUPLE(n):
+    return Instr(instr_names.BUILD_TUPLE, n)
+
+
+def BUILD_MAP(n):
+    return Instr(instr_names.BUILD_MAP, n)
+
+
+def BUILD_MAP_UNPACK(n):
+    return Instr(instr_names.BUILD_MAP_UNPACK, n)
+
+
+def BUILD_CONST_KET_MAP(n):
+    return Instr(instr_names.BUILD_CONST_KEY_MAP, n)
+
+
+def LIST_APPEND(i):
+    return Instr(instr_names.LIST_APPEND, i)
+
+
+def RETURN_VALUE():
+    return Instr(instr_names.RETURN_VALUE)
+
+
+def MAKE_FUNCTION(flag):
+    assert isinstance(flag, int)
+    return Instr(instr_names.MAKE_FUNCTION, flag)
+
+
+def PRINT_EXPR():
+    return Instr(instr_names.PRINT_EXPR)
+
+
+def GET_ITER():
+    return Instr(instr_names.GET_ITER)
+
+
+def FOR_ITER(l: NamedLabel):
+    return Instr(instr_names.FOR_ITER, l)
+
+
+# for Python 3.8-
+def PUSH_BLOCK(l: NamedLabel):
+    return Instr(instr_names.SETUP_LOOP, l)
+
+
+def POP_BLOCK():
+    return Instr(instr_names.POP_BLOCK)
+
+
+class UOp(Enum):
+    POSITIVE = _auto()
+    NEGATIVE = _auto()
+    NOT = _auto()
+    INVERT = _auto()
+    pass
+
+
+class BinOp(Enum):
+    POWER = _auto()
+    MULTIPLY = _auto()
+    MATRIX_MULTIPLY = _auto()
+    FLOOR_DIVIDE = _auto()
+    TRUE_DIVIDE = _auto()
+    MODULO = _auto()
+    ADD = _auto()
+    SUBTRACT = _auto()
+    SUBSCR = _auto()
+    LSHIFT = _auto()
+    RSHIFT = _auto()
+    AND = _auto()
+    XOR = _auto()
+    OR = _auto()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="py_sexpr.stack_vm.instructions.BINARY"><code class="name flex">
+<span>def <span class="ident">BINARY</span></span>(<span>bin_op)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def BINARY(bin_op):
+    return Instr(&#39;BINARY_&#39; + bin_op.name)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BUILD_CONST_KET_MAP"><code class="name flex">
+<span>def <span class="ident">BUILD_CONST_KET_MAP</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def BUILD_CONST_KET_MAP(n):
+    return Instr(instr_names.BUILD_CONST_KEY_MAP, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BUILD_LIST"><code class="name flex">
+<span>def <span class="ident">BUILD_LIST</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def BUILD_LIST(n):
+    return Instr(instr_names.BUILD_LIST, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BUILD_MAP"><code class="name flex">
+<span>def <span class="ident">BUILD_MAP</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def BUILD_MAP(n):
+    return Instr(instr_names.BUILD_MAP, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BUILD_MAP_UNPACK"><code class="name flex">
+<span>def <span class="ident">BUILD_MAP_UNPACK</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def BUILD_MAP_UNPACK(n):
+    return Instr(instr_names.BUILD_MAP_UNPACK, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BUILD_TUPLE"><code class="name flex">
+<span>def <span class="ident">BUILD_TUPLE</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def BUILD_TUPLE(n):
+    return Instr(instr_names.BUILD_TUPLE, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.CALL_FUNCTION"><code class="name flex">
+<span>def <span class="ident">CALL_FUNCTION</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def CALL_FUNCTION(n: int):
+    return Instr(instr_names.CALL_FUNCTION, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.COMPARE_OP"><code class="name flex">
+<span>def <span class="ident">COMPARE_OP</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def COMPARE_OP(n):
+    return Instr(instr_names.COMPARE_OP, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.DUP"><code class="name flex">
+<span>def <span class="ident">DUP</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def DUP():
+    return Instr(instr_names.DUP_TOP)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.DUP2"><code class="name flex">
+<span>def <span class="ident">DUP2</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def DUP2():
+    return Instr(instr_names.DUP_TOP_TWO)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.FOR_ITER"><code class="name flex">
+<span>def <span class="ident">FOR_ITER</span></span>(<span>l)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def FOR_ITER(l: NamedLabel):
+    return Instr(instr_names.FOR_ITER, l)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.GET_ITER"><code class="name flex">
+<span>def <span class="ident">GET_ITER</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def GET_ITER():
+    return Instr(instr_names.GET_ITER)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.INPLACE_BINARY"><code class="name flex">
+<span>def <span class="ident">INPLACE_BINARY</span></span>(<span>bin_op)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def INPLACE_BINARY(bin_op):
+    return Instr(&#39;INPLACE_&#39; + bin_op.name)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.JUMP_ABSOLUTE"><code class="name flex">
+<span>def <span class="ident">JUMP_ABSOLUTE</span></span>(<span>i)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def JUMP_ABSOLUTE(i):
+    return Instr(instr_names.JUMP_ABSOLUTE, i)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.LIST_APPEND"><code class="name flex">
+<span>def <span class="ident">LIST_APPEND</span></span>(<span>i)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def LIST_APPEND(i):
+    return Instr(instr_names.LIST_APPEND, i)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.LOAD_ATTR"><code class="name flex">
+<span>def <span class="ident">LOAD_ATTR</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def LOAD_ATTR(n):
+    return Instr(instr_names.LOAD_ATTR, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.LOAD_CLOSURE"><code class="name flex">
+<span>def <span class="ident">LOAD_CLOSURE</span></span>(<span>n, cls)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def LOAD_CLOSURE(n, cls: Union[Type[FreeVar], Type[CellVar]]):
+    # will resolve free/cell var later
+    return Instr(instr_names.LOAD_CLOSURE, cls(n))</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.LOAD_CONST"><code class="name flex">
+<span>def <span class="ident">LOAD_CONST</span></span>(<span>val)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def LOAD_CONST(val):
+    return Instr(instr_names.LOAD_CONST, val)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.LOAD_DEREF"><code class="name flex">
+<span>def <span class="ident">LOAD_DEREF</span></span>(<span>n, cls)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def LOAD_DEREF(n, cls: Union[Type[FreeVar], Type[CellVar]]):
+    # will resolve free/cell var later
+    return Instr(instr_names.LOAD_DEREF, cls(n))</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.LOAD_FAST"><code class="name flex">
+<span>def <span class="ident">LOAD_FAST</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def LOAD_FAST(n):
+    return Instr(instr_names.LOAD_FAST, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.LOAD_GLOBAL"><code class="name flex">
+<span>def <span class="ident">LOAD_GLOBAL</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def LOAD_GLOBAL(n):
+    return Instr(instr_names.LOAD_GLOBAL, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.MAKE_FUNCTION"><code class="name flex">
+<span>def <span class="ident">MAKE_FUNCTION</span></span>(<span>flag)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def MAKE_FUNCTION(flag):
+    assert isinstance(flag, int)
+    return Instr(instr_names.MAKE_FUNCTION, flag)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.POP_BLOCK"><code class="name flex">
+<span>def <span class="ident">POP_BLOCK</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def POP_BLOCK():
+    return Instr(instr_names.POP_BLOCK)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.POP_JUMP_IF_FALSE"><code class="name flex">
+<span>def <span class="ident">POP_JUMP_IF_FALSE</span></span>(<span>i)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def POP_JUMP_IF_FALSE(i):
+    return Instr(instr_names.POP_JUMP_IF_FALSE, i)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.POP_JUMP_IF_TRUE"><code class="name flex">
+<span>def <span class="ident">POP_JUMP_IF_TRUE</span></span>(<span>i)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def POP_JUMP_IF_TRUE(i):
+    return Instr(instr_names.POP_JUMP_IF_TRUE, i)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.POP_TOP"><code class="name flex">
+<span>def <span class="ident">POP_TOP</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def POP_TOP():
+    return Instr(instr_names.POP_TOP)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.PRINT_EXPR"><code class="name flex">
+<span>def <span class="ident">PRINT_EXPR</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def PRINT_EXPR():
+    return Instr(instr_names.PRINT_EXPR)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.PUSH_BLOCK"><code class="name flex">
+<span>def <span class="ident">PUSH_BLOCK</span></span>(<span>l)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def PUSH_BLOCK(l: NamedLabel):
+    return Instr(instr_names.SETUP_LOOP, l)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.RAISE_VARARGS"><code class="name flex">
+<span>def <span class="ident">RAISE_VARARGS</span></span>(<span>i)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def RAISE_VARARGS(i):
+    return Instr(instr_names.RAISE_VARARGS, i)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.RETURN_VALUE"><code class="name flex">
+<span>def <span class="ident">RETURN_VALUE</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def RETURN_VALUE():
+    return Instr(instr_names.RETURN_VALUE)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.ROT2"><code class="name flex">
+<span>def <span class="ident">ROT2</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ROT2():
+    return Instr(instr_names.ROT_TWO)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.ROT3"><code class="name flex">
+<span>def <span class="ident">ROT3</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ROT3():
+    return Instr(instr_names.ROT_THREE)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.STORE_ATTR"><code class="name flex">
+<span>def <span class="ident">STORE_ATTR</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def STORE_ATTR(n):
+    return Instr(instr_names.STORE_ATTR, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.STORE_DEREF"><code class="name flex">
+<span>def <span class="ident">STORE_DEREF</span></span>(<span>n, cls)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def STORE_DEREF(n, cls: Union[Type[FreeVar], Type[CellVar]]):
+    # will resolve free/cell var later
+    return Instr(instr_names.STORE_DEREF, cls(n))</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.STORE_FAST"><code class="name flex">
+<span>def <span class="ident">STORE_FAST</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def STORE_FAST(n):
+    return Instr(instr_names.STORE_FAST, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.STORE_GLOBAL"><code class="name flex">
+<span>def <span class="ident">STORE_GLOBAL</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def STORE_GLOBAL(n):
+    return Instr(instr_names.STORE_GLOBAL, n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.STORE_SUBSCR"><code class="name flex">
+<span>def <span class="ident">STORE_SUBSCR</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def STORE_SUBSCR():
+    return Instr(instr_names.STORE_SUBSCR)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.UNARY"><code class="name flex">
+<span>def <span class="ident">UNARY</span></span>(<span>u_op)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def UNARY(u_op):
+    return Instr(&#39;UNARY_&#39; + u_op.name)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.UNPACK_SEQUENCE"><code class="name flex">
+<span>def <span class="ident">UNPACK_SEQUENCE</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def UNPACK_SEQUENCE(n: int):
+    return Instr(instr_names.UNPACK_SEQUENCE, n)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="py_sexpr.stack_vm.instructions.BinOp"><code class="flex name class">
+<span>class <span class="ident">BinOp</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BinOp(Enum):
+    POWER = _auto()
+    MULTIPLY = _auto()
+    MATRIX_MULTIPLY = _auto()
+    FLOOR_DIVIDE = _auto()
+    TRUE_DIVIDE = _auto()
+    MODULO = _auto()
+    ADD = _auto()
+    SUBTRACT = _auto()
+    SUBSCR = _auto()
+    LSHIFT = _auto()
+    RSHIFT = _auto()
+    AND = _auto()
+    XOR = _auto()
+    OR = _auto()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.ADD"><code class="name">var <span class="ident">ADD</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.AND"><code class="name">var <span class="ident">AND</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.FLOOR_DIVIDE"><code class="name">var <span class="ident">FLOOR_DIVIDE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.LSHIFT"><code class="name">var <span class="ident">LSHIFT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.MATRIX_MULTIPLY"><code class="name">var <span class="ident">MATRIX_MULTIPLY</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.MODULO"><code class="name">var <span class="ident">MODULO</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.MULTIPLY"><code class="name">var <span class="ident">MULTIPLY</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.OR"><code class="name">var <span class="ident">OR</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.POWER"><code class="name">var <span class="ident">POWER</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.RSHIFT"><code class="name">var <span class="ident">RSHIFT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.SUBSCR"><code class="name">var <span class="ident">SUBSCR</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.SUBTRACT"><code class="name">var <span class="ident">SUBTRACT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.TRUE_DIVIDE"><code class="name">var <span class="ident">TRUE_DIVIDE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.BinOp.XOR"><code class="name">var <span class="ident">XOR</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.UOp"><code class="flex name class">
+<span>class <span class="ident">UOp</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UOp(Enum):
+    POSITIVE = _auto()
+    NEGATIVE = _auto()
+    NOT = _auto()
+    INVERT = _auto()
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.instructions.UOp.INVERT"><code class="name">var <span class="ident">INVERT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.UOp.NEGATIVE"><code class="name">var <span class="ident">NEGATIVE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.UOp.NOT"><code class="name">var <span class="ident">NOT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.instructions.UOp.POSITIVE"><code class="name">var <span class="ident">POSITIVE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="py_sexpr.stack_vm" href="index.html">py_sexpr.stack_vm</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="py_sexpr.stack_vm.instructions.BINARY" href="#py_sexpr.stack_vm.instructions.BINARY">BINARY</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BUILD_CONST_KET_MAP" href="#py_sexpr.stack_vm.instructions.BUILD_CONST_KET_MAP">BUILD_CONST_KET_MAP</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BUILD_LIST" href="#py_sexpr.stack_vm.instructions.BUILD_LIST">BUILD_LIST</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BUILD_MAP" href="#py_sexpr.stack_vm.instructions.BUILD_MAP">BUILD_MAP</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BUILD_MAP_UNPACK" href="#py_sexpr.stack_vm.instructions.BUILD_MAP_UNPACK">BUILD_MAP_UNPACK</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BUILD_TUPLE" href="#py_sexpr.stack_vm.instructions.BUILD_TUPLE">BUILD_TUPLE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.CALL_FUNCTION" href="#py_sexpr.stack_vm.instructions.CALL_FUNCTION">CALL_FUNCTION</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.COMPARE_OP" href="#py_sexpr.stack_vm.instructions.COMPARE_OP">COMPARE_OP</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.DUP" href="#py_sexpr.stack_vm.instructions.DUP">DUP</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.DUP2" href="#py_sexpr.stack_vm.instructions.DUP2">DUP2</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.FOR_ITER" href="#py_sexpr.stack_vm.instructions.FOR_ITER">FOR_ITER</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.GET_ITER" href="#py_sexpr.stack_vm.instructions.GET_ITER">GET_ITER</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.INPLACE_BINARY" href="#py_sexpr.stack_vm.instructions.INPLACE_BINARY">INPLACE_BINARY</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.JUMP_ABSOLUTE" href="#py_sexpr.stack_vm.instructions.JUMP_ABSOLUTE">JUMP_ABSOLUTE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.LIST_APPEND" href="#py_sexpr.stack_vm.instructions.LIST_APPEND">LIST_APPEND</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.LOAD_ATTR" href="#py_sexpr.stack_vm.instructions.LOAD_ATTR">LOAD_ATTR</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.LOAD_CLOSURE" href="#py_sexpr.stack_vm.instructions.LOAD_CLOSURE">LOAD_CLOSURE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.LOAD_CONST" href="#py_sexpr.stack_vm.instructions.LOAD_CONST">LOAD_CONST</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.LOAD_DEREF" href="#py_sexpr.stack_vm.instructions.LOAD_DEREF">LOAD_DEREF</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.LOAD_FAST" href="#py_sexpr.stack_vm.instructions.LOAD_FAST">LOAD_FAST</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.LOAD_GLOBAL" href="#py_sexpr.stack_vm.instructions.LOAD_GLOBAL">LOAD_GLOBAL</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.MAKE_FUNCTION" href="#py_sexpr.stack_vm.instructions.MAKE_FUNCTION">MAKE_FUNCTION</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.POP_BLOCK" href="#py_sexpr.stack_vm.instructions.POP_BLOCK">POP_BLOCK</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.POP_JUMP_IF_FALSE" href="#py_sexpr.stack_vm.instructions.POP_JUMP_IF_FALSE">POP_JUMP_IF_FALSE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.POP_JUMP_IF_TRUE" href="#py_sexpr.stack_vm.instructions.POP_JUMP_IF_TRUE">POP_JUMP_IF_TRUE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.POP_TOP" href="#py_sexpr.stack_vm.instructions.POP_TOP">POP_TOP</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.PRINT_EXPR" href="#py_sexpr.stack_vm.instructions.PRINT_EXPR">PRINT_EXPR</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.PUSH_BLOCK" href="#py_sexpr.stack_vm.instructions.PUSH_BLOCK">PUSH_BLOCK</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.RAISE_VARARGS" href="#py_sexpr.stack_vm.instructions.RAISE_VARARGS">RAISE_VARARGS</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.RETURN_VALUE" href="#py_sexpr.stack_vm.instructions.RETURN_VALUE">RETURN_VALUE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.ROT2" href="#py_sexpr.stack_vm.instructions.ROT2">ROT2</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.ROT3" href="#py_sexpr.stack_vm.instructions.ROT3">ROT3</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.STORE_ATTR" href="#py_sexpr.stack_vm.instructions.STORE_ATTR">STORE_ATTR</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.STORE_DEREF" href="#py_sexpr.stack_vm.instructions.STORE_DEREF">STORE_DEREF</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.STORE_FAST" href="#py_sexpr.stack_vm.instructions.STORE_FAST">STORE_FAST</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.STORE_GLOBAL" href="#py_sexpr.stack_vm.instructions.STORE_GLOBAL">STORE_GLOBAL</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.STORE_SUBSCR" href="#py_sexpr.stack_vm.instructions.STORE_SUBSCR">STORE_SUBSCR</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.UNARY" href="#py_sexpr.stack_vm.instructions.UNARY">UNARY</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.UNPACK_SEQUENCE" href="#py_sexpr.stack_vm.instructions.UNPACK_SEQUENCE">UNPACK_SEQUENCE</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.instructions.BinOp" href="#py_sexpr.stack_vm.instructions.BinOp">BinOp</a></code></h4>
+<ul class="two-column">
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.ADD" href="#py_sexpr.stack_vm.instructions.BinOp.ADD">ADD</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.AND" href="#py_sexpr.stack_vm.instructions.BinOp.AND">AND</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.FLOOR_DIVIDE" href="#py_sexpr.stack_vm.instructions.BinOp.FLOOR_DIVIDE">FLOOR_DIVIDE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.LSHIFT" href="#py_sexpr.stack_vm.instructions.BinOp.LSHIFT">LSHIFT</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.MATRIX_MULTIPLY" href="#py_sexpr.stack_vm.instructions.BinOp.MATRIX_MULTIPLY">MATRIX_MULTIPLY</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.MODULO" href="#py_sexpr.stack_vm.instructions.BinOp.MODULO">MODULO</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.MULTIPLY" href="#py_sexpr.stack_vm.instructions.BinOp.MULTIPLY">MULTIPLY</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.OR" href="#py_sexpr.stack_vm.instructions.BinOp.OR">OR</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.POWER" href="#py_sexpr.stack_vm.instructions.BinOp.POWER">POWER</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.RSHIFT" href="#py_sexpr.stack_vm.instructions.BinOp.RSHIFT">RSHIFT</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.SUBSCR" href="#py_sexpr.stack_vm.instructions.BinOp.SUBSCR">SUBSCR</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.SUBTRACT" href="#py_sexpr.stack_vm.instructions.BinOp.SUBTRACT">SUBTRACT</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.TRUE_DIVIDE" href="#py_sexpr.stack_vm.instructions.BinOp.TRUE_DIVIDE">TRUE_DIVIDE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.BinOp.XOR" href="#py_sexpr.stack_vm.instructions.BinOp.XOR">XOR</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.instructions.UOp" href="#py_sexpr.stack_vm.instructions.UOp">UOp</a></code></h4>
+<ul class="">
+<li><code><a title="py_sexpr.stack_vm.instructions.UOp.INVERT" href="#py_sexpr.stack_vm.instructions.UOp.INVERT">INVERT</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.UOp.NEGATIVE" href="#py_sexpr.stack_vm.instructions.UOp.NEGATIVE">NEGATIVE</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.UOp.NOT" href="#py_sexpr.stack_vm.instructions.UOp.NOT">NOT</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.instructions.UOp.POSITIVE" href="#py_sexpr.stack_vm.instructions.UOp.POSITIVE">POSITIVE</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -4,9 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.4" />
-<title>py_sexpr.linear_scan API documentation</title>
-<meta name="description" content="Implementation of infinite register based linear scan,
-to optimize the allocations of temporary variables." />
+<title>py_sexpr.stack_vm.instr_names API documentation</title>
+<meta name="description" content="Instruction names" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -18,70 +17,137 @@ to optimize the allocations of temporary variables." />
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>py_sexpr.linear_scan</code></h1>
+<h1 class="title">Module <code>py_sexpr.stack_vm.instr_names</code></h1>
 </header>
 <section id="section-intro">
-<p>Implementation of infinite register based linear scan,
-to optimize the allocations of temporary variables.</p>
+<p>Instruction names</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Implementation of infinite register based linear scan,
-to optimize the allocations of temporary variables.
+<pre><code class="python">&#34;&#34;&#34;
+Instruction names
 &#34;&#34;&#34;
-from sortedcontainers import SortedDict
-from py_sexpr.facility import prefixed, PREFIX_OPT
-from typing import Dict, List, Tuple
-__all__ = [&#39;LiveInterval&#39;, &#39;linear_scan&#39;]
 
-
-class LiveInterval:
-    start = None
-    end = None
-
-
-class RegPool(set):
-    def __init__(self):
-        set.__init__(self)
-        self.cnt = 0
-
-    def get_a_reg(self):
-        if not self:
-            self.cnt += 1
-            n = prefixed(self.cnt, prefix=PREFIX_OPT)
-        else:
-            n = self.pop()
-        return n
-
-
-def linear_scan(lifetimes: Dict[str, LiveInterval]):
-    # noinspection PyTypeChecker
-    active = SortedDict()  # type: Dict[Tuple[int, str], LiveInterval]
-    register_pool = RegPool()
-    registers = {}
-    # noinspection PyTypeChecker
-    order_by_start = sorted(
-        lifetimes.items(),
-        key=lambda x: x[1].start)  # type: List[Tuple[str, LiveInterval]]
-    for v, each in order_by_start:
-        assert each.end is not None, &#39;Life circle of {} not initialized&#39;
-        assert each.start is not None, &#34;Life circle of {} not disposed&#34;
-
-    def expire_old_intervals(i: LiveInterval):
-        to_remove = []
-        for key, j in active.items():
-            _, varname = key
-            if j.end &gt;= i.start:
-                return
-            to_remove.append(key)
-            register_pool.add(registers[varname])
-
-    for varname, i in order_by_start:
-        expire_old_intervals(i)
-        registers[varname] = register_pool.get_a_reg()
-        active[(i.end, varname)] = i
-    return registers</code></pre>
+POP_TOP = &#39;POP_TOP&#39;
+ROT_TWO = &#39;ROT_TWO&#39;
+ROT_THREE = &#39;ROT_THREE&#39;
+DUP_TOP = &#39;DUP_TOP&#39;
+DUP_TOP_TWO = &#39;DUP_TOP_TWO&#39;
+NOP = &#39;NOP&#39;
+UNARY_POSITIVE = &#39;UNARY_POSITIVE&#39;
+UNARY_NEGATIVE = &#39;UNARY_NEGATIVE&#39;
+UNARY_NOT = &#39;UNARY_NOT&#39;
+UNARY_INVERT = &#39;UNARY_INVERT&#39;
+BINARY_MATRIX_MULTIPLY = &#39;BINARY_MATRIX_MULTIPLY&#39;
+INPLACE_MATRIX_MULTIPLY = &#39;INPLACE_MATRIX_MULTIPLY&#39;
+BINARY_POWER = &#39;BINARY_POWER&#39;
+BINARY_MULTIPLY = &#39;BINARY_MULTIPLY&#39;
+BINARY_MODULO = &#39;BINARY_MODULO&#39;
+BINARY_ADD = &#39;BINARY_ADD&#39;
+BINARY_SUBTRACT = &#39;BINARY_SUBTRACT&#39;
+BINARY_SUBSCR = &#39;BINARY_SUBSCR&#39;
+BINARY_FLOOR_DIVIDE = &#39;BINARY_FLOOR_DIVIDE&#39;
+BINARY_TRUE_DIVIDE = &#39;BINARY_TRUE_DIVIDE&#39;
+INPLACE_FLOOR_DIVIDE = &#39;INPLACE_FLOOR_DIVIDE&#39;
+INPLACE_TRUE_DIVIDE = &#39;INPLACE_TRUE_DIVIDE&#39;
+GET_AITER = &#39;GET_AITER&#39;
+GET_ANEXT = &#39;GET_ANEXT&#39;
+BEFORE_ASYNC_WITH = &#39;BEFORE_ASYNC_WITH&#39;
+INPLACE_ADD = &#39;INPLACE_ADD&#39;
+INPLACE_SUBTRACT = &#39;INPLACE_SUBTRACT&#39;
+INPLACE_MULTIPLY = &#39;INPLACE_MULTIPLY&#39;
+INPLACE_MODULO = &#39;INPLACE_MODULO&#39;
+STORE_SUBSCR = &#39;STORE_SUBSCR&#39;
+DELETE_SUBSCR = &#39;DELETE_SUBSCR&#39;
+BINARY_LSHIFT = &#39;BINARY_LSHIFT&#39;
+BINARY_RSHIFT = &#39;BINARY_RSHIFT&#39;
+BINARY_AND = &#39;BINARY_AND&#39;
+BINARY_XOR = &#39;BINARY_XOR&#39;
+BINARY_OR = &#39;BINARY_OR&#39;
+INPLACE_POWER = &#39;INPLACE_POWER&#39;
+GET_ITER = &#39;GET_ITER&#39;
+GET_YIELD_FROM_ITER = &#39;GET_YIELD_FROM_ITER&#39;
+PRINT_EXPR = &#39;PRINT_EXPR&#39;
+LOAD_BUILD_CLASS = &#39;LOAD_BUILD_CLASS&#39;
+YIELD_FROM = &#39;YIELD_FROM&#39;
+GET_AWAITABLE = &#39;GET_AWAITABLE&#39;
+INPLACE_LSHIFT = &#39;INPLACE_LSHIFT&#39;
+INPLACE_RSHIFT = &#39;INPLACE_RSHIFT&#39;
+INPLACE_AND = &#39;INPLACE_AND&#39;
+INPLACE_XOR = &#39;INPLACE_XOR&#39;
+INPLACE_OR = &#39;INPLACE_OR&#39;
+BREAK_LOOP = &#39;BREAK_LOOP&#39;
+WITH_CLEANUP_START = &#39;WITH_CLEANUP_START&#39;
+WITH_CLEANUP_FINISH = &#39;WITH_CLEANUP_FINISH&#39;
+RETURN_VALUE = &#39;RETURN_VALUE&#39;
+IMPORT_STAR = &#39;IMPORT_STAR&#39;
+SETUP_ANNOTATIONS = &#39;SETUP_ANNOTATIONS&#39;
+YIELD_VALUE = &#39;YIELD_VALUE&#39;
+POP_BLOCK = &#39;POP_BLOCK&#39;
+END_FINALLY = &#39;END_FINALLY&#39;
+POP_EXCEPT = &#39;POP_EXCEPT&#39;
+STORE_NAME = &#39;STORE_NAME&#39;
+DELETE_NAME = &#39;DELETE_NAME&#39;
+UNPACK_SEQUENCE = &#39;UNPACK_SEQUENCE&#39;
+FOR_ITER = &#39;FOR_ITER&#39;
+UNPACK_EX = &#39;UNPACK_EX&#39;
+STORE_ATTR = &#39;STORE_ATTR&#39;
+DELETE_ATTR = &#39;DELETE_ATTR&#39;
+STORE_GLOBAL = &#39;STORE_GLOBAL&#39;
+DELETE_GLOBAL = &#39;DELETE_GLOBAL&#39;
+LOAD_CONST = &#39;LOAD_CONST&#39;
+LOAD_NAME = &#39;LOAD_NAME&#39;
+BUILD_TUPLE = &#39;BUILD_TUPLE&#39;
+BUILD_LIST = &#39;BUILD_LIST&#39;
+BUILD_SET = &#39;BUILD_SET&#39;
+BUILD_MAP = &#39;BUILD_MAP&#39;
+LOAD_ATTR = &#39;LOAD_ATTR&#39;
+COMPARE_OP = &#39;COMPARE_OP&#39;
+IMPORT_NAME = &#39;IMPORT_NAME&#39;
+IMPORT_FROM = &#39;IMPORT_FROM&#39;
+JUMP_FORWARD = &#39;JUMP_FORWARD&#39;
+JUMP_IF_FALSE_OR_POP = &#39;JUMP_IF_FALSE_OR_POP&#39;
+JUMP_IF_TRUE_OR_POP = &#39;JUMP_IF_TRUE_OR_POP&#39;
+JUMP_ABSOLUTE = &#39;JUMP_ABSOLUTE&#39;
+POP_JUMP_IF_FALSE = &#39;POP_JUMP_IF_FALSE&#39;
+POP_JUMP_IF_TRUE = &#39;POP_JUMP_IF_TRUE&#39;
+LOAD_GLOBAL = &#39;LOAD_GLOBAL&#39;
+CONTINUE_LOOP = &#39;CONTINUE_LOOP&#39;
+SETUP_LOOP = &#39;SETUP_LOOP&#39;
+SETUP_EXCEPT = &#39;SETUP_EXCEPT&#39;
+SETUP_FINALLY = &#39;SETUP_FINALLY&#39;
+LOAD_FAST = &#39;LOAD_FAST&#39;
+STORE_FAST = &#39;STORE_FAST&#39;
+DELETE_FAST = &#39;DELETE_FAST&#39;
+RAISE_VARARGS = &#39;RAISE_VARARGS&#39;
+CALL_FUNCTION = &#39;CALL_FUNCTION&#39;
+MAKE_FUNCTION = &#39;MAKE_FUNCTION&#39;
+BUILD_SLICE = &#39;BUILD_SLICE&#39;
+LOAD_CLOSURE = &#39;LOAD_CLOSURE&#39;
+LOAD_DEREF = &#39;LOAD_DEREF&#39;
+STORE_DEREF = &#39;STORE_DEREF&#39;
+DELETE_DEREF = &#39;DELETE_DEREF&#39;
+CALL_FUNCTION_KW = &#39;CALL_FUNCTION_KW&#39;
+CALL_FUNCTION_EX = &#39;CALL_FUNCTION_EX&#39;
+SETUP_WITH = &#39;SETUP_WITH&#39;
+LIST_APPEND = &#39;LIST_APPEND&#39;
+SET_ADD = &#39;SET_ADD&#39;
+MAP_ADD = &#39;MAP_ADD&#39;
+LOAD_CLASSDEREF = &#39;LOAD_CLASSDEREF&#39;
+EXTENDED_ARG = &#39;EXTENDED_ARG&#39;
+BUILD_LIST_UNPACK = &#39;BUILD_LIST_UNPACK&#39;
+BUILD_MAP_UNPACK = &#39;BUILD_MAP_UNPACK&#39;
+BUILD_MAP_UNPACK_WITH_CALL = &#39;BUILD_MAP_UNPACK_WITH_CALL&#39;
+BUILD_TUPLE_UNPACK = &#39;BUILD_TUPLE_UNPACK&#39;
+BUILD_SET_UNPACK = &#39;BUILD_SET_UNPACK&#39;
+SETUP_ASYNC_WITH = &#39;SETUP_ASYNC_WITH&#39;
+FORMAT_VALUE = &#39;FORMAT_VALUE&#39;
+BUILD_CONST_KEY_MAP = &#39;BUILD_CONST_KEY_MAP&#39;
+BUILD_STRING = &#39;BUILD_STRING&#39;
+BUILD_TUPLE_UNPACK_WITH_CALL = &#39;BUILD_TUPLE_UNPACK_WITH_CALL&#39;
+LOAD_METHOD = &#39;LOAD_METHOD&#39;
+CALL_METHOD = &#39;CALL_METHOD&#39;</code></pre>
 </details>
 </section>
 <section>
@@ -89,77 +155,8 @@ def linear_scan(lifetimes: Dict[str, LiveInterval]):
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="py_sexpr.linear_scan.linear_scan"><code class="name flex">
-<span>def <span class="ident">linear_scan</span></span>(<span>lifetimes)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def linear_scan(lifetimes: Dict[str, LiveInterval]):
-    # noinspection PyTypeChecker
-    active = SortedDict()  # type: Dict[Tuple[int, str], LiveInterval]
-    register_pool = RegPool()
-    registers = {}
-    # noinspection PyTypeChecker
-    order_by_start = sorted(
-        lifetimes.items(),
-        key=lambda x: x[1].start)  # type: List[Tuple[str, LiveInterval]]
-    for v, each in order_by_start:
-        assert each.end is not None, &#39;Life circle of {} not initialized&#39;
-        assert each.start is not None, &#34;Life circle of {} not disposed&#34;
-
-    def expire_old_intervals(i: LiveInterval):
-        to_remove = []
-        for key, j in active.items():
-            _, varname = key
-            if j.end &gt;= i.start:
-                return
-            to_remove.append(key)
-            register_pool.add(registers[varname])
-
-    for varname, i in order_by_start:
-        expire_old_intervals(i)
-        registers[varname] = register_pool.get_a_reg()
-        active[(i.end, varname)] = i
-    return registers</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="py_sexpr.linear_scan.LiveInterval"><code class="flex name class">
-<span>class <span class="ident">LiveInterval</span></span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class LiveInterval:
-    start = None
-    end = None</code></pre>
-</details>
-<h3>Class variables</h3>
-<dl>
-<dt id="py_sexpr.linear_scan.LiveInterval.end"><code class="name">var <span class="ident">end</span></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-<dt id="py_sexpr.linear_scan.LiveInterval.start"><code class="name">var <span class="ident">start</span></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-</dl>
-</dd>
-</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -170,23 +167,7 @@ def linear_scan(lifetimes: Dict[str, LiveInterval]):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="py_sexpr" href="index.html">py_sexpr</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="py_sexpr.linear_scan.linear_scan" href="#py_sexpr.linear_scan.linear_scan">linear_scan</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="py_sexpr.linear_scan.LiveInterval" href="#py_sexpr.linear_scan.LiveInterval">LiveInterval</a></code></h4>
-<ul class="">
-<li><code><a title="py_sexpr.linear_scan.LiveInterval.end" href="#py_sexpr.linear_scan.LiveInterval.end">end</a></code></li>
-<li><code><a title="py_sexpr.linear_scan.LiveInterval.start" href="#py_sexpr.linear_scan.LiveInterval.start">start</a></code></li>
-</ul>
-</li>
+<li><code><a title="py_sexpr.stack_vm" href="index.html">py_sexpr.stack_vm</a></code></li>
 </ul>
 </li>
 </ul>

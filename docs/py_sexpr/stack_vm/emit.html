@@ -1,0 +1,2172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.4" />
+<title>py_sexpr.stack_vm.emit API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>py_sexpr.stack_vm.emit</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import attr
+import bytecode as BC
+from typing import List, Dict, Callable, Optional, Set, Union
+from enum import Enum, auto as enum
+from functools import lru_cache
+from py_sexpr.stack_vm import instructions as I
+from py_sexpr.stack_vm.blockaddr import NamedLabel
+from sys import version_info
+PY38 = version_info &gt;= (3, 8)
+_app = lambda arg: lambda f: f(arg)
+
+THIS_TEMP_REG = &#39;reg.@this@&#39;
+
+
+class NamedObj:
+    def __init__(self, n):
+        self.n = n
+
+    def __repr__(self):
+        return self.n
+
+
+def _new_unique_label(s):
+    &#34;&#34;&#34;create a label whose identity is its address.
+    &#34;&#34;&#34;
+
+    # noinspection PyArgumentList
+    return NamedLabel(NamedObj(s))
+
+
+def _new_structural_label(s):
+    &#34;&#34;&#34;create a label whose identity is its name.
+    &#34;&#34;&#34;
+
+    # noinspection PyArgumentList
+    return NamedLabel(s)
+
+
+class SymType(Enum):
+    cell = enum()
+    glob = enum()
+    bound = enum()
+
+
+@lru_cache()
+def glob_sym(n: str):
+    return Sym(n, SymType.glob)
+
+
+class Sym:
+    # if shared to other function objects
+    name = None  # type: str
+    ty = None  # type: SymType
+    scope: Optional[&#39;ScopeSolver&#39;]
+
+    def __init__(self, name: str, ty: SymType, scope=None):
+        self.name = name
+        self.ty = ty
+        self.scope = scope
+
+
+class Analysed:
+    &#34;&#34;&#34;
+    An analysed scope, which provides you
+    - `free`: free variables captured from outer scopes.
+    - `bound`: bound variables created in current scope.
+    &#34;&#34;&#34;
+    syms_free = None  # type: Dict[str, Sym]
+    syms_bound = None  # type: Dict[str, Sym]
+
+
+def _set_lineno(i: int):
+    def wrap(f):
+        def apply():
+            instructions = f()
+            Instr = BC.Instr
+            for instr in instructions:
+                if isinstance(instr, Instr):
+                    instr.lineno = i
+            return instructions
+
+        return apply
+
+    return wrap
+
+
+@attr.s
+class ScopeSolver:
+    &#34;&#34;&#34;We use a simple scoping rule, that all assignments enter symbols
+    locally, i.e., free variables are readonly beyond where it&#39;s defined.
+    &#34;&#34;&#34;
+    n_enter = attr.ib()  # type: Set[str]
+    n_require = attr.ib()  # type:  Set[str]
+    parent = attr.ib()  # type: Optional[&#39;ScopeSolver&#39;]
+    children = attr.ib()  # type: List[&#39;ScopeSolver&#39;]
+    output = attr.ib()  # type: Analysed
+
+    @classmethod
+    def outermost(cls):
+        return ScopeSolver(set(), set(), None, [], Analysed())
+
+    def sub_scope(self):
+        new = ScopeSolver(set(), set(), self, [], Analysed())
+        self.children.append(new)
+        return new
+
+    def enter(self, n: str):
+        self.n_enter.add(n)
+
+    def require(self, n: str):
+        self.n_require.add(n)
+
+    def _get_sym(self, n):
+        sym = self.output.syms_bound.get(n)
+        if sym:
+            return sym
+        if not self.parent:
+            return glob_sym(n)
+        return self.parent._get_sym(n)
+
+    def resolve(self):
+        n_enter = self.n_enter
+        analysed = self.output
+        if self.parent is None:
+            analysed.syms_bound = {}
+        else:
+            analysed.syms_bound = {
+                k: Sym(k, SymType.bound, analysed)
+                for k in n_enter
+            }
+        analysed.syms_free = {}
+
+        n_require = self.n_require.difference(n_enter)
+        for n in n_require:
+            sym = self._get_sym(n)
+            if sym and sym.ty is not SymType.glob:
+                sc = self
+                sym.ty = SymType.cell
+                scope = sym.scope
+
+                # add free variable `sym` to each scope
+                # between `sym`&#39;s define scope and use scope.
+                while scope is not sc.output:
+                    if n in sc.output.syms_free:
+                        break
+
+                    sc.output.syms_free[n] = sym
+                    sc = sc.parent
+
+        for child in self.children:
+            child.resolve()
+
+
+@attr.s
+class SharedState:
+    doc = attr.ib()  # type: str
+    line = attr.ib()  # type: int
+    filename = attr.ib()  # type: str
+
+    def copy(self):
+        return SharedState(self.doc, self.line, self.filename)
+
+
+@attr.s
+class Builder:
+    sc = attr.ib()  # type: ScopeSolver
+    builders = attr.ib()  # type: List[Callable[[Analysed], List[BC.Instr]]]
+    st = attr.ib()  # type: SharedState
+
+    def __lshift__(self, other: Callable[[], List[Union[BC.Instr, BC.Label]]]):
+        self.builders.append(other)
+
+    def build(self):
+        seq = sum((b() for b in self.builders), [])
+        n = len(seq)
+        Instr = BC.Instr
+
+        # remove redundant load/pop pairs
+        def _build(seq):
+            i = 0
+            n = len(seq)
+            while i &lt; n:
+                each = seq[i]
+                if isinstance(each, Instr) and each.name.startswith(&#39;LOAD_&#39;):
+                    nxt = i + 1
+                    if nxt &lt; n:
+                        nxt_instr = seq[nxt]
+                        if isinstance(nxt_instr,
+                                      Instr) and nxt_instr.name == &#39;POP_TOP&#39;:
+                            i = nxt + 1
+                            continue
+                yield each
+                i += 1
+
+        while True:
+            seq = list(_build(seq))
+            if len(seq) == n:
+                break
+            n = len(seq)
+        return seq
+
+    def inside(self):
+        return Builder(
+            self.sc.sub_scope(),
+            [],
+            self.st.copy(),
+        )
+
+    def eval(self, term):
+        if isinstance(term, tuple):
+            hd, *tl = term
+            return getattr(self, hd)(*tl)
+
+        return self.const(term)
+
+    def eval_all(self, terms):
+        eval = self.eval
+        for each in terms:
+            eval(each)
+
+    def const(self, value):
+        @_set_lineno(self.st.line)
+        def build():
+            return [I.LOAD_CONST(value)]
+
+        self &lt;&lt; build
+
+    def call(self, f, *args):
+        self.eval(f)
+        self.eval_all(args)
+        n = len(args)
+
+        @_set_lineno(self.st.line)
+        def build():
+            i = I.CALL_FUNCTION(n)
+            return [i]
+
+        self &lt;&lt; build
+
+    def var(self, n: str):
+        analysed = self.sc.output
+        self.sc.require(n)
+
+        @_set_lineno(self.st.line)
+        def build():
+            sym = analysed.syms_bound.get(n)
+            if sym:
+                if sym.ty is SymType.cell:
+                    i = I.LOAD_DEREF(n, I.CellVar)
+                else:
+                    i = I.LOAD_FAST(n)
+                return [i]
+            if n in analysed.syms_free:
+                i = I.LOAD_DEREF(n, I.FreeVar)
+            else:
+                i = I.LOAD_GLOBAL(n)
+            return [i]
+
+        self &lt;&lt; build
+
+    def tuple(self, *elts):
+        self.eval_all(elts)
+        n = len(elts)
+        self &lt;&lt; (lambda: [I.BUILD_TUPLE(n)])
+
+    def record(self, *kwargs):
+        set_lineno = _set_lineno(self.st.line)
+        if not kwargs:
+            self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(0)])
+        else:
+            keys, vals = zip(*kwargs)
+            n = len(keys)
+            self.eval_all(vals)
+            self.const(keys)
+            self &lt;&lt; set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])
+
+    def lens(self, l, r):
+        self.eval(l)
+        self.eval(r)
+        self &lt;&lt; (lambda: [I.BUILD_MAP_UNPACK(2)])
+
+    def assign(self, n: str, v):
+        self.eval(v)
+        self._bind(n)
+        self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
+
+    def get_attr(self, val, n: str):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(val)
+        self &lt;&lt; set_lineno(lambda: [I.LOAD_ATTR(n)])
+
+    def set_attr(self, base, n: str, val):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(val)
+        self.eval(base)
+        self &lt;&lt; set_lineno(lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
+
+    def get_item(self, base, item: str):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(base)
+        self.eval(item)
+
+        self &lt;&lt; set_lineno(lambda: [I.BINARY(I.BinOp.SUBSCR)])
+
+    def set_item(self, base, item, val):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(val)
+        self.eval(base)
+        self.eval(item)
+        self &lt;&lt; set_lineno(lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
+
+    def new(self, ty, *args):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(ty)
+
+        self.sc.enter(THIS_TEMP_REG)
+
+        # build this object
+        self &lt;&lt; set_lineno(lambda: [
+            I.DUP(),
+            I.LOAD_CONST(&#39;.t&#39;),
+            I.ROT2(),
+            I.BUILD_MAP(1),
+            I.STORE_FAST(THIS_TEMP_REG)
+        ])
+
+        self.eval_all(args)
+        n = len(args) + 1
+        # initialize this object
+        self &lt;&lt; (lambda: [
+            I.LOAD_FAST(THIS_TEMP_REG),
+            I.CALL_FUNCTION(n),
+            I.POP_TOP(),
+            I.LOAD_FAST(THIS_TEMP_REG)
+        ])
+
+    def bin(self, l, op: I.BinOp, r):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(l)
+        self.eval(r)
+        self &lt;&lt; set_lineno(lambda: [I.BINARY(op)])
+
+    def cmp(self, l, op: BC.Compare, r):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(l)
+        self.eval(r)
+        self &lt;&lt; set_lineno(lambda: [I.COMPARE_OP(op)])
+
+    def _bind(self, n: str):
+        analysed = self.sc.output
+        self.sc.enter(n)
+
+        @_set_lineno(self.st.line)
+        def build():
+            sym = analysed.syms_bound.get(n)
+            if sym:
+                if sym.ty is SymType.cell:
+                    i = I.STORE_DEREF(n, I.CellVar)
+                else:
+                    i = I.STORE_FAST(n)
+                return [i]
+            if n in analysed.syms_free:
+                # shouldn&#39;t be able to mutate free variable
+                raise NameError(n)
+            else:
+                i = I.STORE_GLOBAL(n)
+            return [i]
+
+        self &lt;&lt; build
+
+    def block(self, *suite):
+        if not suite:
+            return self.const(None)
+        *init, end = suite
+        for each in init:
+            self.eval(each)
+            self &lt;&lt; (lambda: [I.POP_TOP()])
+        self.eval(end)
+
+    def doc(self, doc: str, it):
+        self.st.doc = doc
+        return self.eval(it)
+
+    def line(self, line: int, it):
+        self.st.line = line
+        return self.eval(it)
+
+    def filename(self, fname: str, it):
+        self.st.filename = fname
+        return self.eval(it)
+
+    def ite(self, cond, true_clause, false_clause):
+        label_true = _new_unique_label(&#34;if.true&#34;)
+        label_end = _new_unique_label(&#34;if.end&#34;)
+
+        self.eval(cond)
+        self &lt;&lt; _set_lineno(
+            self.st.line)(lambda: [I.POP_JUMP_IF_TRUE(label_true)])
+        self.eval(false_clause)
+        self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_end), label_true])
+        self.eval(true_clause)
+        self &lt;&lt; (lambda: [label_end])
+
+    def for_in(self, n: str, seq, body):
+        label_end = _new_unique_label(&#34;end.loop&#34;)
+        label_iter = _new_unique_label(&#34;iter.loop&#34;)
+
+        self.eval(seq)
+        self &lt;&lt; (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
+
+        self._bind(n)
+        self.eval(body)
+        self &lt;&lt; (lambda: [
+            I.POP_TOP(),
+            I.JUMP_ABSOLUTE(label_iter), label_end,
+            I.LOAD_CONST(None)
+        ])
+
+    def ret(self, v):
+        self.eval(v)
+        self &lt;&lt; (lambda: [I.RETURN_VALUE(), I.LOAD_CONST(None)])
+
+    def throw(self, v):
+        self.eval(v)
+        self &lt;&lt; (lambda: [I.RAISE_VARARGS(1)])
+        self.const(None)
+
+    def loop(self, cond, body):
+        &#34;&#34;&#34;
+        Note, the value of `body` in the last iteration will be returned.
+        e.g.,
+            z = 2
+            f = while z &lt; 5 {
+                z += z
+                z
+            }
+        The value of `f` is 8
+        &#34;&#34;&#34;
+        label_setup = _new_unique_label(&#34;while.setup&#34;)
+        label_end = _new_unique_label(&#34;while.end&#34;)
+
+        self &lt;&lt; _set_lineno(
+            self.st.line)(lambda: [I.LOAD_CONST(None), label_setup])
+        self.eval(cond)
+        self &lt;&lt; (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
+        self.eval(body)
+        self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_setup), label_end])
+
+    def func(self,
+             args: List[str],
+             body,
+             name: str = None,
+             defaults: list = ()):
+        line = self.st.line
+        filename = self.st.filename
+        doc = self.st.doc
+        mk_fn_flag = 0
+        anonymous = True
+        if name:
+            anonymous = False
+            self.sc.enter(name)
+        else:
+            name = &#39;lambda:{}&#39;.format(line)
+
+        if defaults:  # if any default arguments
+            mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
+
+            for each in defaults:
+                self.eval(each)
+            n_defaults = len(defaults)
+
+            def build_defaults():
+                i = I.BUILD_TUPLE(n_defaults)
+                i.lineno = line
+                return [i]
+
+            self &lt;&lt; build_defaults
+        sub = self.inside()
+
+        # visit arguments
+        sub_sc_enter = sub.sc.enter
+        for each in args:
+            sub_sc_enter(each)
+
+        sub.eval(body)
+
+        analysed = self.sc.output
+
+        @_set_lineno(line)
+        def build_mk_func():
+            nonlocal mk_fn_flag
+            sub_a = sub.sc.output
+            ins = []
+            frees = list(sub_a.syms_free)
+
+            # get all cell names from bound variables
+            cells = [
+                n for n, sym in sub_a.syms_bound.items()
+                if sym.ty is SymType.cell
+            ]
+
+            if frees:  # handle closure conversions
+                mk_fn_flag |= I.MK_FN_HAS_CLOSURE
+
+                for n in frees:
+                    if n in analysed.syms_bound:
+                        var_type = I.CellVar
+                    else:
+                        var_type = I.FreeVar
+                    ins.append(I.LOAD_CLOSURE(n, var_type))
+                ins.append(I.BUILD_TUPLE(len(frees)))
+
+            # create code object of subroutine
+            instructions = sub.build()
+            py_code = make_code_obj(name, filename, line, doc, args, frees,
+                                    cells, instructions)
+            ins.extend([
+                I.LOAD_CONST(py_code),
+                I.LOAD_CONST(name),
+                I.MAKE_FUNCTION(mk_fn_flag)
+            ])
+
+            # if not anonymous function,
+            # we shall assign the function to a variable
+            if not anonymous:
+                fn_sym = analysed.syms_bound.get(name)
+                if not fn_sym:
+                    store = I.STORE_GLOBAL(name)
+                elif fn_sym.ty is SymType.bound:
+                    store = I.STORE_FAST(name)
+                elif fn_sym.ty is SymType.cell:
+                    store = I.STORE_DEREF(name, I.CellVar)
+                else:
+                    raise ValueError
+                ins.extend([I.DUP(), store])
+
+            return ins
+
+        self &lt;&lt; build_mk_func
+
+
+def make_code_obj(name: str, filename: str, lineno: int, doc: str,
+                  args: List[str], frees: List[str], cells: List[str],
+                  instructions: List[BC.Instr]):
+    &#34;&#34;&#34;Create code object from given metadata and instructions
+    &#34;&#34;&#34;
+    if not instructions:
+        instructions.append(I.LOAD_CONST(None))
+    instructions.append(I.RETURN_VALUE())
+
+    bc_code = BC.Bytecode(instructions)
+    bc_code.name = name
+    bc_code.filename = filename
+    bc_code.first_lineno = lineno
+    bc_code.docstring = doc
+    bc_code.argnames.extend(args)
+    bc_code.argcount = len(bc_code.argnames)
+    bc_code.freevars.extend(frees)
+    bc_code.cellvars.extend(cells)
+
+    stack_size = bc_code.compute_stacksize()
+    c_code = bc_code.to_concrete_bytecode()
+    c_code.flags = BC.flags.infer_flags(c_code)
+    py_code = c_code.to_code(stacksize=stack_size)
+    return py_code
+
+
+def module_code(sexpr,
+                name: str = &#34;&lt;unknown&gt;&#34;,
+                filename: str = &#34;&lt;unknown&gt;&#34;,
+                lineno: int = 1,
+                doc: str = &#34;&#34;):
+    &#34;&#34;&#34;Create a module&#39;s code object from given metadata and s-expression.
+    &#34;&#34;&#34;
+    module_builder = Builder(ScopeSolver.outermost(), [],
+                             SharedState(doc, lineno, filename))
+
+    # incompletely build instruction
+    module_builder.eval(sexpr)
+
+    # resolve symbols, complete building requirements
+    module_builder.sc.resolve()
+
+    # complete building requirements
+    instructions = module_builder.build()
+    code = make_code_obj(name, filename, lineno, doc, [], [], [], instructions)
+    return code</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.glob_sym"><code class="name flex">
+<span>def <span class="ident">glob_sym</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@lru_cache()
+def glob_sym(n: str):
+    return Sym(n, SymType.glob)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.make_code_obj"><code class="name flex">
+<span>def <span class="ident">make_code_obj</span></span>(<span>name, filename, lineno, doc, args, frees, cells, instructions)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create code object from given metadata and instructions</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_code_obj(name: str, filename: str, lineno: int, doc: str,
+                  args: List[str], frees: List[str], cells: List[str],
+                  instructions: List[BC.Instr]):
+    &#34;&#34;&#34;Create code object from given metadata and instructions
+    &#34;&#34;&#34;
+    if not instructions:
+        instructions.append(I.LOAD_CONST(None))
+    instructions.append(I.RETURN_VALUE())
+
+    bc_code = BC.Bytecode(instructions)
+    bc_code.name = name
+    bc_code.filename = filename
+    bc_code.first_lineno = lineno
+    bc_code.docstring = doc
+    bc_code.argnames.extend(args)
+    bc_code.argcount = len(bc_code.argnames)
+    bc_code.freevars.extend(frees)
+    bc_code.cellvars.extend(cells)
+
+    stack_size = bc_code.compute_stacksize()
+    c_code = bc_code.to_concrete_bytecode()
+    c_code.flags = BC.flags.infer_flags(c_code)
+    py_code = c_code.to_code(stacksize=stack_size)
+    return py_code</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.module_code"><code class="name flex">
+<span>def <span class="ident">module_code</span></span>(<span>sexpr, name=&#x27;&lt;unknown&gt;&#x27;, filename=&#x27;&lt;unknown&gt;&#x27;, lineno=1, doc='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create a module's code object from given metadata and s-expression.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def module_code(sexpr,
+                name: str = &#34;&lt;unknown&gt;&#34;,
+                filename: str = &#34;&lt;unknown&gt;&#34;,
+                lineno: int = 1,
+                doc: str = &#34;&#34;):
+    &#34;&#34;&#34;Create a module&#39;s code object from given metadata and s-expression.
+    &#34;&#34;&#34;
+    module_builder = Builder(ScopeSolver.outermost(), [],
+                             SharedState(doc, lineno, filename))
+
+    # incompletely build instruction
+    module_builder.eval(sexpr)
+
+    # resolve symbols, complete building requirements
+    module_builder.sc.resolve()
+
+    # complete building requirements
+    instructions = module_builder.build()
+    code = make_code_obj(name, filename, lineno, doc, [], [], [], instructions)
+    return code</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.Analysed"><code class="flex name class">
+<span>class <span class="ident">Analysed</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>An analysed scope, which provides you
+- <code>free</code>: free variables captured from outer scopes.
+- <code>bound</code>: bound variables created in current scope.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Analysed:
+    &#34;&#34;&#34;
+    An analysed scope, which provides you
+    - `free`: free variables captured from outer scopes.
+    - `bound`: bound variables created in current scope.
+    &#34;&#34;&#34;
+    syms_free = None  # type: Dict[str, Sym]
+    syms_bound = None  # type: Dict[str, Sym]</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.Analysed.syms_bound"><code class="name">var <span class="ident">syms_bound</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Analysed.syms_free"><code class="name">var <span class="ident">syms_free</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder"><code class="flex name class">
+<span>class <span class="ident">Builder</span></span>
+<span>(</span><span>sc, builders, st)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Builder:
+    sc = attr.ib()  # type: ScopeSolver
+    builders = attr.ib()  # type: List[Callable[[Analysed], List[BC.Instr]]]
+    st = attr.ib()  # type: SharedState
+
+    def __lshift__(self, other: Callable[[], List[Union[BC.Instr, BC.Label]]]):
+        self.builders.append(other)
+
+    def build(self):
+        seq = sum((b() for b in self.builders), [])
+        n = len(seq)
+        Instr = BC.Instr
+
+        # remove redundant load/pop pairs
+        def _build(seq):
+            i = 0
+            n = len(seq)
+            while i &lt; n:
+                each = seq[i]
+                if isinstance(each, Instr) and each.name.startswith(&#39;LOAD_&#39;):
+                    nxt = i + 1
+                    if nxt &lt; n:
+                        nxt_instr = seq[nxt]
+                        if isinstance(nxt_instr,
+                                      Instr) and nxt_instr.name == &#39;POP_TOP&#39;:
+                            i = nxt + 1
+                            continue
+                yield each
+                i += 1
+
+        while True:
+            seq = list(_build(seq))
+            if len(seq) == n:
+                break
+            n = len(seq)
+        return seq
+
+    def inside(self):
+        return Builder(
+            self.sc.sub_scope(),
+            [],
+            self.st.copy(),
+        )
+
+    def eval(self, term):
+        if isinstance(term, tuple):
+            hd, *tl = term
+            return getattr(self, hd)(*tl)
+
+        return self.const(term)
+
+    def eval_all(self, terms):
+        eval = self.eval
+        for each in terms:
+            eval(each)
+
+    def const(self, value):
+        @_set_lineno(self.st.line)
+        def build():
+            return [I.LOAD_CONST(value)]
+
+        self &lt;&lt; build
+
+    def call(self, f, *args):
+        self.eval(f)
+        self.eval_all(args)
+        n = len(args)
+
+        @_set_lineno(self.st.line)
+        def build():
+            i = I.CALL_FUNCTION(n)
+            return [i]
+
+        self &lt;&lt; build
+
+    def var(self, n: str):
+        analysed = self.sc.output
+        self.sc.require(n)
+
+        @_set_lineno(self.st.line)
+        def build():
+            sym = analysed.syms_bound.get(n)
+            if sym:
+                if sym.ty is SymType.cell:
+                    i = I.LOAD_DEREF(n, I.CellVar)
+                else:
+                    i = I.LOAD_FAST(n)
+                return [i]
+            if n in analysed.syms_free:
+                i = I.LOAD_DEREF(n, I.FreeVar)
+            else:
+                i = I.LOAD_GLOBAL(n)
+            return [i]
+
+        self &lt;&lt; build
+
+    def tuple(self, *elts):
+        self.eval_all(elts)
+        n = len(elts)
+        self &lt;&lt; (lambda: [I.BUILD_TUPLE(n)])
+
+    def record(self, *kwargs):
+        set_lineno = _set_lineno(self.st.line)
+        if not kwargs:
+            self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(0)])
+        else:
+            keys, vals = zip(*kwargs)
+            n = len(keys)
+            self.eval_all(vals)
+            self.const(keys)
+            self &lt;&lt; set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])
+
+    def lens(self, l, r):
+        self.eval(l)
+        self.eval(r)
+        self &lt;&lt; (lambda: [I.BUILD_MAP_UNPACK(2)])
+
+    def assign(self, n: str, v):
+        self.eval(v)
+        self._bind(n)
+        self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
+
+    def get_attr(self, val, n: str):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(val)
+        self &lt;&lt; set_lineno(lambda: [I.LOAD_ATTR(n)])
+
+    def set_attr(self, base, n: str, val):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(val)
+        self.eval(base)
+        self &lt;&lt; set_lineno(lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
+
+    def get_item(self, base, item: str):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(base)
+        self.eval(item)
+
+        self &lt;&lt; set_lineno(lambda: [I.BINARY(I.BinOp.SUBSCR)])
+
+    def set_item(self, base, item, val):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(val)
+        self.eval(base)
+        self.eval(item)
+        self &lt;&lt; set_lineno(lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
+
+    def new(self, ty, *args):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(ty)
+
+        self.sc.enter(THIS_TEMP_REG)
+
+        # build this object
+        self &lt;&lt; set_lineno(lambda: [
+            I.DUP(),
+            I.LOAD_CONST(&#39;.t&#39;),
+            I.ROT2(),
+            I.BUILD_MAP(1),
+            I.STORE_FAST(THIS_TEMP_REG)
+        ])
+
+        self.eval_all(args)
+        n = len(args) + 1
+        # initialize this object
+        self &lt;&lt; (lambda: [
+            I.LOAD_FAST(THIS_TEMP_REG),
+            I.CALL_FUNCTION(n),
+            I.POP_TOP(),
+            I.LOAD_FAST(THIS_TEMP_REG)
+        ])
+
+    def bin(self, l, op: I.BinOp, r):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(l)
+        self.eval(r)
+        self &lt;&lt; set_lineno(lambda: [I.BINARY(op)])
+
+    def cmp(self, l, op: BC.Compare, r):
+        set_lineno = _set_lineno(self.st.line)
+        self.eval(l)
+        self.eval(r)
+        self &lt;&lt; set_lineno(lambda: [I.COMPARE_OP(op)])
+
+    def _bind(self, n: str):
+        analysed = self.sc.output
+        self.sc.enter(n)
+
+        @_set_lineno(self.st.line)
+        def build():
+            sym = analysed.syms_bound.get(n)
+            if sym:
+                if sym.ty is SymType.cell:
+                    i = I.STORE_DEREF(n, I.CellVar)
+                else:
+                    i = I.STORE_FAST(n)
+                return [i]
+            if n in analysed.syms_free:
+                # shouldn&#39;t be able to mutate free variable
+                raise NameError(n)
+            else:
+                i = I.STORE_GLOBAL(n)
+            return [i]
+
+        self &lt;&lt; build
+
+    def block(self, *suite):
+        if not suite:
+            return self.const(None)
+        *init, end = suite
+        for each in init:
+            self.eval(each)
+            self &lt;&lt; (lambda: [I.POP_TOP()])
+        self.eval(end)
+
+    def doc(self, doc: str, it):
+        self.st.doc = doc
+        return self.eval(it)
+
+    def line(self, line: int, it):
+        self.st.line = line
+        return self.eval(it)
+
+    def filename(self, fname: str, it):
+        self.st.filename = fname
+        return self.eval(it)
+
+    def ite(self, cond, true_clause, false_clause):
+        label_true = _new_unique_label(&#34;if.true&#34;)
+        label_end = _new_unique_label(&#34;if.end&#34;)
+
+        self.eval(cond)
+        self &lt;&lt; _set_lineno(
+            self.st.line)(lambda: [I.POP_JUMP_IF_TRUE(label_true)])
+        self.eval(false_clause)
+        self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_end), label_true])
+        self.eval(true_clause)
+        self &lt;&lt; (lambda: [label_end])
+
+    def for_in(self, n: str, seq, body):
+        label_end = _new_unique_label(&#34;end.loop&#34;)
+        label_iter = _new_unique_label(&#34;iter.loop&#34;)
+
+        self.eval(seq)
+        self &lt;&lt; (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
+
+        self._bind(n)
+        self.eval(body)
+        self &lt;&lt; (lambda: [
+            I.POP_TOP(),
+            I.JUMP_ABSOLUTE(label_iter), label_end,
+            I.LOAD_CONST(None)
+        ])
+
+    def ret(self, v):
+        self.eval(v)
+        self &lt;&lt; (lambda: [I.RETURN_VALUE(), I.LOAD_CONST(None)])
+
+    def throw(self, v):
+        self.eval(v)
+        self &lt;&lt; (lambda: [I.RAISE_VARARGS(1)])
+        self.const(None)
+
+    def loop(self, cond, body):
+        &#34;&#34;&#34;
+        Note, the value of `body` in the last iteration will be returned.
+        e.g.,
+            z = 2
+            f = while z &lt; 5 {
+                z += z
+                z
+            }
+        The value of `f` is 8
+        &#34;&#34;&#34;
+        label_setup = _new_unique_label(&#34;while.setup&#34;)
+        label_end = _new_unique_label(&#34;while.end&#34;)
+
+        self &lt;&lt; _set_lineno(
+            self.st.line)(lambda: [I.LOAD_CONST(None), label_setup])
+        self.eval(cond)
+        self &lt;&lt; (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
+        self.eval(body)
+        self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_setup), label_end])
+
+    def func(self,
+             args: List[str],
+             body,
+             name: str = None,
+             defaults: list = ()):
+        line = self.st.line
+        filename = self.st.filename
+        doc = self.st.doc
+        mk_fn_flag = 0
+        anonymous = True
+        if name:
+            anonymous = False
+            self.sc.enter(name)
+        else:
+            name = &#39;lambda:{}&#39;.format(line)
+
+        if defaults:  # if any default arguments
+            mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
+
+            for each in defaults:
+                self.eval(each)
+            n_defaults = len(defaults)
+
+            def build_defaults():
+                i = I.BUILD_TUPLE(n_defaults)
+                i.lineno = line
+                return [i]
+
+            self &lt;&lt; build_defaults
+        sub = self.inside()
+
+        # visit arguments
+        sub_sc_enter = sub.sc.enter
+        for each in args:
+            sub_sc_enter(each)
+
+        sub.eval(body)
+
+        analysed = self.sc.output
+
+        @_set_lineno(line)
+        def build_mk_func():
+            nonlocal mk_fn_flag
+            sub_a = sub.sc.output
+            ins = []
+            frees = list(sub_a.syms_free)
+
+            # get all cell names from bound variables
+            cells = [
+                n for n, sym in sub_a.syms_bound.items()
+                if sym.ty is SymType.cell
+            ]
+
+            if frees:  # handle closure conversions
+                mk_fn_flag |= I.MK_FN_HAS_CLOSURE
+
+                for n in frees:
+                    if n in analysed.syms_bound:
+                        var_type = I.CellVar
+                    else:
+                        var_type = I.FreeVar
+                    ins.append(I.LOAD_CLOSURE(n, var_type))
+                ins.append(I.BUILD_TUPLE(len(frees)))
+
+            # create code object of subroutine
+            instructions = sub.build()
+            py_code = make_code_obj(name, filename, line, doc, args, frees,
+                                    cells, instructions)
+            ins.extend([
+                I.LOAD_CONST(py_code),
+                I.LOAD_CONST(name),
+                I.MAKE_FUNCTION(mk_fn_flag)
+            ])
+
+            # if not anonymous function,
+            # we shall assign the function to a variable
+            if not anonymous:
+                fn_sym = analysed.syms_bound.get(name)
+                if not fn_sym:
+                    store = I.STORE_GLOBAL(name)
+                elif fn_sym.ty is SymType.bound:
+                    store = I.STORE_FAST(name)
+                elif fn_sym.ty is SymType.cell:
+                    store = I.STORE_DEREF(name, I.CellVar)
+                else:
+                    raise ValueError
+                ins.extend([I.DUP(), store])
+
+            return ins
+
+        self &lt;&lt; build_mk_func</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.Builder.assign"><code class="name flex">
+<span>def <span class="ident">assign</span></span>(<span>self, n, v)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assign(self, n: str, v):
+    self.eval(v)
+    self._bind(n)
+    self &lt;&lt; (lambda: [I.LOAD_CONST(None)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.bin"><code class="name flex">
+<span>def <span class="ident">bin</span></span>(<span>self, l, op, r)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bin(self, l, op: I.BinOp, r):
+    set_lineno = _set_lineno(self.st.line)
+    self.eval(l)
+    self.eval(r)
+    self &lt;&lt; set_lineno(lambda: [I.BINARY(op)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.block"><code class="name flex">
+<span>def <span class="ident">block</span></span>(<span>self, *suite)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def block(self, *suite):
+    if not suite:
+        return self.const(None)
+    *init, end = suite
+    for each in init:
+        self.eval(each)
+        self &lt;&lt; (lambda: [I.POP_TOP()])
+    self.eval(end)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.build"><code class="name flex">
+<span>def <span class="ident">build</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build(self):
+    seq = sum((b() for b in self.builders), [])
+    n = len(seq)
+    Instr = BC.Instr
+
+    # remove redundant load/pop pairs
+    def _build(seq):
+        i = 0
+        n = len(seq)
+        while i &lt; n:
+            each = seq[i]
+            if isinstance(each, Instr) and each.name.startswith(&#39;LOAD_&#39;):
+                nxt = i + 1
+                if nxt &lt; n:
+                    nxt_instr = seq[nxt]
+                    if isinstance(nxt_instr,
+                                  Instr) and nxt_instr.name == &#39;POP_TOP&#39;:
+                        i = nxt + 1
+                        continue
+            yield each
+            i += 1
+
+    while True:
+        seq = list(_build(seq))
+        if len(seq) == n:
+            break
+        n = len(seq)
+    return seq</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, f, *args)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def call(self, f, *args):
+    self.eval(f)
+    self.eval_all(args)
+    n = len(args)
+
+    @_set_lineno(self.st.line)
+    def build():
+        i = I.CALL_FUNCTION(n)
+        return [i]
+
+    self &lt;&lt; build</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.cmp"><code class="name flex">
+<span>def <span class="ident">cmp</span></span>(<span>self, l, op, r)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cmp(self, l, op: BC.Compare, r):
+    set_lineno = _set_lineno(self.st.line)
+    self.eval(l)
+    self.eval(r)
+    self &lt;&lt; set_lineno(lambda: [I.COMPARE_OP(op)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.const"><code class="name flex">
+<span>def <span class="ident">const</span></span>(<span>self, value)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def const(self, value):
+    @_set_lineno(self.st.line)
+    def build():
+        return [I.LOAD_CONST(value)]
+
+    self &lt;&lt; build</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.doc"><code class="name flex">
+<span>def <span class="ident">doc</span></span>(<span>self, doc, it)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def doc(self, doc: str, it):
+    self.st.doc = doc
+    return self.eval(it)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.eval"><code class="name flex">
+<span>def <span class="ident">eval</span></span>(<span>self, term)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def eval(self, term):
+    if isinstance(term, tuple):
+        hd, *tl = term
+        return getattr(self, hd)(*tl)
+
+    return self.const(term)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.eval_all"><code class="name flex">
+<span>def <span class="ident">eval_all</span></span>(<span>self, terms)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def eval_all(self, terms):
+    eval = self.eval
+    for each in terms:
+        eval(each)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.filename"><code class="name flex">
+<span>def <span class="ident">filename</span></span>(<span>self, fname, it)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def filename(self, fname: str, it):
+    self.st.filename = fname
+    return self.eval(it)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.for_in"><code class="name flex">
+<span>def <span class="ident">for_in</span></span>(<span>self, n, seq, body)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def for_in(self, n: str, seq, body):
+    label_end = _new_unique_label(&#34;end.loop&#34;)
+    label_iter = _new_unique_label(&#34;iter.loop&#34;)
+
+    self.eval(seq)
+    self &lt;&lt; (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
+
+    self._bind(n)
+    self.eval(body)
+    self &lt;&lt; (lambda: [
+        I.POP_TOP(),
+        I.JUMP_ABSOLUTE(label_iter), label_end,
+        I.LOAD_CONST(None)
+    ])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.func"><code class="name flex">
+<span>def <span class="ident">func</span></span>(<span>self, args, body, name=None, defaults=())</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def func(self,
+         args: List[str],
+         body,
+         name: str = None,
+         defaults: list = ()):
+    line = self.st.line
+    filename = self.st.filename
+    doc = self.st.doc
+    mk_fn_flag = 0
+    anonymous = True
+    if name:
+        anonymous = False
+        self.sc.enter(name)
+    else:
+        name = &#39;lambda:{}&#39;.format(line)
+
+    if defaults:  # if any default arguments
+        mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
+
+        for each in defaults:
+            self.eval(each)
+        n_defaults = len(defaults)
+
+        def build_defaults():
+            i = I.BUILD_TUPLE(n_defaults)
+            i.lineno = line
+            return [i]
+
+        self &lt;&lt; build_defaults
+    sub = self.inside()
+
+    # visit arguments
+    sub_sc_enter = sub.sc.enter
+    for each in args:
+        sub_sc_enter(each)
+
+    sub.eval(body)
+
+    analysed = self.sc.output
+
+    @_set_lineno(line)
+    def build_mk_func():
+        nonlocal mk_fn_flag
+        sub_a = sub.sc.output
+        ins = []
+        frees = list(sub_a.syms_free)
+
+        # get all cell names from bound variables
+        cells = [
+            n for n, sym in sub_a.syms_bound.items()
+            if sym.ty is SymType.cell
+        ]
+
+        if frees:  # handle closure conversions
+            mk_fn_flag |= I.MK_FN_HAS_CLOSURE
+
+            for n in frees:
+                if n in analysed.syms_bound:
+                    var_type = I.CellVar
+                else:
+                    var_type = I.FreeVar
+                ins.append(I.LOAD_CLOSURE(n, var_type))
+            ins.append(I.BUILD_TUPLE(len(frees)))
+
+        # create code object of subroutine
+        instructions = sub.build()
+        py_code = make_code_obj(name, filename, line, doc, args, frees,
+                                cells, instructions)
+        ins.extend([
+            I.LOAD_CONST(py_code),
+            I.LOAD_CONST(name),
+            I.MAKE_FUNCTION(mk_fn_flag)
+        ])
+
+        # if not anonymous function,
+        # we shall assign the function to a variable
+        if not anonymous:
+            fn_sym = analysed.syms_bound.get(name)
+            if not fn_sym:
+                store = I.STORE_GLOBAL(name)
+            elif fn_sym.ty is SymType.bound:
+                store = I.STORE_FAST(name)
+            elif fn_sym.ty is SymType.cell:
+                store = I.STORE_DEREF(name, I.CellVar)
+            else:
+                raise ValueError
+            ins.extend([I.DUP(), store])
+
+        return ins
+
+    self &lt;&lt; build_mk_func</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.get_attr"><code class="name flex">
+<span>def <span class="ident">get_attr</span></span>(<span>self, val, n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_attr(self, val, n: str):
+    set_lineno = _set_lineno(self.st.line)
+    self.eval(val)
+    self &lt;&lt; set_lineno(lambda: [I.LOAD_ATTR(n)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.get_item"><code class="name flex">
+<span>def <span class="ident">get_item</span></span>(<span>self, base, item)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_item(self, base, item: str):
+    set_lineno = _set_lineno(self.st.line)
+    self.eval(base)
+    self.eval(item)
+
+    self &lt;&lt; set_lineno(lambda: [I.BINARY(I.BinOp.SUBSCR)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.inside"><code class="name flex">
+<span>def <span class="ident">inside</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def inside(self):
+    return Builder(
+        self.sc.sub_scope(),
+        [],
+        self.st.copy(),
+    )</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.ite"><code class="name flex">
+<span>def <span class="ident">ite</span></span>(<span>self, cond, true_clause, false_clause)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ite(self, cond, true_clause, false_clause):
+    label_true = _new_unique_label(&#34;if.true&#34;)
+    label_end = _new_unique_label(&#34;if.end&#34;)
+
+    self.eval(cond)
+    self &lt;&lt; _set_lineno(
+        self.st.line)(lambda: [I.POP_JUMP_IF_TRUE(label_true)])
+    self.eval(false_clause)
+    self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_end), label_true])
+    self.eval(true_clause)
+    self &lt;&lt; (lambda: [label_end])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.lens"><code class="name flex">
+<span>def <span class="ident">lens</span></span>(<span>self, l, r)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lens(self, l, r):
+    self.eval(l)
+    self.eval(r)
+    self &lt;&lt; (lambda: [I.BUILD_MAP_UNPACK(2)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.line"><code class="name flex">
+<span>def <span class="ident">line</span></span>(<span>self, line, it)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def line(self, line: int, it):
+    self.st.line = line
+    return self.eval(it)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.loop"><code class="name flex">
+<span>def <span class="ident">loop</span></span>(<span>self, cond, body)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Note, the value of <code>body</code> in the last iteration will be returned.
+e.g.,
+z = 2
+f = while z &lt; 5 {
+z += z
+z
+}
+The value of <code>f</code> is 8</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loop(self, cond, body):
+    &#34;&#34;&#34;
+    Note, the value of `body` in the last iteration will be returned.
+    e.g.,
+        z = 2
+        f = while z &lt; 5 {
+            z += z
+            z
+        }
+    The value of `f` is 8
+    &#34;&#34;&#34;
+    label_setup = _new_unique_label(&#34;while.setup&#34;)
+    label_end = _new_unique_label(&#34;while.end&#34;)
+
+    self &lt;&lt; _set_lineno(
+        self.st.line)(lambda: [I.LOAD_CONST(None), label_setup])
+    self.eval(cond)
+    self &lt;&lt; (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
+    self.eval(body)
+    self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_setup), label_end])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.new"><code class="name flex">
+<span>def <span class="ident">new</span></span>(<span>self, ty, *args)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new(self, ty, *args):
+    set_lineno = _set_lineno(self.st.line)
+    self.eval(ty)
+
+    self.sc.enter(THIS_TEMP_REG)
+
+    # build this object
+    self &lt;&lt; set_lineno(lambda: [
+        I.DUP(),
+        I.LOAD_CONST(&#39;.t&#39;),
+        I.ROT2(),
+        I.BUILD_MAP(1),
+        I.STORE_FAST(THIS_TEMP_REG)
+    ])
+
+    self.eval_all(args)
+    n = len(args) + 1
+    # initialize this object
+    self &lt;&lt; (lambda: [
+        I.LOAD_FAST(THIS_TEMP_REG),
+        I.CALL_FUNCTION(n),
+        I.POP_TOP(),
+        I.LOAD_FAST(THIS_TEMP_REG)
+    ])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.record"><code class="name flex">
+<span>def <span class="ident">record</span></span>(<span>self, *kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def record(self, *kwargs):
+    set_lineno = _set_lineno(self.st.line)
+    if not kwargs:
+        self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(0)])
+    else:
+        keys, vals = zip(*kwargs)
+        n = len(keys)
+        self.eval_all(vals)
+        self.const(keys)
+        self &lt;&lt; set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.ret"><code class="name flex">
+<span>def <span class="ident">ret</span></span>(<span>self, v)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ret(self, v):
+    self.eval(v)
+    self &lt;&lt; (lambda: [I.RETURN_VALUE(), I.LOAD_CONST(None)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.set_attr"><code class="name flex">
+<span>def <span class="ident">set_attr</span></span>(<span>self, base, n, val)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_attr(self, base, n: str, val):
+    set_lineno = _set_lineno(self.st.line)
+    self.eval(val)
+    self.eval(base)
+    self &lt;&lt; set_lineno(lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.set_item"><code class="name flex">
+<span>def <span class="ident">set_item</span></span>(<span>self, base, item, val)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_item(self, base, item, val):
+    set_lineno = _set_lineno(self.st.line)
+    self.eval(val)
+    self.eval(base)
+    self.eval(item)
+    self &lt;&lt; set_lineno(lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.throw"><code class="name flex">
+<span>def <span class="ident">throw</span></span>(<span>self, v)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def throw(self, v):
+    self.eval(v)
+    self &lt;&lt; (lambda: [I.RAISE_VARARGS(1)])
+    self.const(None)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.tuple"><code class="name flex">
+<span>def <span class="ident">tuple</span></span>(<span>self, *elts)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tuple(self, *elts):
+    self.eval_all(elts)
+    n = len(elts)
+    self &lt;&lt; (lambda: [I.BUILD_TUPLE(n)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.var"><code class="name flex">
+<span>def <span class="ident">var</span></span>(<span>self, n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def var(self, n: str):
+    analysed = self.sc.output
+    self.sc.require(n)
+
+    @_set_lineno(self.st.line)
+    def build():
+        sym = analysed.syms_bound.get(n)
+        if sym:
+            if sym.ty is SymType.cell:
+                i = I.LOAD_DEREF(n, I.CellVar)
+            else:
+                i = I.LOAD_FAST(n)
+            return [i]
+        if n in analysed.syms_free:
+            i = I.LOAD_DEREF(n, I.FreeVar)
+        else:
+            i = I.LOAD_GLOBAL(n)
+        return [i]
+
+    self &lt;&lt; build</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.NamedObj"><code class="flex name class">
+<span>class <span class="ident">NamedObj</span></span>
+<span>(</span><span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NamedObj:
+    def __init__(self, n):
+        self.n = n
+
+    def __repr__(self):
+        return self.n</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.ScopeSolver"><code class="flex name class">
+<span>class <span class="ident">ScopeSolver</span></span>
+<span>(</span><span>n_enter, n_require, parent, children, output)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>We use a simple scoping rule, that all assignments enter symbols
+locally, i.e., free variables are readonly beyond where it's defined.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ScopeSolver:
+    &#34;&#34;&#34;We use a simple scoping rule, that all assignments enter symbols
+    locally, i.e., free variables are readonly beyond where it&#39;s defined.
+    &#34;&#34;&#34;
+    n_enter = attr.ib()  # type: Set[str]
+    n_require = attr.ib()  # type:  Set[str]
+    parent = attr.ib()  # type: Optional[&#39;ScopeSolver&#39;]
+    children = attr.ib()  # type: List[&#39;ScopeSolver&#39;]
+    output = attr.ib()  # type: Analysed
+
+    @classmethod
+    def outermost(cls):
+        return ScopeSolver(set(), set(), None, [], Analysed())
+
+    def sub_scope(self):
+        new = ScopeSolver(set(), set(), self, [], Analysed())
+        self.children.append(new)
+        return new
+
+    def enter(self, n: str):
+        self.n_enter.add(n)
+
+    def require(self, n: str):
+        self.n_require.add(n)
+
+    def _get_sym(self, n):
+        sym = self.output.syms_bound.get(n)
+        if sym:
+            return sym
+        if not self.parent:
+            return glob_sym(n)
+        return self.parent._get_sym(n)
+
+    def resolve(self):
+        n_enter = self.n_enter
+        analysed = self.output
+        if self.parent is None:
+            analysed.syms_bound = {}
+        else:
+            analysed.syms_bound = {
+                k: Sym(k, SymType.bound, analysed)
+                for k in n_enter
+            }
+        analysed.syms_free = {}
+
+        n_require = self.n_require.difference(n_enter)
+        for n in n_require:
+            sym = self._get_sym(n)
+            if sym and sym.ty is not SymType.glob:
+                sc = self
+                sym.ty = SymType.cell
+                scope = sym.scope
+
+                # add free variable `sym` to each scope
+                # between `sym`&#39;s define scope and use scope.
+                while scope is not sc.output:
+                    if n in sc.output.syms_free:
+                        break
+
+                    sc.output.syms_free[n] = sym
+                    sc = sc.parent
+
+        for child in self.children:
+            child.resolve()</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.ScopeSolver.outermost"><code class="name flex">
+<span>def <span class="ident">outermost</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def outermost(cls):
+    return ScopeSolver(set(), set(), None, [], Analysed())</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.ScopeSolver.enter"><code class="name flex">
+<span>def <span class="ident">enter</span></span>(<span>self, n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def enter(self, n: str):
+    self.n_enter.add(n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.ScopeSolver.require"><code class="name flex">
+<span>def <span class="ident">require</span></span>(<span>self, n)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def require(self, n: str):
+    self.n_require.add(n)</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.ScopeSolver.resolve"><code class="name flex">
+<span>def <span class="ident">resolve</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resolve(self):
+    n_enter = self.n_enter
+    analysed = self.output
+    if self.parent is None:
+        analysed.syms_bound = {}
+    else:
+        analysed.syms_bound = {
+            k: Sym(k, SymType.bound, analysed)
+            for k in n_enter
+        }
+    analysed.syms_free = {}
+
+    n_require = self.n_require.difference(n_enter)
+    for n in n_require:
+        sym = self._get_sym(n)
+        if sym and sym.ty is not SymType.glob:
+            sc = self
+            sym.ty = SymType.cell
+            scope = sym.scope
+
+            # add free variable `sym` to each scope
+            # between `sym`&#39;s define scope and use scope.
+            while scope is not sc.output:
+                if n in sc.output.syms_free:
+                    break
+
+                sc.output.syms_free[n] = sym
+                sc = sc.parent
+
+    for child in self.children:
+        child.resolve()</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.ScopeSolver.sub_scope"><code class="name flex">
+<span>def <span class="ident">sub_scope</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sub_scope(self):
+    new = ScopeSolver(set(), set(), self, [], Analysed())
+    self.children.append(new)
+    return new</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.SharedState"><code class="flex name class">
+<span>class <span class="ident">SharedState</span></span>
+<span>(</span><span>doc, line, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SharedState:
+    doc = attr.ib()  # type: str
+    line = attr.ib()  # type: int
+    filename = attr.ib()  # type: str
+
+    def copy(self):
+        return SharedState(self.doc, self.line, self.filename)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.SharedState.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self):
+    return SharedState(self.doc, self.line, self.filename)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Sym"><code class="flex name class">
+<span>class <span class="ident">Sym</span></span>
+<span>(</span><span>name, ty, scope=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Sym:
+    # if shared to other function objects
+    name = None  # type: str
+    ty = None  # type: SymType
+    scope: Optional[&#39;ScopeSolver&#39;]
+
+    def __init__(self, name: str, ty: SymType, scope=None):
+        self.name = name
+        self.ty = ty
+        self.scope = scope</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.Sym.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Sym.ty"><code class="name">var <span class="ident">ty</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.SymType"><code class="flex name class">
+<span>class <span class="ident">SymType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SymType(Enum):
+    cell = enum()
+    glob = enum()
+    bound = enum()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.stack_vm.emit.SymType.bound"><code class="name">var <span class="ident">bound</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.SymType.cell"><code class="name">var <span class="ident">cell</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.SymType.glob"><code class="name">var <span class="ident">glob</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="py_sexpr.stack_vm" href="index.html">py_sexpr.stack_vm</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="py_sexpr.stack_vm.emit.glob_sym" href="#py_sexpr.stack_vm.emit.glob_sym">glob_sym</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.make_code_obj" href="#py_sexpr.stack_vm.emit.make_code_obj">make_code_obj</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.module_code" href="#py_sexpr.stack_vm.emit.module_code">module_code</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.emit.Analysed" href="#py_sexpr.stack_vm.emit.Analysed">Analysed</a></code></h4>
+<ul class="">
+<li><code><a title="py_sexpr.stack_vm.emit.Analysed.syms_bound" href="#py_sexpr.stack_vm.emit.Analysed.syms_bound">syms_bound</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Analysed.syms_free" href="#py_sexpr.stack_vm.emit.Analysed.syms_free">syms_free</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.emit.Builder" href="#py_sexpr.stack_vm.emit.Builder">Builder</a></code></h4>
+<ul class="two-column">
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.assign" href="#py_sexpr.stack_vm.emit.Builder.assign">assign</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.bin" href="#py_sexpr.stack_vm.emit.Builder.bin">bin</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.block" href="#py_sexpr.stack_vm.emit.Builder.block">block</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.build" href="#py_sexpr.stack_vm.emit.Builder.build">build</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.call" href="#py_sexpr.stack_vm.emit.Builder.call">call</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.cmp" href="#py_sexpr.stack_vm.emit.Builder.cmp">cmp</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.const" href="#py_sexpr.stack_vm.emit.Builder.const">const</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.doc" href="#py_sexpr.stack_vm.emit.Builder.doc">doc</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.eval" href="#py_sexpr.stack_vm.emit.Builder.eval">eval</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.eval_all" href="#py_sexpr.stack_vm.emit.Builder.eval_all">eval_all</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.filename" href="#py_sexpr.stack_vm.emit.Builder.filename">filename</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.for_in" href="#py_sexpr.stack_vm.emit.Builder.for_in">for_in</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.func" href="#py_sexpr.stack_vm.emit.Builder.func">func</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.get_attr" href="#py_sexpr.stack_vm.emit.Builder.get_attr">get_attr</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.get_item" href="#py_sexpr.stack_vm.emit.Builder.get_item">get_item</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.inside" href="#py_sexpr.stack_vm.emit.Builder.inside">inside</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.ite" href="#py_sexpr.stack_vm.emit.Builder.ite">ite</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.lens" href="#py_sexpr.stack_vm.emit.Builder.lens">lens</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.line" href="#py_sexpr.stack_vm.emit.Builder.line">line</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.loop" href="#py_sexpr.stack_vm.emit.Builder.loop">loop</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.new" href="#py_sexpr.stack_vm.emit.Builder.new">new</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.record" href="#py_sexpr.stack_vm.emit.Builder.record">record</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.ret" href="#py_sexpr.stack_vm.emit.Builder.ret">ret</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.set_attr" href="#py_sexpr.stack_vm.emit.Builder.set_attr">set_attr</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.set_item" href="#py_sexpr.stack_vm.emit.Builder.set_item">set_item</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.throw" href="#py_sexpr.stack_vm.emit.Builder.throw">throw</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.tuple" href="#py_sexpr.stack_vm.emit.Builder.tuple">tuple</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.var" href="#py_sexpr.stack_vm.emit.Builder.var">var</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.emit.NamedObj" href="#py_sexpr.stack_vm.emit.NamedObj">NamedObj</a></code></h4>
+</li>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.emit.ScopeSolver" href="#py_sexpr.stack_vm.emit.ScopeSolver">ScopeSolver</a></code></h4>
+<ul class="">
+<li><code><a title="py_sexpr.stack_vm.emit.ScopeSolver.enter" href="#py_sexpr.stack_vm.emit.ScopeSolver.enter">enter</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.ScopeSolver.outermost" href="#py_sexpr.stack_vm.emit.ScopeSolver.outermost">outermost</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.ScopeSolver.require" href="#py_sexpr.stack_vm.emit.ScopeSolver.require">require</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.ScopeSolver.resolve" href="#py_sexpr.stack_vm.emit.ScopeSolver.resolve">resolve</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.ScopeSolver.sub_scope" href="#py_sexpr.stack_vm.emit.ScopeSolver.sub_scope">sub_scope</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.emit.SharedState" href="#py_sexpr.stack_vm.emit.SharedState">SharedState</a></code></h4>
+<ul class="">
+<li><code><a title="py_sexpr.stack_vm.emit.SharedState.copy" href="#py_sexpr.stack_vm.emit.SharedState.copy">copy</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.emit.Sym" href="#py_sexpr.stack_vm.emit.Sym">Sym</a></code></h4>
+<ul class="">
+<li><code><a title="py_sexpr.stack_vm.emit.Sym.name" href="#py_sexpr.stack_vm.emit.Sym.name">name</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Sym.ty" href="#py_sexpr.stack_vm.emit.Sym.ty">ty</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.stack_vm.emit.SymType" href="#py_sexpr.stack_vm.emit.SymType">SymType</a></code></h4>
+<ul class="">
+<li><code><a title="py_sexpr.stack_vm.emit.SymType.bound" href="#py_sexpr.stack_vm.emit.SymType.bound">bound</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.SymType.cell" href="#py_sexpr.stack_vm.emit.SymType.cell">cell</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.SymType.glob" href="#py_sexpr.stack_vm.emit.SymType.glob">glob</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.4</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

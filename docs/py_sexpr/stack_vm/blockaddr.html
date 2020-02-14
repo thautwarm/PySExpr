@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.4" />
-<title>py_sexpr.facility API documentation</title>
-<meta name="description" content="Utilities for building Python ASTs" />
+<title>py_sexpr.stack_vm.blockaddr API documentation</title>
+<meta name="description" content="This module preserved for further advanced features, like `Label as Value`, switch expressions." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,59 +17,26 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>py_sexpr.facility</code></h1>
+<h1 class="title">Module <code>py_sexpr.stack_vm.blockaddr</code></h1>
 </header>
 <section id="section-intro">
-<p>Utilities for building Python ASTs</p>
+<p>This module preserved for further advanced features, like <code>Label as Value</code>, switch expressions.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Utilities for building Python ASTs
+<pre><code class="python">&#34;&#34;&#34;This module preserved for further advanced features, like `Label as Value`, switch expressions.
 &#34;&#34;&#34;
-import ast_compat as astc
-import ast
-from enum import Enum
+from bytecode import Label
+import attr
+__all__ = [&#39;NamedLabel&#39;]
 
-__all__ = [
-    &#39;HS&#39;, &#39;RHS&#39;, &#39;LHS&#39;, &#39;NONE&#39;, &#39;name_of_id&#39;, &#39;equals&#39;, &#39;same_as&#39;,
-    &#39;assign_name&#39;, &#39;prefixed&#39;, &#39;PREFIX_OPT&#39;
-]
+WHY_CONTINUE = 0x0020
 
 
-class HS(Enum):
-    RHS = astc.Load()
-    LHS = astc.Store()
-
-
-RHS = HS.RHS
-LHS = HS.LHS
-NONE = astc.Constant(None)
-
-
-def name_of_id(id: str, hand_side: HS):
-    return astc.Name(id=id, ctx=hand_side.value)
-
-
-def equals(x: ast.expr, y: ast.expr):
-    return astc.Compare(left=x, ops=[astc.Eq()], comparators=[y])
-
-
-def same_as(x: ast.expr, y: ast.expr):
-    return astc.Compare(left=x, ops=[astc.Is()], comparators=[y])
-
-
-def assign_name(n: str, value: ast.expr):
-    return astc.Assign(targets=[name_of_id(n, LHS)], value=value)
-
-
-PREFIX = &#39;_pysexpr_&#39;
-# name prefix after linear scan
-PREFIX_OPT = &#39;_pysexpropt_&#39;
-
-
-def prefixed(s, prefix=PREFIX):
-    return &#39;{}{}&#39;.format(prefix, s)</code></pre>
+@attr.s(order=True, frozen=True)
+class NamedLabel(Label):
+    name = attr.ib()  # type: object</code></pre>
 </details>
 </section>
 <section>
@@ -77,107 +44,27 @@ def prefixed(s, prefix=PREFIX):
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="py_sexpr.facility.assign_name"><code class="name flex">
-<span>def <span class="ident">assign_name</span></span>(<span>n, value)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def assign_name(n: str, value: ast.expr):
-    return astc.Assign(targets=[name_of_id(n, LHS)], value=value)</code></pre>
-</details>
-</dd>
-<dt id="py_sexpr.facility.equals"><code class="name flex">
-<span>def <span class="ident">equals</span></span>(<span>x, y)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def equals(x: ast.expr, y: ast.expr):
-    return astc.Compare(left=x, ops=[astc.Eq()], comparators=[y])</code></pre>
-</details>
-</dd>
-<dt id="py_sexpr.facility.name_of_id"><code class="name flex">
-<span>def <span class="ident">name_of_id</span></span>(<span>id, hand_side)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def name_of_id(id: str, hand_side: HS):
-    return astc.Name(id=id, ctx=hand_side.value)</code></pre>
-</details>
-</dd>
-<dt id="py_sexpr.facility.prefixed"><code class="name flex">
-<span>def <span class="ident">prefixed</span></span>(<span>s, prefix='_pysexpr_')</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def prefixed(s, prefix=PREFIX):
-    return &#39;{}{}&#39;.format(prefix, s)</code></pre>
-</details>
-</dd>
-<dt id="py_sexpr.facility.same_as"><code class="name flex">
-<span>def <span class="ident">same_as</span></span>(<span>x, y)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def same_as(x: ast.expr, y: ast.expr):
-    return astc.Compare(left=x, ops=[astc.Is()], comparators=[y])</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="py_sexpr.facility.HS"><code class="flex name class">
-<span>class <span class="ident">HS</span></span>
-<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+<dt id="py_sexpr.stack_vm.blockaddr.NamedLabel"><code class="flex name class">
+<span>class <span class="ident">NamedLabel</span></span>
+<span>(</span><span>name)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>An enumeration.</p></section>
+<section class="desc"></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class HS(Enum):
-    RHS = astc.Load()
-    LHS = astc.Store()</code></pre>
+<pre><code class="python">class NamedLabel(Label):
+    name = attr.ib()  # type: object</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>enum.Enum</li>
+<li>bytecode.instr.Label</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="py_sexpr.facility.HS.LHS"><code class="name">var <span class="ident">LHS</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="py_sexpr.facility.HS.RHS"><code class="name">var <span class="ident">RHS</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
 </dd>
 </dl>
 </section>
@@ -190,26 +77,13 @@ def prefixed(s, prefix=PREFIX):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="py_sexpr" href="index.html">py_sexpr</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="py_sexpr.facility.assign_name" href="#py_sexpr.facility.assign_name">assign_name</a></code></li>
-<li><code><a title="py_sexpr.facility.equals" href="#py_sexpr.facility.equals">equals</a></code></li>
-<li><code><a title="py_sexpr.facility.name_of_id" href="#py_sexpr.facility.name_of_id">name_of_id</a></code></li>
-<li><code><a title="py_sexpr.facility.prefixed" href="#py_sexpr.facility.prefixed">prefixed</a></code></li>
-<li><code><a title="py_sexpr.facility.same_as" href="#py_sexpr.facility.same_as">same_as</a></code></li>
+<li><code><a title="py_sexpr.stack_vm" href="index.html">py_sexpr.stack_vm</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="py_sexpr.facility.HS" href="#py_sexpr.facility.HS">HS</a></code></h4>
-<ul class="">
-<li><code><a title="py_sexpr.facility.HS.LHS" href="#py_sexpr.facility.HS.LHS">LHS</a></code></li>
-<li><code><a title="py_sexpr.facility.HS.RHS" href="#py_sexpr.facility.HS.RHS">RHS</a></code></li>
-</ul>
+<h4><code><a title="py_sexpr.stack_vm.blockaddr.NamedLabel" href="#py_sexpr.stack_vm.blockaddr.NamedLabel">NamedLabel</a></code></h4>
 </li>
 </ul>
 </li>
