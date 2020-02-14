@@ -4,12 +4,12 @@ from typing import List, Dict, Callable, Optional, Set, Union
 from enum import Enum, auto as enum
 from functools import lru_cache
 from py_sexpr.stack_vm import instructions as I
-from py_sexpr.stack_vm.blockaddr import resolve_blockaddr, NamedLabel
+from py_sexpr.stack_vm.blockaddr import NamedLabel
 from sys import version_info
 PY38 = version_info >= (3, 8)
 _app = lambda arg: lambda f: f(arg)
 
-THIS = '@this@'
+THIS_TEMP_REG = 'reg.@this@'
 
 
 class NamedObj:
@@ -68,22 +68,15 @@ class Analysed:
     syms_free = None  # type: Dict[str, Sym]
     syms_bound = None  # type: Dict[str, Sym]
 
-    def get_var(self, n: str):
-        sym = self.syms_bound.get(n)
-        if sym:
-            return sym
-        sym = self.syms_free.get(n)
-        if sym:
-            return sym
-        return glob_sym(n)
-
 
 def _set_lineno(i: int):
     def wrap(f):
         def apply():
             instructions = f()
+            Instr = BC.Instr
             for instr in instructions:
-                instr.lineno = i
+                if isinstance(instr, Instr):
+                    instr.lineno = i
             return instructions
 
         return apply
@@ -128,16 +121,19 @@ class ScopeSolver:
     def resolve(self):
         n_enter = self.n_enter
         analysed = self.output
-        analysed.syms_bound = {
-            k: Sym(k, SymType.bound, analysed)
-            for k in n_enter
-        }
+        if self.parent is None:
+            analysed.syms_bound = {}
+        else:
+            analysed.syms_bound = {
+                k: Sym(k, SymType.bound, analysed)
+                for k in n_enter
+            }
         analysed.syms_free = {}
 
         n_require = self.n_require.difference(n_enter)
         for n in n_require:
             sym = self._get_sym(n)
-            if sym and sym.ty is SymType.bound:
+            if sym and sym.ty is not SymType.glob:
                 sc = self
                 sym.ty = SymType.cell
                 scope = sym.scope
@@ -164,10 +160,6 @@ class SharedState:
     def copy(self):
         return SharedState(self.doc, self.line, self.filename)
 
-    @classmethod
-    def unknown(cls):
-        return SharedState("", 1, "<unknown>")
-
 
 @attr.s
 class Builder:
@@ -179,7 +171,33 @@ class Builder:
         self.builders.append(other)
 
     def build(self):
-        return sum((b() for b in self.builders), [])
+        seq = sum((b() for b in self.builders), [])
+        n = len(seq)
+        Instr = BC.Instr
+
+        # remove redundant load/pop pairs
+        def _build(seq):
+            i = 0
+            n = len(seq)
+            while i < n:
+                each = seq[i]
+                if isinstance(each, Instr) and each.name.startswith('LOAD_'):
+                    nxt = i + 1
+                    if nxt < n:
+                        nxt_instr = seq[nxt]
+                        if isinstance(nxt_instr,
+                                      Instr) and nxt_instr.name == 'POP_TOP':
+                            i = nxt + 1
+                            continue
+                yield each
+                i += 1
+
+        while True:
+            seq = list(_build(seq))
+            if len(seq) == n:
+                break
+            n = len(seq)
+        return seq
 
     def inside(self):
         return Builder(
@@ -243,7 +261,7 @@ class Builder:
     def tuple(self, *elts):
         self.eval_all(elts)
         n = len(elts)
-        self << (lambda: I.BUILD_TUPLE(n))
+        self << (lambda: [I.BUILD_TUPLE(n)])
 
     def record(self, *kwargs):
         set_lineno = _set_lineno(self.st.line)
@@ -252,7 +270,7 @@ class Builder:
         else:
             keys, vals = zip(*kwargs)
             n = len(keys)
-            self.tuple(*vals)
+            self.eval_all(vals)
             self.const(keys)
             self << set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])
 
@@ -264,6 +282,7 @@ class Builder:
     def assign(self, n: str, v):
         self.eval(v)
         self._bind(n)
+        self << (lambda: [I.LOAD_CONST(None)])
 
     def get_attr(self, val, n: str):
         set_lineno = _set_lineno(self.st.line)
@@ -274,7 +293,7 @@ class Builder:
         set_lineno = _set_lineno(self.st.line)
         self.eval(val)
         self.eval(base)
-        self << set_lineno(lambda: [I.STORE_ATTR(n)])
+        self << set_lineno(lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
 
     def get_item(self, base, item: str):
         set_lineno = _set_lineno(self.st.line)
@@ -288,13 +307,13 @@ class Builder:
         self.eval(val)
         self.eval(base)
         self.eval(item)
-        self << set_lineno(lambda: [I.STORE_SUBSCR()])
+        self << set_lineno(lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
 
     def new(self, ty, *args):
         set_lineno = _set_lineno(self.st.line)
         self.eval(ty)
 
-        self.sc.enter(THIS)
+        self.sc.enter(THIS_TEMP_REG)
 
         # build this object
         self << set_lineno(lambda: [
@@ -302,17 +321,17 @@ class Builder:
             I.LOAD_CONST('.t'),
             I.ROT2(),
             I.BUILD_MAP(1),
-            I.STORE_FAST(THIS)
+            I.STORE_FAST(THIS_TEMP_REG)
         ])
 
         self.eval_all(args)
         n = len(args) + 1
         # initialize this object
         self << (lambda: [
-            I.LOAD_FAST(THIS),
+            I.LOAD_FAST(THIS_TEMP_REG),
             I.CALL_FUNCTION(n),
             I.POP_TOP(),
-            I.LOAD_FAST(THIS)
+            I.LOAD_FAST(THIS_TEMP_REG)
         ])
 
     def bin(self, l, op: I.BinOp, r):
@@ -420,16 +439,12 @@ class Builder:
         label_setup = _new_unique_label("while.setup")
         label_end = _new_unique_label("while.end")
 
-        self << _set_lineno(self.st.line)(
-            lambda: [I.LOAD_CONST(None), label_setup,
-                     I.POP_TOP()])
+        self << _set_lineno(
+            self.st.line)(lambda: [I.LOAD_CONST(None), label_setup])
         self.eval(cond)
-        self << (lambda: [I.POP_JUMP_IF_FALSE(label_end)])
+        self << (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
         self.eval(body)
         self << (lambda: [I.JUMP_ABSOLUTE(label_setup), label_end])
-
-    def define(self, name: Optional[str], args: List[str], body):
-        self.func(args, body, name)
 
     def func(self,
              args: List[str],
@@ -454,7 +469,7 @@ class Builder:
                 self.eval(each)
             n_defaults = len(defaults)
 
-            def build_defaults(_):
+            def build_defaults():
                 i = I.BUILD_TUPLE(n_defaults)
                 i.lineno = line
                 return [i]
@@ -508,14 +523,15 @@ class Builder:
             # if not anonymous function,
             # we shall assign the function to a variable
             if not anonymous:
-                fn_sym_scope = analysed.get_var(name).scope
-
-                if fn_sym_scope is SymType.bound:
+                fn_sym = analysed.syms_bound.get(name)
+                if not fn_sym:
+                    store = I.STORE_GLOBAL(name)
+                elif fn_sym.ty is SymType.bound:
                     store = I.STORE_FAST(name)
-                elif fn_sym_scope is SymType.cell:
+                elif fn_sym.ty is SymType.cell:
                     store = I.STORE_DEREF(name, I.CellVar)
                 else:
-                    store = I.STORE_GLOBAL(name)
+                    raise ValueError
                 ins.extend([I.DUP(), store])
 
             return ins
@@ -543,14 +559,17 @@ def make_code_obj(name: str, filename: str, lineno: int, doc: str,
     bc_code.cellvars.extend(cells)
 
     stack_size = bc_code.compute_stacksize()
-    c_code = resolve_blockaddr(bc_code)
+    c_code = bc_code.to_concrete_bytecode()
     c_code.flags = BC.flags.infer_flags(c_code)
-
-    py_code = c_code.to_code(stack_size)
+    py_code = c_code.to_code(stacksize=stack_size)
     return py_code
 
 
-def module_code(name: str, filename: str, lineno: int, doc: str, sexpr):
+def module_code(sexpr,
+                name: str = "<unknown>",
+                filename: str = "<unknown>",
+                lineno: int = 1,
+                doc: str = ""):
     """Create a module's code object from given metadata and s-expression.
     """
     module_builder = Builder(ScopeSolver.outermost(), [],

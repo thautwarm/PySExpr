@@ -1,5 +1,5 @@
 from py_sexpr.stack_vm import instr_names
-from py_sexpr.stack_vm.blockaddr import IndirectJump, NamedLabel
+from py_sexpr.stack_vm.blockaddr import NamedLabel
 from enum import Enum, auto as _auto
 from bytecode import Instr
 from bytecode.instr import FreeVar, CellVar
@@ -84,10 +84,6 @@ def JUMP_ABSOLUTE(i):
     return Instr(instr_names.JUMP_ABSOLUTE, i)
 
 
-def INDIR():
-    return IndirectJump("END_FINALLY")
-
-
 def BINARY(bin_op):
     return Instr('BINARY_' + bin_op.name)
 
@@ -162,7 +158,7 @@ def GET_ITER():
 
 
 def FOR_ITER(l: NamedLabel):
-    return Instr(instr_names.GET_ITER, l)
+    return Instr(instr_names.FOR_ITER, l)
 
 
 # for Python 3.8-

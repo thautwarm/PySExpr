@@ -4,8 +4,11 @@
 """
 
 import ast_compat as astc
-from bytecode import Compare
+from py_sexpr.stack_vm.instructions import BinOp, UOp
+from bytecode.instr import Compare
 from typing import List, Optional, Tuple
+
+THIS_NAME = ".this"
 
 
 def call(f, *args):
@@ -17,7 +20,7 @@ def assign(n: str, value):
 
 
 def define(func_name: Optional[str], args: List[str], body):
-    args.append('this')
+    args.append(THIS_NAME)
     return "func", args, body, func_name, [const(None)]
 
 
@@ -56,12 +59,20 @@ def isa(value, ty):
 
     Inheritance feature is omitted, due to the lack of use cases.
     """
-    lhs = ('call', ('getAttr', value, 'get'), const('.t'))
+    lhs = ('call', ('get_attr', value, 'get'), const('.t'))
     return 'cmp', lhs, Compare.IS, ty
 
 
 def cmp(l, op: Compare, r):
     return 'cmp', l, op, r
+
+
+def binop(l, op: BinOp, r):
+    return 'bin', l, op, r
+
+
+def document(doc: str, term):
+    return 'doc', doc, term
 
 
 def new(ty, *args):
@@ -86,7 +97,7 @@ def new(ty, *args):
             assign("inst", new(var("MyType"), const(1), const(2))))
     ```
     """
-    return ('this', ty, *args)
+    return ('new', ty, *args)
 
 
 def var(n: str):
@@ -189,3 +200,6 @@ def metadata(line: int, column: int, filename: str, term):
     """Set metadata to s-expressions.
     """
     return 'line', line, ('filename', filename, term)
+
+
+this = var(THIS_NAME)
