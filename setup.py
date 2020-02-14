@@ -20,7 +20,7 @@ setup(
     author_email='twshere@outlook.com',
     packages=find_packages(),
     entry_points={"console_scripts": []},
-    install_requires=['attrs', 'bytecode>=0.10.0'],
+    install_requires=['attrs>=19.3.0', 'bytecode>=0.10.0'],
     platforms="any",
     classifiers=[
         "Programming Language :: Python :: 3.5",

@@ -1,0 +1,8 @@
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NameError
+
+[run]
+omit = /home/travis/virtualenv/*
+       runtests/*
