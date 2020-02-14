@@ -4,7 +4,7 @@
 """
 from py_sexpr.stack_vm.instructions import BinOp, UOp
 from bytecode.instr import Compare
-from typing import List, Optional
+from typing import List, Optional, Union, Tuple
 assert UOp
 __all__ = [
     'Compare',
@@ -38,18 +38,14 @@ __all__ = [
 ]
 THIS_NAME = ".this"
 
-Compare
-"""enumeration of comparison operations"""
-
-BinOp
-"""enumeration of binary operations"""
+SExpr = Union[Tuple['SExpr', ...], int, float, complex, None, str, bool]
 
 
-def call(f, *args):
+def call(f: SExpr, *args: SExpr) -> SExpr:
     return ('call', f, *args)
 
 
-def assign(n: str, value):
+def assign(n: str, value: SExpr) -> SExpr:
     return 'assign', n, value
 
 
@@ -58,29 +54,32 @@ def define(func_name: Optional[str], args: List[str], body):
     return "func", args, body, func_name, [const(None)]
 
 
-def const(constant):
+def const(constant: SExpr) -> SExpr:
     """
-    a constant can be
+    This is necessary only if you needs tuple constants,
+    otherwise `const(a)` is equal to `a`.
+
+    A constant can be
     - a tuple made of constants
-    - a float/int/str/complex/bool
+    - a float/int/str/complex/bool/None
     - None
     """
     return 'const', constant
 
 
-def record(*args, **kv_pairs):
+def record(*args: SExpr, **kv_pairs: SExpr) -> SExpr:
     return ('record', *args, *kv_pairs.items())
 
 
-def lens(l, r):
+def lens(l: SExpr, r: SExpr) -> SExpr:
     return 'lens', l, r
 
 
-def throw(value):
+def throw(value: SExpr) -> SExpr:
     return 'throw', value
 
 
-def isa(value, ty):
+def isa(value: SExpr, ty: SExpr) -> SExpr:
     """Check if the left is instance of the right.
 
     Note that it doesn't use Python's isinstance protocol,
@@ -97,19 +96,19 @@ def isa(value, ty):
     return 'cmp', lhs, Compare.IS, ty
 
 
-def cmp(l, op: Compare, r):
+def cmp(l: SExpr, op: Compare, r: SExpr) -> SExpr:
     return 'cmp', l, op, r
 
 
-def binop(l, op: BinOp, r):
+def binop(l: SExpr, op: BinOp, r: SExpr) -> SExpr:
     return 'bin', l, op, r
 
 
-def document(doc: str, term):
+def document(doc: str, term: SExpr) -> SExpr:
     return 'doc', doc, term
 
 
-def new(ty, *args):
+def new(ty: SExpr, *args: SExpr) -> SExpr:
     """
     It's made for supporting javascript style new.
 
@@ -134,36 +133,36 @@ def new(ty, *args):
     return ('new', ty, *args)
 
 
-def var(n: str):
+def var(n: str) -> SExpr:
     return "var", n
 
 
-def mktuple(*values):
+def mktuple(*values: SExpr) -> SExpr:
     """Make a tuple"""
     return ('tuple', *values)
 
 
-def set_item(base, item, val):
+def set_item(base: SExpr, item: SExpr, val: SExpr) -> SExpr:
     """Basically, `base[item] = value`, and the return value is `None`"""
     return "set_item", base, item, val
 
 
-def get_item(base, item):
+def get_item(base: SExpr, item: SExpr) -> SExpr:
     """`base[item]`"""
     return "get_item", base, item
 
 
-def set_attr(base, attr: str, val):
+def set_attr(base: SExpr, attr: str, val: SExpr) -> SExpr:
     """Basically, `base[item] = value`, and the return value is `None`"""
     return "set_attr", base, attr, val
 
 
-def get_attr(base, attr: str):
+def get_attr(base: SExpr, attr: str) -> SExpr:
     """`base[attr]`"""
     return "get_attr", base, attr
 
 
-def block(*suite):
+def block(*suite: SExpr) -> SExpr:
     """A block of s-expressions.
 
     If `suite` is empty, return value is `None`.
@@ -173,7 +172,7 @@ def block(*suite):
     return ('block', *suite)
 
 
-def for_range(n: str, low, high, body):
+def for_range(n: str, low: SExpr, high: SExpr, body: SExpr) -> SExpr:
     """
     Basically it's
     ```python
@@ -186,7 +185,7 @@ def for_range(n: str, low, high, body):
     return for_in(n, call(var("range"), low, high), body)
 
 
-def for_in(n: str, obj, body):
+def for_in(n: str, obj: SExpr, body: SExpr) -> SExpr:
     """
    Basically it's
    ```python
@@ -199,7 +198,7 @@ def for_in(n: str, obj, body):
     return 'for_in', n, obj, body
 
 
-def ite(cond, te, fe):
+def ite(cond: SExpr, te: SExpr, fe: SExpr) -> SExpr:
     """
     Basically it's
     ```python
@@ -211,7 +210,7 @@ def ite(cond, te, fe):
     return 'ite', cond, te, fe
 
 
-def loop(cond, body):
+def loop(cond: SExpr, body: SExpr) -> SExpr:
     """
     Basically it's
     ```python
@@ -226,14 +225,14 @@ def loop(cond, body):
     return 'loop', cond, body
 
 
-def ret(value=None):
+def ret(value: SExpr = None) -> SExpr:
     return 'ret', value
 
 
-def metadata(line: int, column: int, filename: str, term):
+def metadata(line: int, column: int, filename: str, term: SExpr) -> SExpr:
     """Set metadata to s-expressions.
     """
     return 'line', line, ('filename', filename, term)
 
 
-this = var(THIS_NAME)
+this = var(THIS_NAME)  # type: SExpr
