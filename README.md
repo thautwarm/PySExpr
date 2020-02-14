@@ -6,7 +6,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-Green.svg?style=flat)](https://github.com/thautwarm/EBNFParser/blob/boating-new/LICENSE)
 
 A general-purpose package for gaining expression-first capability in Python
-world. Current implemented by taking advantage of Python bytecode, and available since Python 3.5, i.e.,
+world. Currently implemented by taking advantage of Python bytecode, and available since Python 3.5, i.e.,
 by using PySExpr as a cross-version compiler, you don't have to worry about the Python version. 
 
 See [documentation](http://htmlpreview.github.io/?https://github.com/thautwarm/PySExpr/blob/gh-pages/docs/py_sexpr/index.html).
@@ -24,6 +24,15 @@ pip install pysexpr
 PySExpr is a framework for better(cross-version, efficient, expressiveness) metaprogramming in Python.
 
 PySExpr is not a programming language, but a code generation back end good to be targeted.
+
+PySExpr is a killer tool when it comes to programmable programming in Python. Comparing to using Python ASTs,
+we have perfect compatibility; in terms of generating Python code, PySExpr directly uses Python bytecode
+and produces faster code, at the same time you can have **block expressions**, **assignment expressions**
+or multiline-lambdas even in Python 3.5.
+
+As this library is so useful, certainly there're many other scenarios for it to stand out. For example,
+we can backport Python3.8/[PEP572](https://www.python.org/dev/peps/pep-0572/)'s assignment expressions to Python 3.5+, by composing this library with the mechanisms proposed by [future-strings](https://github.com/asottile/future-fstrings).
+
 
 ## Preview
 

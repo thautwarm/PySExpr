@@ -4,7 +4,7 @@
 
 ------------------
 
-`SExpr` is the type of our terms, and Python leaf types are also belong to `SExpr`, such as
+`SExpr` is the type of our terms, and all Python leaf types also belong to it, such as
 `int`, `float`, `bool`, `complex`, `None`, `str`.
 
 To construct non-leaf `SExpr`s, you shall use SExpr constructors provided in this module.
