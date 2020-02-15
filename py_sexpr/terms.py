@@ -95,9 +95,8 @@ def const(constant: SExpr) -> SExpr:
 
     - a tuple made of constants
 
-    - a float/int/str/complex/bool/None
+    - a "leaf" literal, i.e, one of `float`/`int`/`str`/`complex`/`bool`/`None`
 
-    - None
     """
     return 'const', constant
 

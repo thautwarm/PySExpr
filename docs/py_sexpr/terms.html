@@ -23,7 +23,7 @@
 <p>This module provides interfaces to build S-expression.</p>
 <p><strong>If you don't care about the implementation details, you only need to check this module.</strong></p>
 <hr>
-<p><code>SExpr</code> is the type of our terms, and Python leaf types are also belong to <code>SExpr</code>, such as
+<p><code>SExpr</code> is the type of our terms, and all Python leaf types also belong to it, such as
 <code>int</code>, <code>float</code>, <code>bool</code>, <code>complex</code>, <code>None</code>, <code>str</code>.</p>
 <p>To construct non-leaf <code>SExpr</code>s, you shall use SExpr constructors provided in this module.</p>
 <p>For instance, to construct</p>
@@ -49,7 +49,7 @@ are <code>SExpr</code>s,</p>
 
 ------------------
 
-`SExpr` is the type of our terms, and Python leaf types are also belong to `SExpr`, such as
+`SExpr` is the type of our terms, and all Python leaf types also belong to it, such as
 `int`, `float`, `bool`, `complex`, `None`, `str`.
 
 To construct non-leaf `SExpr`s, you shall use SExpr constructors provided in this module.
@@ -70,6 +70,7 @@ assert UOp
 __all__ = [
     &#39;Compare&#39;,
     &#39;BinOp&#39;,
+    &#39;UOp&#39;,
     &#39;call&#39;,
     &#39;assign&#39;,
     &#39;define&#39;,
@@ -80,6 +81,7 @@ __all__ = [
     &#39;this&#39;,
     &#39;isa&#39;,
     &#39;cmp&#39;,
+    &#39;uop&#39;,
     &#39;binop&#39;,
     &#39;document&#39;,
     &#39;metadata&#39;,
@@ -138,9 +140,8 @@ def const(constant: SExpr) -&gt; SExpr:
 
     - a tuple made of constants
 
-    - a float/int/str/complex/bool/None
+    - a &#34;leaf&#34; literal, i.e, one of `float`/`int`/`str`/`complex`/`bool`/`None`
 
-    - None
     &#34;&#34;&#34;
     return &#39;const&#39;, constant
 
@@ -178,6 +179,10 @@ def cmp(l: SExpr, op: Compare, r: SExpr) -&gt; SExpr:
     return &#39;cmp&#39;, l, op, r
 
 
+def uop(op: UOp, term: SExpr) -&gt; SExpr:
+    return &#39;un&#39;, op, term
+
+
 def binop(l: SExpr, op: BinOp, r: SExpr) -&gt; SExpr:
     return &#39;bin&#39;, l, op, r
 
@@ -204,7 +209,8 @@ def new(ty: SExpr, *args: SExpr) -&gt; SExpr:
             define(
                 &#34;MyType&#34;, [&#34;x&#34;, &#34;y&#34;],
                 block(set_index(var(&#34;this&#34;), const(&#34;x&#34;), var(&#34;x&#34;)),
-                      set_index(var(&#34;this&#34;), const(&#34;y&#34;), var(&#34;y&#34;)))),
+                      set_index(var(&#34;this&#34;), const(&#34;y&#34;), var(&#34;y&#34;)),
+                      this)),
             assign(&#34;inst&#34;, new(var(&#34;MyType&#34;), const(1), const(2))))
     ```
     &#34;&#34;&#34;
@@ -408,10 +414,7 @@ otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
 <p>a tuple made of constants</p>
 </li>
 <li>
-<p>a float/int/str/complex/bool/None</p>
-</li>
-<li>
-<p>None</p>
+<p>a "leaf" literal, i.e, one of <code>float</code>/<code>int</code>/<code>str</code>/<code>complex</code>/<code>bool</code>/<code>None</code></p>
 </li>
 </ul></section>
 <details class="source">
@@ -427,9 +430,8 @@ otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
 
     - a tuple made of constants
 
-    - a float/int/str/complex/bool/None
+    - a &#34;leaf&#34; literal, i.e, one of `float`/`int`/`str`/`complex`/`bool`/`None`
 
-    - None
     &#34;&#34;&#34;
     return &#39;const&#39;, constant</code></pre>
 </details>
@@ -685,7 +687,8 @@ and <code>dict['.t']</code> is the type.</p>
         define(
             &quot;MyType&quot;, [&quot;x&quot;, &quot;y&quot;],
             block(set_index(var(&quot;this&quot;), const(&quot;x&quot;), var(&quot;x&quot;)),
-                  set_index(var(&quot;this&quot;), const(&quot;y&quot;), var(&quot;y&quot;)))),
+                  set_index(var(&quot;this&quot;), const(&quot;y&quot;), var(&quot;y&quot;)),
+                  this)),
         assign(&quot;inst&quot;, new(var(&quot;MyType&quot;), const(1), const(2))))
 </code></pre></section>
 <details class="source">
@@ -710,7 +713,8 @@ and <code>dict['.t']</code> is the type.</p>
             define(
                 &#34;MyType&#34;, [&#34;x&#34;, &#34;y&#34;],
                 block(set_index(var(&#34;this&#34;), const(&#34;x&#34;), var(&#34;x&#34;)),
-                      set_index(var(&#34;this&#34;), const(&#34;y&#34;), var(&#34;y&#34;)))),
+                      set_index(var(&#34;this&#34;), const(&#34;y&#34;), var(&#34;y&#34;)),
+                      this)),
             assign(&#34;inst&#34;, new(var(&#34;MyType&#34;), const(1), const(2))))
     ```
     &#34;&#34;&#34;
@@ -782,6 +786,19 @@ and <code>dict['.t']</code> is the type.</p>
 </summary>
 <pre><code class="python">def throw(value: SExpr) -&gt; SExpr:
     return &#39;throw&#39;, value</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.uop"><code class="name flex">
+<span>def <span class="ident">uop</span></span>(<span>op: <a title="py_sexpr.stack_vm.instructions.UOp" href="stack_vm/instructions.html#py_sexpr.stack_vm.instructions.UOp">UOp</a>, term: SExpr) -> SExpr</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uop(op: UOp, term: SExpr) -&gt; SExpr:
+    return &#39;un&#39;, op, term</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.var"><code class="name flex">
@@ -969,6 +986,47 @@ and <code>dict['.t']</code> is the type.</p>
 </dd>
 </dl>
 </dd>
+<dt id="py_sexpr.terms.UOp"><code class="flex name class">
+<span>class <span class="ident">UOp</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UOp(Enum):
+    POSITIVE = _auto()
+    NEGATIVE = _auto()
+    NOT = _auto()
+    INVERT = _auto()
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="py_sexpr.terms.UOp.INVERT"><code class="name">var <span class="ident">INVERT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.UOp.NEGATIVE"><code class="name">var <span class="ident">NEGATIVE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.UOp.NOT"><code class="name">var <span class="ident">NOT</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="py_sexpr.terms.UOp.POSITIVE"><code class="name">var <span class="ident">POSITIVE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -1009,6 +1067,7 @@ and <code>dict['.t']</code> is the type.</p>
 <li><code><a title="py_sexpr.terms.set_attr" href="#py_sexpr.terms.set_attr">set_attr</a></code></li>
 <li><code><a title="py_sexpr.terms.set_item" href="#py_sexpr.terms.set_item">set_item</a></code></li>
 <li><code><a title="py_sexpr.terms.throw" href="#py_sexpr.terms.throw">throw</a></code></li>
+<li><code><a title="py_sexpr.terms.uop" href="#py_sexpr.terms.uop">uop</a></code></li>
 <li><code><a title="py_sexpr.terms.var" href="#py_sexpr.terms.var">var</a></code></li>
 </ul>
 </li>
@@ -1047,6 +1106,15 @@ and <code>dict['.t']</code> is the type.</p>
 <li><code><a title="py_sexpr.terms.Compare.LT" href="#py_sexpr.terms.Compare.LT">LT</a></code></li>
 <li><code><a title="py_sexpr.terms.Compare.NE" href="#py_sexpr.terms.Compare.NE">NE</a></code></li>
 <li><code><a title="py_sexpr.terms.Compare.NOT_IN" href="#py_sexpr.terms.Compare.NOT_IN">NOT_IN</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="py_sexpr.terms.UOp" href="#py_sexpr.terms.UOp">UOp</a></code></h4>
+<ul class="">
+<li><code><a title="py_sexpr.terms.UOp.INVERT" href="#py_sexpr.terms.UOp.INVERT">INVERT</a></code></li>
+<li><code><a title="py_sexpr.terms.UOp.NEGATIVE" href="#py_sexpr.terms.UOp.NEGATIVE">NEGATIVE</a></code></li>
+<li><code><a title="py_sexpr.terms.UOp.NOT" href="#py_sexpr.terms.UOp.NOT">NOT</a></code></li>
+<li><code><a title="py_sexpr.terms.UOp.POSITIVE" href="#py_sexpr.terms.UOp.POSITIVE">POSITIVE</a></code></li>
 </ul>
 </li>
 </ul>

@@ -96,19 +96,16 @@ class Analysed:
     syms_bound = None  # type: Dict[str, Sym]
 
 
-def _set_lineno(i: int):
-    def wrap(f):
-        def apply():
-            instructions = f()
-            Instr = BC.Instr
-            for instr in instructions:
-                if isinstance(instr, Instr):
-                    instr.lineno = i
-            return instructions
+def _set_lineno(i: int, f):
+    def apply():
+        instructions = f()
+        Instr = BC.Instr
+        for instr in instructions:
+            if isinstance(instr, Instr):
+                instr.lineno = i
+        return instructions
 
-        return apply
-
-    return wrap
+    return apply
 
 
 @attr.s
@@ -195,7 +192,8 @@ class Builder:
     st = attr.ib()  # type: SharedState
 
     def __lshift__(self, other: Callable[[], List[Union[BC.Instr, BC.Label]]]):
-        self.builders.append(other)
+
+        self.builders.append(_set_lineno(self.st.line, other))
 
     def build(self):
         seq = sum((b() for b in self.builders), [])
@@ -246,7 +244,6 @@ class Builder:
             eval(each)
 
     def const(self, value):
-        @_set_lineno(self.st.line)
         def build():
             return [I.LOAD_CONST(value)]
 
@@ -257,7 +254,6 @@ class Builder:
         self.eval_all(args)
         n = len(args)
 
-        @_set_lineno(self.st.line)
         def build():
             i = I.CALL_FUNCTION(n)
             return [i]
@@ -268,7 +264,6 @@ class Builder:
         analysed = self.sc.output
         self.sc.require(n)
 
-        @_set_lineno(self.st.line)
         def build():
             sym = analysed.syms_bound.get(n)
             if sym:
@@ -291,21 +286,20 @@ class Builder:
         self &lt;&lt; (lambda: [I.BUILD_TUPLE(n)])
 
     def record(self, *kwargs):
-        set_lineno = _set_lineno(self.st.line)
         n = len(kwargs)
         if not kwargs:
-            self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(0)])
+            self &lt;&lt; (lambda: [I.BUILD_MAP(0)])
         elif PY35:
             eval = self.eval
             for key, val in kwargs:
                 eval(key)
                 eval(val)
-            self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(n)])
+            self &lt;&lt; (lambda: [I.BUILD_MAP(n)])
         else:
             keys, vals = zip(*kwargs)
             self.eval_all(vals)
             self.const(keys)
-            self &lt;&lt; set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])
+            self &lt;&lt; (lambda: [I.BUILD_CONST_KET_MAP(n)])
 
     def lens(self, l, r):
         self.eval(l)
@@ -318,38 +312,33 @@ class Builder:
         self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
 
     def get_attr(self, val, n: str):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(val)
-        self &lt;&lt; set_lineno(lambda: [I.LOAD_ATTR(n)])
+        self &lt;&lt; (lambda: [I.LOAD_ATTR(n)])
 
     def set_attr(self, base, n: str, val):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(val)
         self.eval(base)
-        self &lt;&lt; set_lineno(lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
+        self &lt;&lt; (lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
 
     def get_item(self, base, item: str):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(base)
         self.eval(item)
 
-        self &lt;&lt; set_lineno(lambda: [I.BINARY(I.BinOp.SUBSCR)])
+        self &lt;&lt; (lambda: [I.BINARY(I.BinOp.SUBSCR)])
 
     def set_item(self, base, item, val):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(val)
         self.eval(base)
         self.eval(item)
-        self &lt;&lt; set_lineno(lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
+        self &lt;&lt; (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
 
     def new(self, ty, *args):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(ty)
 
         self.sc.enter(THIS_TEMP_REG)
 
         # build this object
-        self &lt;&lt; set_lineno(lambda: [
+        self &lt;&lt; (lambda: [
             I.DUP(),
             I.LOAD_CONST(&#39;.t&#39;),
             I.ROT2(),
@@ -360,30 +349,28 @@ class Builder:
         self.eval_all(args)
         n = len(args) + 1
         # initialize this object
-        self &lt;&lt; (lambda: [
-            I.LOAD_FAST(THIS_TEMP_REG),
-            I.CALL_FUNCTION(n),
-            I.POP_TOP(),
-            I.LOAD_FAST(THIS_TEMP_REG)
-        ])
+        self &lt;&lt; (lambda: [I.LOAD_FAST(THIS_TEMP_REG), I.CALL_FUNCTION(n)])
+
+    def un(self, op: I.UOp, term):
+        &#34;&#34;&#34;emit unary operation&#34;&#34;&#34;
+        self.eval(term)
+        self &lt;&lt; (lambda: [I.UNARY(op)])
 
     def bin(self, l, op: I.BinOp, r):
-        set_lineno = _set_lineno(self.st.line)
+        &#34;&#34;&#34;emit binary operation&#34;&#34;&#34;
         self.eval(l)
         self.eval(r)
-        self &lt;&lt; set_lineno(lambda: [I.BINARY(op)])
+        self &lt;&lt; (lambda: [I.BINARY(op)])
 
     def cmp(self, l, op: BC.Compare, r):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(l)
         self.eval(r)
-        self &lt;&lt; set_lineno(lambda: [I.COMPARE_OP(op)])
+        self &lt;&lt; (lambda: [I.COMPARE_OP(op)])
 
     def _bind(self, n: str):
         analysed = self.sc.output
         self.sc.enter(n)
 
-        @_set_lineno(self.st.line)
         def build():
             sym = analysed.syms_bound.get(n)
             if sym:
@@ -427,8 +414,7 @@ class Builder:
         label_end = _new_unique_label(&#34;if.end&#34;)
 
         self.eval(cond)
-        self &lt;&lt; _set_lineno(
-            self.st.line)(lambda: [I.POP_JUMP_IF_TRUE(label_true)])
+        self &lt;&lt; (lambda: [I.POP_JUMP_IF_TRUE(label_true)])
         self.eval(false_clause)
         self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_end), label_true])
         self.eval(true_clause)
@@ -472,8 +458,7 @@ class Builder:
         label_setup = _new_unique_label(&#34;while.setup&#34;)
         label_end = _new_unique_label(&#34;while.end&#34;)
 
-        self &lt;&lt; _set_lineno(
-            self.st.line)(lambda: [I.LOAD_CONST(None), label_setup])
+        self &lt;&lt; (lambda: [I.LOAD_CONST(None), label_setup])
         self.eval(cond)
         self &lt;&lt; (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
         self.eval(body)
@@ -519,7 +504,6 @@ class Builder:
 
         analysed = self.sc.output
 
-        @_set_lineno(line)
         def build_mk_func():
             nonlocal mk_fn_flag
             sub_a = sub.sc.output
@@ -762,7 +746,8 @@ def glob_sym(n: str):
     st = attr.ib()  # type: SharedState
 
     def __lshift__(self, other: Callable[[], List[Union[BC.Instr, BC.Label]]]):
-        self.builders.append(other)
+
+        self.builders.append(_set_lineno(self.st.line, other))
 
     def build(self):
         seq = sum((b() for b in self.builders), [])
@@ -813,7 +798,6 @@ def glob_sym(n: str):
             eval(each)
 
     def const(self, value):
-        @_set_lineno(self.st.line)
         def build():
             return [I.LOAD_CONST(value)]
 
@@ -824,7 +808,6 @@ def glob_sym(n: str):
         self.eval_all(args)
         n = len(args)
 
-        @_set_lineno(self.st.line)
         def build():
             i = I.CALL_FUNCTION(n)
             return [i]
@@ -835,7 +818,6 @@ def glob_sym(n: str):
         analysed = self.sc.output
         self.sc.require(n)
 
-        @_set_lineno(self.st.line)
         def build():
             sym = analysed.syms_bound.get(n)
             if sym:
@@ -858,21 +840,20 @@ def glob_sym(n: str):
         self &lt;&lt; (lambda: [I.BUILD_TUPLE(n)])
 
     def record(self, *kwargs):
-        set_lineno = _set_lineno(self.st.line)
         n = len(kwargs)
         if not kwargs:
-            self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(0)])
+            self &lt;&lt; (lambda: [I.BUILD_MAP(0)])
         elif PY35:
             eval = self.eval
             for key, val in kwargs:
                 eval(key)
                 eval(val)
-            self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(n)])
+            self &lt;&lt; (lambda: [I.BUILD_MAP(n)])
         else:
             keys, vals = zip(*kwargs)
             self.eval_all(vals)
             self.const(keys)
-            self &lt;&lt; set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])
+            self &lt;&lt; (lambda: [I.BUILD_CONST_KET_MAP(n)])
 
     def lens(self, l, r):
         self.eval(l)
@@ -885,38 +866,33 @@ def glob_sym(n: str):
         self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
 
     def get_attr(self, val, n: str):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(val)
-        self &lt;&lt; set_lineno(lambda: [I.LOAD_ATTR(n)])
+        self &lt;&lt; (lambda: [I.LOAD_ATTR(n)])
 
     def set_attr(self, base, n: str, val):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(val)
         self.eval(base)
-        self &lt;&lt; set_lineno(lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
+        self &lt;&lt; (lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
 
     def get_item(self, base, item: str):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(base)
         self.eval(item)
 
-        self &lt;&lt; set_lineno(lambda: [I.BINARY(I.BinOp.SUBSCR)])
+        self &lt;&lt; (lambda: [I.BINARY(I.BinOp.SUBSCR)])
 
     def set_item(self, base, item, val):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(val)
         self.eval(base)
         self.eval(item)
-        self &lt;&lt; set_lineno(lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
+        self &lt;&lt; (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
 
     def new(self, ty, *args):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(ty)
 
         self.sc.enter(THIS_TEMP_REG)
 
         # build this object
-        self &lt;&lt; set_lineno(lambda: [
+        self &lt;&lt; (lambda: [
             I.DUP(),
             I.LOAD_CONST(&#39;.t&#39;),
             I.ROT2(),
@@ -927,30 +903,28 @@ def glob_sym(n: str):
         self.eval_all(args)
         n = len(args) + 1
         # initialize this object
-        self &lt;&lt; (lambda: [
-            I.LOAD_FAST(THIS_TEMP_REG),
-            I.CALL_FUNCTION(n),
-            I.POP_TOP(),
-            I.LOAD_FAST(THIS_TEMP_REG)
-        ])
+        self &lt;&lt; (lambda: [I.LOAD_FAST(THIS_TEMP_REG), I.CALL_FUNCTION(n)])
+
+    def un(self, op: I.UOp, term):
+        &#34;&#34;&#34;emit unary operation&#34;&#34;&#34;
+        self.eval(term)
+        self &lt;&lt; (lambda: [I.UNARY(op)])
 
     def bin(self, l, op: I.BinOp, r):
-        set_lineno = _set_lineno(self.st.line)
+        &#34;&#34;&#34;emit binary operation&#34;&#34;&#34;
         self.eval(l)
         self.eval(r)
-        self &lt;&lt; set_lineno(lambda: [I.BINARY(op)])
+        self &lt;&lt; (lambda: [I.BINARY(op)])
 
     def cmp(self, l, op: BC.Compare, r):
-        set_lineno = _set_lineno(self.st.line)
         self.eval(l)
         self.eval(r)
-        self &lt;&lt; set_lineno(lambda: [I.COMPARE_OP(op)])
+        self &lt;&lt; (lambda: [I.COMPARE_OP(op)])
 
     def _bind(self, n: str):
         analysed = self.sc.output
         self.sc.enter(n)
 
-        @_set_lineno(self.st.line)
         def build():
             sym = analysed.syms_bound.get(n)
             if sym:
@@ -994,8 +968,7 @@ def glob_sym(n: str):
         label_end = _new_unique_label(&#34;if.end&#34;)
 
         self.eval(cond)
-        self &lt;&lt; _set_lineno(
-            self.st.line)(lambda: [I.POP_JUMP_IF_TRUE(label_true)])
+        self &lt;&lt; (lambda: [I.POP_JUMP_IF_TRUE(label_true)])
         self.eval(false_clause)
         self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_end), label_true])
         self.eval(true_clause)
@@ -1039,8 +1012,7 @@ def glob_sym(n: str):
         label_setup = _new_unique_label(&#34;while.setup&#34;)
         label_end = _new_unique_label(&#34;while.end&#34;)
 
-        self &lt;&lt; _set_lineno(
-            self.st.line)(lambda: [I.LOAD_CONST(None), label_setup])
+        self &lt;&lt; (lambda: [I.LOAD_CONST(None), label_setup])
         self.eval(cond)
         self &lt;&lt; (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
         self.eval(body)
@@ -1086,7 +1058,6 @@ def glob_sym(n: str):
 
         analysed = self.sc.output
 
-        @_set_lineno(line)
         def build_mk_func():
             nonlocal mk_fn_flag
             sub_a = sub.sc.output
@@ -1161,16 +1132,16 @@ def glob_sym(n: str):
 <span>def <span class="ident">bin</span></span>(<span>self, l, op: <a title="py_sexpr.stack_vm.instructions.BinOp" href="instructions.html#py_sexpr.stack_vm.instructions.BinOp">BinOp</a>, r)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>emit binary operation</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def bin(self, l, op: I.BinOp, r):
-    set_lineno = _set_lineno(self.st.line)
+    &#34;&#34;&#34;emit binary operation&#34;&#34;&#34;
     self.eval(l)
     self.eval(r)
-    self &lt;&lt; set_lineno(lambda: [I.BINARY(op)])</code></pre>
+    self &lt;&lt; (lambda: [I.BINARY(op)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.block"><code class="name flex">
@@ -1245,7 +1216,6 @@ def glob_sym(n: str):
     self.eval_all(args)
     n = len(args)
 
-    @_set_lineno(self.st.line)
     def build():
         i = I.CALL_FUNCTION(n)
         return [i]
@@ -1263,10 +1233,9 @@ def glob_sym(n: str):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def cmp(self, l, op: BC.Compare, r):
-    set_lineno = _set_lineno(self.st.line)
     self.eval(l)
     self.eval(r)
-    self &lt;&lt; set_lineno(lambda: [I.COMPARE_OP(op)])</code></pre>
+    self &lt;&lt; (lambda: [I.COMPARE_OP(op)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.const"><code class="name flex">
@@ -1279,7 +1248,6 @@ def glob_sym(n: str):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def const(self, value):
-    @_set_lineno(self.st.line)
     def build():
         return [I.LOAD_CONST(value)]
 
@@ -1420,7 +1388,6 @@ def glob_sym(n: str):
 
     analysed = self.sc.output
 
-    @_set_lineno(line)
     def build_mk_func():
         nonlocal mk_fn_flag
         sub_a = sub.sc.output
@@ -1485,9 +1452,8 @@ def glob_sym(n: str):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_attr(self, val, n: str):
-    set_lineno = _set_lineno(self.st.line)
     self.eval(val)
-    self &lt;&lt; set_lineno(lambda: [I.LOAD_ATTR(n)])</code></pre>
+    self &lt;&lt; (lambda: [I.LOAD_ATTR(n)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.get_item"><code class="name flex">
@@ -1500,11 +1466,10 @@ def glob_sym(n: str):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_item(self, base, item: str):
-    set_lineno = _set_lineno(self.st.line)
     self.eval(base)
     self.eval(item)
 
-    self &lt;&lt; set_lineno(lambda: [I.BINARY(I.BinOp.SUBSCR)])</code></pre>
+    self &lt;&lt; (lambda: [I.BINARY(I.BinOp.SUBSCR)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.inside"><code class="name flex">
@@ -1538,8 +1503,7 @@ def glob_sym(n: str):
     label_end = _new_unique_label(&#34;if.end&#34;)
 
     self.eval(cond)
-    self &lt;&lt; _set_lineno(
-        self.st.line)(lambda: [I.POP_JUMP_IF_TRUE(label_true)])
+    self &lt;&lt; (lambda: [I.POP_JUMP_IF_TRUE(label_true)])
     self.eval(false_clause)
     self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_end), label_true])
     self.eval(true_clause)
@@ -1605,8 +1569,7 @@ The value of <code>f</code> is 8</p></section>
     label_setup = _new_unique_label(&#34;while.setup&#34;)
     label_end = _new_unique_label(&#34;while.end&#34;)
 
-    self &lt;&lt; _set_lineno(
-        self.st.line)(lambda: [I.LOAD_CONST(None), label_setup])
+    self &lt;&lt; (lambda: [I.LOAD_CONST(None), label_setup])
     self.eval(cond)
     self &lt;&lt; (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
     self.eval(body)
@@ -1623,13 +1586,12 @@ The value of <code>f</code> is 8</p></section>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def new(self, ty, *args):
-    set_lineno = _set_lineno(self.st.line)
     self.eval(ty)
 
     self.sc.enter(THIS_TEMP_REG)
 
     # build this object
-    self &lt;&lt; set_lineno(lambda: [
+    self &lt;&lt; (lambda: [
         I.DUP(),
         I.LOAD_CONST(&#39;.t&#39;),
         I.ROT2(),
@@ -1640,12 +1602,7 @@ The value of <code>f</code> is 8</p></section>
     self.eval_all(args)
     n = len(args) + 1
     # initialize this object
-    self &lt;&lt; (lambda: [
-        I.LOAD_FAST(THIS_TEMP_REG),
-        I.CALL_FUNCTION(n),
-        I.POP_TOP(),
-        I.LOAD_FAST(THIS_TEMP_REG)
-    ])</code></pre>
+    self &lt;&lt; (lambda: [I.LOAD_FAST(THIS_TEMP_REG), I.CALL_FUNCTION(n)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.record"><code class="name flex">
@@ -1658,21 +1615,20 @@ The value of <code>f</code> is 8</p></section>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def record(self, *kwargs):
-    set_lineno = _set_lineno(self.st.line)
     n = len(kwargs)
     if not kwargs:
-        self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(0)])
+        self &lt;&lt; (lambda: [I.BUILD_MAP(0)])
     elif PY35:
         eval = self.eval
         for key, val in kwargs:
             eval(key)
             eval(val)
-        self &lt;&lt; set_lineno(lambda: [I.BUILD_MAP(n)])
+        self &lt;&lt; (lambda: [I.BUILD_MAP(n)])
     else:
         keys, vals = zip(*kwargs)
         self.eval_all(vals)
         self.const(keys)
-        self &lt;&lt; set_lineno(lambda: [I.BUILD_CONST_KET_MAP(n)])</code></pre>
+        self &lt;&lt; (lambda: [I.BUILD_CONST_KET_MAP(n)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.ret"><code class="name flex">
@@ -1699,10 +1655,9 @@ The value of <code>f</code> is 8</p></section>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_attr(self, base, n: str, val):
-    set_lineno = _set_lineno(self.st.line)
     self.eval(val)
     self.eval(base)
-    self &lt;&lt; set_lineno(lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])</code></pre>
+    self &lt;&lt; (lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.set_item"><code class="name flex">
@@ -1715,11 +1670,10 @@ The value of <code>f</code> is 8</p></section>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_item(self, base, item, val):
-    set_lineno = _set_lineno(self.st.line)
     self.eval(val)
     self.eval(base)
     self.eval(item)
-    self &lt;&lt; set_lineno(lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])</code></pre>
+    self &lt;&lt; (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.throw"><code class="name flex">
@@ -1752,6 +1706,21 @@ The value of <code>f</code> is 8</p></section>
     self &lt;&lt; (lambda: [I.BUILD_TUPLE(n)])</code></pre>
 </details>
 </dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.un"><code class="name flex">
+<span>def <span class="ident">un</span></span>(<span>self, op: <a title="py_sexpr.stack_vm.instructions.UOp" href="instructions.html#py_sexpr.stack_vm.instructions.UOp">UOp</a>, term)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>emit unary operation</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def un(self, op: I.UOp, term):
+    &#34;&#34;&#34;emit unary operation&#34;&#34;&#34;
+    self.eval(term)
+    self &lt;&lt; (lambda: [I.UNARY(op)])</code></pre>
+</details>
+</dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.var"><code class="name flex">
 <span>def <span class="ident">var</span></span>(<span>self, n: str)</span>
 </code></dt>
@@ -1765,7 +1734,6 @@ The value of <code>f</code> is 8</p></section>
     analysed = self.sc.output
     self.sc.require(n)
 
-    @_set_lineno(self.st.line)
     def build():
         sym = analysed.syms_bound.get(n)
         if sym:
@@ -2150,6 +2118,7 @@ def outermost(cls):
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.set_item" href="#py_sexpr.stack_vm.emit.Builder.set_item">set_item</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.throw" href="#py_sexpr.stack_vm.emit.Builder.throw">throw</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.tuple" href="#py_sexpr.stack_vm.emit.Builder.tuple">tuple</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.un" href="#py_sexpr.stack_vm.emit.Builder.un">un</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.var" href="#py_sexpr.stack_vm.emit.Builder.var">var</a></code></li>
 </ul>
 </li>
