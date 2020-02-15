@@ -4,7 +4,7 @@
 
 ------------------
 
-`SExpr` is the type of our terms, and Python leaf types are also belong to `SExpr`, such as
+`SExpr` is the type of our terms, and all Python leaf types also belong to it, such as
 `int`, `float`, `bool`, `complex`, `None`, `str`.
 
 To construct non-leaf `SExpr`s, you shall use SExpr constructors provided in this module.
@@ -25,6 +25,7 @@ assert UOp
 __all__ = [
     'Compare',
     'BinOp',
+    'UOp',
     'call',
     'assign',
     'define',
@@ -35,6 +36,7 @@ __all__ = [
     'this',
     'isa',
     'cmp',
+    'uop',
     'binop',
     'document',
     'metadata',
@@ -133,6 +135,10 @@ def cmp(l: SExpr, op: Compare, r: SExpr) -> SExpr:
     return 'cmp', l, op, r
 
 
+def uop(op: UOp, term: SExpr) -> SExpr:
+    return 'un', op, term
+
+
 def binop(l: SExpr, op: BinOp, r: SExpr) -> SExpr:
     return 'bin', l, op, r
 
@@ -159,7 +165,8 @@ def new(ty: SExpr, *args: SExpr) -> SExpr:
             define(
                 "MyType", ["x", "y"],
                 block(set_index(var("this"), const("x"), var("x")),
-                      set_index(var("this"), const("y"), var("y")))),
+                      set_index(var("this"), const("y"), var("y")),
+                      this)),
             assign("inst", new(var("MyType"), const(1), const(2))))
     ```
     """

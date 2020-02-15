@@ -30,7 +30,7 @@ main = block(
     define(
         "MyType", ["x", "y"],
         block(set_item(this, const("x"), var("x")),
-              set_item(this, const("y"), var("y")))),
+              set_item(this, const("y"), var("y")), this)),
     assign("inst", new(var("MyType"), const(1), const(2))),
     isa(var("inst"), var("MyType")))
 
@@ -186,3 +186,8 @@ main = define(
 code = module_code(main)
 x, y = eval(code, {})(1)()()
 assert x() == y() == 1
+
+main = uop(UOp.INVERT, const(5))
+
+code = module_code(main)
+assert eval(code) == ~5
