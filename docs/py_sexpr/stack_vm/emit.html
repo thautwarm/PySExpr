@@ -306,9 +306,14 @@ class Builder:
         self.eval(r)
         self &lt;&lt; (lambda: [I.BUILD_MAP_UNPACK(2)])
 
+    def assign_star(self, n: str, v):
+        self.eval(v)
+        self._bind(n, True)
+        self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
+
     def assign(self, n: str, v):
         self.eval(v)
-        self._bind(n)
+        self._bind(n, False)
         self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
 
     def get_attr(self, val, n: str):
@@ -376,9 +381,12 @@ class Builder:
         self.eval(r)
         self &lt;&lt; (lambda: [I.COMPARE_OP(op)])
 
-    def _bind(self, n: str):
+    def _bind(self, n: str, bound: bool):
         analysed = self.sc.output
-        self.sc.enter(n)
+        if bound:
+            self.sc.enter(n)
+        else:
+            self.sc.require(n)
 
         def build():
             sym = analysed.syms_bound.get(n)
@@ -389,8 +397,7 @@ class Builder:
                     i = I.STORE_FAST(n)
                 return [i]
             if n in analysed.syms_free:
-                # shouldn&#39;t be able to mutate free variable
-                raise NameError(n)
+                i = I.STORE_DEREF(n, I.FreeVar)
             else:
                 i = I.STORE_GLOBAL(n)
             return [i]
@@ -436,7 +443,7 @@ class Builder:
         self.eval(seq)
         self &lt;&lt; (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
 
-        self._bind(n)
+        self._bind(n, bound=False)
         self.eval(body)
         self &lt;&lt; (lambda: [
             I.POP_TOP(),
@@ -490,18 +497,23 @@ class Builder:
             name = &#39;lambda:{}&#39;.format(line)
 
         if defaults:  # if any default arguments
-            mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
+            if PY35:
+                mk_fn_flag = len(defaults)
+                for each in defaults:
+                    self.eval(each)
+            else:
+                mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
 
-            for each in defaults:
-                self.eval(each)
-            n_defaults = len(defaults)
+                for each in defaults:
+                    self.eval(each)
+                n_defaults = len(defaults)
 
-            def build_defaults():
-                i = I.BUILD_TUPLE(n_defaults)
-                i.lineno = line
-                return [i]
+                def build_defaults():
+                    i = I.BUILD_TUPLE(n_defaults)
+                    i.lineno = line
+                    return [i]
 
-            self &lt;&lt; build_defaults
+                self &lt;&lt; build_defaults
         sub = self.inside()
 
         # visit arguments
@@ -869,9 +881,14 @@ def glob_sym(n: str):
         self.eval(r)
         self &lt;&lt; (lambda: [I.BUILD_MAP_UNPACK(2)])
 
+    def assign_star(self, n: str, v):
+        self.eval(v)
+        self._bind(n, True)
+        self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
+
     def assign(self, n: str, v):
         self.eval(v)
-        self._bind(n)
+        self._bind(n, False)
         self &lt;&lt; (lambda: [I.LOAD_CONST(None)])
 
     def get_attr(self, val, n: str):
@@ -939,9 +956,12 @@ def glob_sym(n: str):
         self.eval(r)
         self &lt;&lt; (lambda: [I.COMPARE_OP(op)])
 
-    def _bind(self, n: str):
+    def _bind(self, n: str, bound: bool):
         analysed = self.sc.output
-        self.sc.enter(n)
+        if bound:
+            self.sc.enter(n)
+        else:
+            self.sc.require(n)
 
         def build():
             sym = analysed.syms_bound.get(n)
@@ -952,8 +972,7 @@ def glob_sym(n: str):
                     i = I.STORE_FAST(n)
                 return [i]
             if n in analysed.syms_free:
-                # shouldn&#39;t be able to mutate free variable
-                raise NameError(n)
+                i = I.STORE_DEREF(n, I.FreeVar)
             else:
                 i = I.STORE_GLOBAL(n)
             return [i]
@@ -999,7 +1018,7 @@ def glob_sym(n: str):
         self.eval(seq)
         self &lt;&lt; (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
 
-        self._bind(n)
+        self._bind(n, bound=False)
         self.eval(body)
         self &lt;&lt; (lambda: [
             I.POP_TOP(),
@@ -1053,18 +1072,23 @@ def glob_sym(n: str):
             name = &#39;lambda:{}&#39;.format(line)
 
         if defaults:  # if any default arguments
-            mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
+            if PY35:
+                mk_fn_flag = len(defaults)
+                for each in defaults:
+                    self.eval(each)
+            else:
+                mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
 
-            for each in defaults:
-                self.eval(each)
-            n_defaults = len(defaults)
+                for each in defaults:
+                    self.eval(each)
+                n_defaults = len(defaults)
 
-            def build_defaults():
-                i = I.BUILD_TUPLE(n_defaults)
-                i.lineno = line
-                return [i]
+                def build_defaults():
+                    i = I.BUILD_TUPLE(n_defaults)
+                    i.lineno = line
+                    return [i]
 
-            self &lt;&lt; build_defaults
+                self &lt;&lt; build_defaults
         sub = self.inside()
 
         # visit arguments
@@ -1142,7 +1166,22 @@ def glob_sym(n: str):
 </summary>
 <pre><code class="python">def assign(self, n: str, v):
     self.eval(v)
-    self._bind(n)
+    self._bind(n, False)
+    self &lt;&lt; (lambda: [I.LOAD_CONST(None)])</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.assign_star"><code class="name flex">
+<span>def <span class="ident">assign_star</span></span>(<span>self, n: str, v)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assign_star(self, n: str, v):
+    self.eval(v)
+    self._bind(n, True)
     self &lt;&lt; (lambda: [I.LOAD_CONST(None)])</code></pre>
 </details>
 </dd>
@@ -1348,7 +1387,7 @@ def glob_sym(n: str):
     self.eval(seq)
     self &lt;&lt; (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
 
-    self._bind(n)
+    self._bind(n, bound=False)
     self.eval(body)
     self &lt;&lt; (lambda: [
         I.POP_TOP(),
@@ -1383,18 +1422,23 @@ def glob_sym(n: str):
         name = &#39;lambda:{}&#39;.format(line)
 
     if defaults:  # if any default arguments
-        mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
+        if PY35:
+            mk_fn_flag = len(defaults)
+            for each in defaults:
+                self.eval(each)
+        else:
+            mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
 
-        for each in defaults:
-            self.eval(each)
-        n_defaults = len(defaults)
+            for each in defaults:
+                self.eval(each)
+            n_defaults = len(defaults)
 
-        def build_defaults():
-            i = I.BUILD_TUPLE(n_defaults)
-            i.lineno = line
-            return [i]
+            def build_defaults():
+                i = I.BUILD_TUPLE(n_defaults)
+                i.lineno = line
+                return [i]
 
-        self &lt;&lt; build_defaults
+            self &lt;&lt; build_defaults
     sub = self.inside()
 
     # visit arguments
@@ -2125,6 +2169,7 @@ def outermost(cls):
 <h4><code><a title="py_sexpr.stack_vm.emit.Builder" href="#py_sexpr.stack_vm.emit.Builder">Builder</a></code></h4>
 <ul class="two-column">
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.assign" href="#py_sexpr.stack_vm.emit.Builder.assign">assign</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.assign_star" href="#py_sexpr.stack_vm.emit.Builder.assign_star">assign_star</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.bin" href="#py_sexpr.stack_vm.emit.Builder.bin">bin</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.block" href="#py_sexpr.stack_vm.emit.Builder.block">block</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.build" href="#py_sexpr.stack_vm.emit.Builder.build">build</a></code></li>

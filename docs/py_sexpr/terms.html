@@ -39,6 +39,17 @@ are <code>SExpr</code>s,</p>
 <p>etc..</p>
 </li>
 </ul>
+<p>Note that, before assigning a variable, you should introduce it into current scope.</p>
+<p>Following constructs can introduce variables:</p>
+<ul>
+<li>
+<p><a title="py_sexpr.terms.define" href="#py_sexpr.terms.define"><code>define()</code></a>: function name and arguments</p>
+</li>
+<li>
+<p><a title="py_sexpr.terms.assign_star" href="#py_sexpr.terms.assign_star"><code>assign_star()</code></a>: LHS name</p>
+</li>
+</ul>
+<p><strong>Special attention that <a title="py_sexpr.terms.assign" href="#py_sexpr.terms.assign"><code>assign()</code></a> cannot introduce variables</strong>.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -62,6 +73,15 @@ For instance, to construct
 
 - etc..
 
+Note that, before assigning a variable, you should introduce it into current scope.
+
+Following constructs can introduce variables:
+
+- `define`: function name and arguments
+
+- `assign_star`: LHS name
+
+**Special attention that `assign` cannot introduce variables**.
 &#34;&#34;&#34;
 from py_sexpr.stack_vm.instructions import BinOp, UOp
 from bytecode.instr import Compare
@@ -73,6 +93,7 @@ __all__ = [
     &#39;UOp&#39;,
     &#39;call&#39;,
     &#39;assign&#39;,
+    &#39;assign_star&#39;,
     &#39;define&#39;,
     &#39;const&#39;,
     &#39;record&#39;,
@@ -119,7 +140,13 @@ def call(f: SExpr, *args: SExpr) -&gt; SExpr:
     return (&#39;call&#39;, f, *args)
 
 
+def assign_star(n: str, value: SExpr) -&gt; SExpr:
+    &#34;&#34;&#34;assign* can introduce new variables into current scope.&#34;&#34;&#34;
+    return &#39;assign_star&#39;, n, value
+
+
 def assign(n: str, value: SExpr) -&gt; SExpr:
+    &#34;&#34;&#34;NOTE: assign cannot introduce new variables.&#34;&#34;&#34;
     return &#39;assign&#39;, n, value
 
 
@@ -304,13 +331,28 @@ def metadata(line: int, column: int, filename: str, term: SExpr) -&gt; SExpr:
 <span>def <span class="ident">assign</span></span>(<span>n: str, value: SExpr) -> SExpr</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>NOTE: assign cannot introduce new variables.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def assign(n: str, value: SExpr) -&gt; SExpr:
+    &#34;&#34;&#34;NOTE: assign cannot introduce new variables.&#34;&#34;&#34;
     return &#39;assign&#39;, n, value</code></pre>
+</details>
+</dd>
+<dt id="py_sexpr.terms.assign_star"><code class="name flex">
+<span>def <span class="ident">assign_star</span></span>(<span>n: str, value: SExpr) -> SExpr</span>
+</code></dt>
+<dd>
+<section class="desc"><p>assign* can introduce new variables into current scope.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assign_star(n: str, value: SExpr) -&gt; SExpr:
+    &#34;&#34;&#34;assign* can introduce new variables into current scope.&#34;&#34;&#34;
+    return &#39;assign_star&#39;, n, value</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.binop"><code class="name flex">
@@ -963,6 +1005,7 @@ and <code>dict['.t']</code> is the type.</p>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
 <li><code><a title="py_sexpr.terms.assign" href="#py_sexpr.terms.assign">assign</a></code></li>
+<li><code><a title="py_sexpr.terms.assign_star" href="#py_sexpr.terms.assign_star">assign_star</a></code></li>
 <li><code><a title="py_sexpr.terms.binop" href="#py_sexpr.terms.binop">binop</a></code></li>
 <li><code><a title="py_sexpr.terms.block" href="#py_sexpr.terms.block">block</a></code></li>
 <li><code><a title="py_sexpr.terms.call" href="#py_sexpr.terms.call">call</a></code></li>
