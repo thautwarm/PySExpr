@@ -36,7 +36,7 @@ PY38 = version_info &gt;= (3, 8)
 PY35 = version_info &lt; (3, 6)
 _app = lambda arg: lambda f: f(arg)
 
-THIS_TEMP_REG = &#39;reg.@this@&#39;
+RECORD_TYPE_FIELD = &#39;.t&#39;
 
 
 class NamedObj:
@@ -331,6 +331,34 @@ class Builder:
         self.eval(base)
         self.eval(item)
         self &lt;&lt; (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
+
+    def new(self, ty, *args):
+        &#34;&#34;&#34;
+        Basically, it&#39;s
+            new(ty, *args) ==
+                this = ty(*args, {})
+                this[&#39;.t&#39;] = ty
+        This is efficient and avoids redundant
+        register allocation, hence I&#39;m quite proud
+        of this idea :)
+        &#34;&#34;&#34;
+        self.eval(ty)
+
+        # build this object
+        self &lt;&lt; (lambda: [I.DUP()])
+
+        self.eval_all(args)
+        n = len(args) + 1
+
+        # initialize this object
+        self &lt;&lt; (lambda: [
+            I.BUILD_MAP(0),
+            I.CALL_FUNCTION(n),
+            I.DUP(),
+            I.ROT3(),
+            I.LOAD_CONST(RECORD_TYPE_FIELD),
+            I.STORE_SUBSCR(),
+        ])
 
     def un(self, op: I.UOp, term):
         &#34;&#34;&#34;emit unary operation&#34;&#34;&#34;
@@ -866,6 +894,34 @@ def glob_sym(n: str):
         self.eval(base)
         self.eval(item)
         self &lt;&lt; (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
+
+    def new(self, ty, *args):
+        &#34;&#34;&#34;
+        Basically, it&#39;s
+            new(ty, *args) ==
+                this = ty(*args, {})
+                this[&#39;.t&#39;] = ty
+        This is efficient and avoids redundant
+        register allocation, hence I&#39;m quite proud
+        of this idea :)
+        &#34;&#34;&#34;
+        self.eval(ty)
+
+        # build this object
+        self &lt;&lt; (lambda: [I.DUP()])
+
+        self.eval_all(args)
+        n = len(args) + 1
+
+        # initialize this object
+        self &lt;&lt; (lambda: [
+            I.BUILD_MAP(0),
+            I.CALL_FUNCTION(n),
+            I.DUP(),
+            I.ROT3(),
+            I.LOAD_CONST(RECORD_TYPE_FIELD),
+            I.STORE_SUBSCR(),
+        ])
 
     def un(self, op: I.UOp, term):
         &#34;&#34;&#34;emit unary operation&#34;&#34;&#34;
@@ -1538,6 +1594,50 @@ The value of <code>f</code> is 8</p></section>
     self &lt;&lt; (lambda: [I.JUMP_ABSOLUTE(label_setup), label_end])</code></pre>
 </details>
 </dd>
+<dt id="py_sexpr.stack_vm.emit.Builder.new"><code class="name flex">
+<span>def <span class="ident">new</span></span>(<span>self, ty, *args)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Basically, it's
+new(ty, <em>args) ==
+this = ty(</em>args, {})
+this['.t'] = ty
+This is efficient and avoids redundant
+register allocation, hence I'm quite proud
+of this idea :)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new(self, ty, *args):
+    &#34;&#34;&#34;
+    Basically, it&#39;s
+        new(ty, *args) ==
+            this = ty(*args, {})
+            this[&#39;.t&#39;] = ty
+    This is efficient and avoids redundant
+    register allocation, hence I&#39;m quite proud
+    of this idea :)
+    &#34;&#34;&#34;
+    self.eval(ty)
+
+    # build this object
+    self &lt;&lt; (lambda: [I.DUP()])
+
+    self.eval_all(args)
+    n = len(args) + 1
+
+    # initialize this object
+    self &lt;&lt; (lambda: [
+        I.BUILD_MAP(0),
+        I.CALL_FUNCTION(n),
+        I.DUP(),
+        I.ROT3(),
+        I.LOAD_CONST(RECORD_TYPE_FIELD),
+        I.STORE_SUBSCR(),
+    ])</code></pre>
+</details>
+</dd>
 <dt id="py_sexpr.stack_vm.emit.Builder.record"><code class="name flex">
 <span>def <span class="ident">record</span></span>(<span>self, *kwargs)</span>
 </code></dt>
@@ -2044,6 +2144,7 @@ def outermost(cls):
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.lens" href="#py_sexpr.stack_vm.emit.Builder.lens">lens</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.line" href="#py_sexpr.stack_vm.emit.Builder.line">line</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.loop" href="#py_sexpr.stack_vm.emit.Builder.loop">loop</a></code></li>
+<li><code><a title="py_sexpr.stack_vm.emit.Builder.new" href="#py_sexpr.stack_vm.emit.Builder.new">new</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.record" href="#py_sexpr.stack_vm.emit.Builder.record">record</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.ret" href="#py_sexpr.stack_vm.emit.Builder.ret">ret</a></code></li>
 <li><code><a title="py_sexpr.stack_vm.emit.Builder.set_attr" href="#py_sexpr.stack_vm.emit.Builder.set_attr">set_attr</a></code></li>

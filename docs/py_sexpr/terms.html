@@ -96,7 +96,7 @@ __all__ = [
     &#39;ite&#39;,
     &#39;loop&#39;,
     &#39;ret&#39;,
-]
+ ]
 
 if __debug__:
     &#34;&#34;&#34;
@@ -123,7 +123,7 @@ def assign(n: str, value: SExpr) -&gt; SExpr:
     return &#39;assign&#39;, n, value
 
 
-def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: List[SExpr]=()):
+def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: Union[List[SExpr], Tuple[SExpr, ...]]=()):
     return &#34;func&#34;, args, body, func_name, defaults
 
 
@@ -408,7 +408,7 @@ otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
 </details>
 </dd>
 <dt id="py_sexpr.terms.define"><code class="name flex">
-<span>def <span class="ident">define</span></span>(<span>func_name: Union[str, NoneType], args: List[str], body: SExpr, defaults: List[SExpr] = ())</span>
+<span>def <span class="ident">define</span></span>(<span>func_name: Union[str, NoneType], args: List[str], body: SExpr, defaults: Union[List[SExpr], Tuple[SExpr, ...]] = ())</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -416,7 +416,7 @@ otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: List[SExpr]=()):
+<pre><code class="python">def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: Union[List[SExpr], Tuple[SExpr, ...]]=()):
     return &#34;func&#34;, args, body, func_name, defaults</code></pre>
 </details>
 </dd>
