@@ -10,7 +10,7 @@ PY38 = version_info >= (3, 8)
 PY35 = version_info < (3, 6)
 _app = lambda arg: lambda f: f(arg)
 
-THIS_TEMP_REG = 'reg.@this@'
+RECORD_TYPE_FIELD = '.t'
 
 
 class NamedObj:
@@ -305,6 +305,34 @@ class Builder:
         self.eval(base)
         self.eval(item)
         self << (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
+
+    def new(self, ty, *args):
+        """
+        Basically, it's
+            new(ty, *args) ==
+                this = ty(*args, {})
+                this['.t'] = ty
+        This is efficient and avoids redundant
+        register allocation, hence I'm quite proud
+        of this idea :)
+        """
+        self.eval(ty)
+
+        # build this object
+        self << (lambda: [I.DUP()])
+
+        self.eval_all(args)
+        n = len(args) + 1
+
+        # initialize this object
+        self << (lambda: [
+            I.BUILD_MAP(0),
+            I.CALL_FUNCTION(n),
+            I.DUP(),
+            I.ROT3(),
+            I.LOAD_CONST(RECORD_TYPE_FIELD),
+            I.STORE_SUBSCR(),
+        ])
 
     def un(self, op: I.UOp, term):
         """emit unary operation"""

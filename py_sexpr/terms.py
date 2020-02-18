@@ -51,7 +51,7 @@ __all__ = [
     'ite',
     'loop',
     'ret',
-]
+ ]
 
 if __debug__:
     """
@@ -78,7 +78,7 @@ def assign(n: str, value: SExpr) -> SExpr:
     return 'assign', n, value
 
 
-def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: List[SExpr]=()):
+def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: Union[List[SExpr], Tuple[SExpr, ...]]=()):
     return "func", args, body, func_name, defaults
 
 
@@ -246,4 +246,3 @@ def metadata(line: int, column: int, filename: str, term: SExpr) -> SExpr:
     """Set metadata to s-expressions.
     """
     return 'line', line, ('filename', filename, term)
-

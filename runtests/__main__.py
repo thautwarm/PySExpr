@@ -26,6 +26,17 @@ assert (eval(module_code(main),
              dict(f=f, add=lambda a, b: a + list(b), x=list(x),
                   g=eval(add1))) == f([x[0] + 2, 1, 1]))
 
+main = block(
+    define(
+        "MyType", ["x", "y", "this"],
+        block(set_item(var("this"), const("x"), var("x")),
+              set_item(var("this"), const("y"), var("y")), var("this"))),
+    assign("inst", new(var("MyType"), const(1), const(2))),
+    isa(var("inst"), var("MyType")))
+
+code = module_code(main)
+assert eval(code) is True
+
 xs = []
 
 main = for_range("a", 1, 10, call(var("print"), var("a")))
@@ -193,4 +204,3 @@ main = block(define("f", [], var("f"), ), var("f"))
 code = module_code(main)
 f = eval(code)
 assert f() == f
-
