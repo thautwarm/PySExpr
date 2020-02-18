@@ -42,7 +42,10 @@ from py_sexpr.stack_vm.emit import module_code
 
 xs = []
 
-main = for_range("a", 1, 10, call(var("print"), var("a")))
+main = block(
+        assign_star("a", None),
+        for_range("a", 1, 10, call(var("print"), var("a"))),
+        )
 exec(module_code(main), dict(print=xs.append))
 
 assert xs == [1, 2, 3, 4, 5, 6, 7, 8, 9]
