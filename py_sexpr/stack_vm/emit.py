@@ -280,9 +280,14 @@ class Builder:
         self.eval(r)
         self << (lambda: [I.BUILD_MAP_UNPACK(2)])
 
+    def assign_star(self, n: str, v):
+        self.eval(v)
+        self._bind(n, True)
+        self << (lambda: [I.LOAD_CONST(None)])
+
     def assign(self, n: str, v):
         self.eval(v)
-        self._bind(n)
+        self._bind(n, False)
         self << (lambda: [I.LOAD_CONST(None)])
 
     def get_attr(self, val, n: str):
@@ -350,9 +355,12 @@ class Builder:
         self.eval(r)
         self << (lambda: [I.COMPARE_OP(op)])
 
-    def _bind(self, n: str):
+    def _bind(self, n: str, bound: bool):
         analysed = self.sc.output
-        self.sc.enter(n)
+        if bound:
+            self.sc.enter(n)
+        else:
+            self.sc.require(n)
 
         def build():
             sym = analysed.syms_bound.get(n)
@@ -363,8 +371,7 @@ class Builder:
                     i = I.STORE_FAST(n)
                 return [i]
             if n in analysed.syms_free:
-                # shouldn't be able to mutate free variable
-                raise NameError(n)
+                i = I.STORE_DEREF(n, I.FreeVar)
             else:
                 i = I.STORE_GLOBAL(n)
             return [i]
@@ -410,7 +417,7 @@ class Builder:
         self.eval(seq)
         self << (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
 
-        self._bind(n)
+        self._bind(n, bound=False)
         self.eval(body)
         self << (lambda: [
             I.POP_TOP(),
@@ -464,18 +471,23 @@ class Builder:
             name = 'lambda:{}'.format(line)
 
         if defaults:  # if any default arguments
-            mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
+            if PY35:
+                mk_fn_flag = len(defaults)
+                for each in defaults:
+                    self.eval(each)
+            else:
+                mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
 
-            for each in defaults:
-                self.eval(each)
-            n_defaults = len(defaults)
+                for each in defaults:
+                    self.eval(each)
+                n_defaults = len(defaults)
 
-            def build_defaults():
-                i = I.BUILD_TUPLE(n_defaults)
-                i.lineno = line
-                return [i]
+                def build_defaults():
+                    i = I.BUILD_TUPLE(n_defaults)
+                    i.lineno = line
+                    return [i]
 
-            self << build_defaults
+                self << build_defaults
         sub = self.inside()
 
         # visit arguments

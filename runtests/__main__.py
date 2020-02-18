@@ -31,7 +31,7 @@ main = block(
         "MyType", ["x", "y", "this"],
         block(set_item(var("this"), const("x"), var("x")),
               set_item(var("this"), const("y"), var("y")), var("this"))),
-    assign("inst", new(var("MyType"), const(1), const(2))),
+    assign_star("inst", new(var("MyType"), const(1), const(2))),
     isa(var("inst"), var("MyType")))
 
 code = module_code(main)
@@ -118,22 +118,22 @@ main = document(
     "the doc",
     define(
         None, ["x"],
-        block(assign("y", binop(var("x"), BinOp.MODULO, 17)),
-              assign("k", binop(var("y"), BinOp.MULTIPLY, 3)), var('k'))))
+        block(assign_star("y", binop(var("x"), BinOp.MODULO, 17)),
+              assign_star("k", binop(var("y"), BinOp.MULTIPLY, 3)), var('k'))))
 code = module_code(main)
 # dis.dis(code)
 f = eval(code)
 assert f.__doc__ == 'the doc'
 assert f(25) == 24
 
-main = block(assign("x", record(a=1)),
-             assign("y", lens(var("x"), record(a=2, b=3))), var("y"))
+main = block(assign_star("x", record(a=1)),
+             assign_star("y", lens(var("x"), record(a=2, b=3))), var("y"))
 code = module_code(main)
 # dis.dis(code)
 assert eval(code) == dict(a=2, b=3)
 
-main = block(assign("x", record(a=1)), assign("y",
-                                              lens(var("x"), record(b=3))),
+main = block(assign_star("x", record(a=1)),
+             assign_star("y", lens(var("x"), record(b=3))),
              var("y"))
 code = module_code(main)
 # dis.dis(code)
@@ -196,11 +196,12 @@ assert eval(code) == ~5
 main = define(None, ["x"], var("x"), [1])
 
 code = module_code(main)
-assert eval(code)() == 1
+f = eval(code)
+assert f() == 1
 
 
-main = block(define("f", [], var("f"), ), var("f"))
-
+main = block(define("f", [], var("f")), var("f"))
 code = module_code(main)
 f = eval(code)
+
 assert f() == f

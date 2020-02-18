@@ -17,6 +17,15 @@ For instance, to construct
 
 - etc..
 
+Note that, before assigning a variable, you should introduce it into current scope.
+
+Following constructs can introduce variables:
+
+- `define`: function name and arguments
+
+- `assign_star`: LHS name
+
+**Special attention that `assign` cannot introduce variables**.
 """
 from py_sexpr.stack_vm.instructions import BinOp, UOp
 from bytecode.instr import Compare
@@ -28,6 +37,7 @@ __all__ = [
     'UOp',
     'call',
     'assign',
+    'assign_star',
     'define',
     'const',
     'record',
@@ -75,7 +85,13 @@ def call(f: SExpr, *args: SExpr) -> SExpr:
     return ('call', f, *args)
 
 
+def assign_star(n: str, value: SExpr) -> SExpr:
+    """assign* can introduce new variables into current scope."""
+    return 'assign_star', n, value
+
+
 def assign(n: str, value: SExpr) -> SExpr:
+    """NOTE: assign cannot introduce new variables."""
     return 'assign', n, value
 
 
