@@ -306,25 +306,6 @@ class Builder:
         self.eval(item)
         self << (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
 
-    def new(self, ty, *args):
-        self.eval(ty)
-
-        self.sc.enter(THIS_TEMP_REG)
-
-        # build this object
-        self << (lambda: [
-            I.DUP(),
-            I.LOAD_CONST('.t'),
-            I.ROT2(),
-            I.BUILD_MAP(1),
-            I.STORE_FAST(THIS_TEMP_REG)
-        ])
-
-        self.eval_all(args)
-        n = len(args) + 1
-        # initialize this object
-        self << (lambda: [I.LOAD_FAST(THIS_TEMP_REG), I.CALL_FUNCTION(n)])
-
     def un(self, op: I.UOp, term):
         """emit unary operation"""
         self.eval(term)
