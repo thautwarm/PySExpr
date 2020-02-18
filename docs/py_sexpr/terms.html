@@ -78,14 +78,12 @@ __all__ = [
     &#39;record&#39;,
     &#39;lens&#39;,
     &#39;throw&#39;,
-    &#39;this&#39;,
     &#39;isa&#39;,
     &#39;cmp&#39;,
     &#39;uop&#39;,
     &#39;binop&#39;,
     &#39;document&#39;,
     &#39;metadata&#39;,
-    &#39;new&#39;,
     &#39;var&#39;,
     &#39;mktuple&#39;,
     &#39;set_item&#39;,
@@ -99,7 +97,6 @@ __all__ = [
     &#39;loop&#39;,
     &#39;ret&#39;,
 ]
-THIS_NAME = &#34;.this&#34;
 
 if __debug__:
     &#34;&#34;&#34;
@@ -126,9 +123,8 @@ def assign(n: str, value: SExpr) -&gt; SExpr:
     return &#39;assign&#39;, n, value
 
 
-def define(func_name: Optional[str], args: List[str], body):
-    args.append(THIS_NAME)
-    return &#34;func&#34;, args, body, func_name, [const(None)]
+def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: List[SExpr]=()):
+    return &#34;func&#34;, args, body, func_name, defaults
 
 
 def const(constant: SExpr) -&gt; SExpr:
@@ -158,6 +154,10 @@ def throw(value: SExpr) -&gt; SExpr:
     return &#39;throw&#39;, value
 
 
+key_of_record_type = &#39;.t&#39;
+&#34;&#34;&#34;used by `isa` indicating which key of a record used for representing its type&#34;&#34;&#34;
+
+
 def isa(value: SExpr, ty: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Check if the left is instance of the right.
 
@@ -171,7 +171,7 @@ def isa(value: SExpr, ty: SExpr) -&gt; SExpr:
 
     Inheritance feature is omitted, due to the lack of use cases.
     &#34;&#34;&#34;
-    lhs = (&#39;call&#39;, (&#39;get_attr&#39;, value, &#39;get&#39;), const(&#39;.t&#39;))
+    lhs = (&#39;call&#39;, (&#39;get_attr&#39;, value, &#39;get&#39;), const(key_of_record_type))
     return &#39;cmp&#39;, lhs, Compare.IS, ty
 
 
@@ -189,32 +189,6 @@ def binop(l: SExpr, op: BinOp, r: SExpr) -&gt; SExpr:
 
 def document(doc: str, term: SExpr) -&gt; SExpr:
     return &#39;doc&#39;, doc, term
-
-
-def new(ty: SExpr, *args: SExpr) -&gt; SExpr:
-    &#34;&#34;&#34;
-    It&#39;s made for supporting javascript style new.
-
-    e.g., for following JS code
-    ```javascript
-        function MyType(x, y) {
-            this.x = x
-            this.y = y
-        }
-        inst = new MyType(1, 2)
-    ```
-    you can use this PySExpr expression to build
-    ```python
-        block(
-            define(
-                &#34;MyType&#34;, [&#34;x&#34;, &#34;y&#34;],
-                block(set_index(var(&#34;this&#34;), const(&#34;x&#34;), var(&#34;x&#34;)),
-                      set_index(var(&#34;this&#34;), const(&#34;y&#34;), var(&#34;y&#34;)),
-                      this)),
-            assign(&#34;inst&#34;, new(var(&#34;MyType&#34;), const(1), const(2))))
-    ```
-    &#34;&#34;&#34;
-    return (&#39;new&#39;, ty, *args)
 
 
 def var(n: str) -&gt; SExpr:
@@ -316,10 +290,7 @@ def ret(value: SExpr = None) -&gt; SExpr:
 def metadata(line: int, column: int, filename: str, term: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Set metadata to s-expressions.
     &#34;&#34;&#34;
-    return &#39;line&#39;, line, (&#39;filename&#39;, filename, term)
-
-
-this = var(THIS_NAME)  # type: SExpr</code></pre>
+    return &#39;line&#39;, line, (&#39;filename&#39;, filename, term)</code></pre>
 </details>
 </section>
 <section>
@@ -437,7 +408,7 @@ otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
 </details>
 </dd>
 <dt id="py_sexpr.terms.define"><code class="name flex">
-<span>def <span class="ident">define</span></span>(<span>func_name: Union[str, NoneType], args: List[str], body)</span>
+<span>def <span class="ident">define</span></span>(<span>func_name: Union[str, NoneType], args: List[str], body: SExpr, defaults: List[SExpr] = ())</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -445,9 +416,8 @@ otherwise <code>const(a)</code> is equal to <code>a</code>.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def define(func_name: Optional[str], args: List[str], body):
-    args.append(THIS_NAME)
-    return &#34;func&#34;, args, body, func_name, [const(None)]</code></pre>
+<pre><code class="python">def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: List[SExpr]=()):
+    return &#34;func&#34;, args, body, func_name, defaults</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.document"><code class="name flex">
@@ -571,7 +541,7 @@ and <code>dict['.t']</code> is the type.</p>
 
     Inheritance feature is omitted, due to the lack of use cases.
     &#34;&#34;&#34;
-    lhs = (&#39;call&#39;, (&#39;get_attr&#39;, value, &#39;get&#39;), const(&#39;.t&#39;))
+    lhs = (&#39;call&#39;, (&#39;get_attr&#39;, value, &#39;get&#39;), const(key_of_record_type))
     return &#39;cmp&#39;, lhs, Compare.IS, ty</code></pre>
 </details>
 </dd>
@@ -668,57 +638,6 @@ and <code>dict['.t']</code> is the type.</p>
 <pre><code class="python">def mktuple(*values: SExpr) -&gt; SExpr:
     &#34;&#34;&#34;Make a tuple&#34;&#34;&#34;
     return (&#39;tuple&#39;, *values)</code></pre>
-</details>
-</dd>
-<dt id="py_sexpr.terms.new"><code class="name flex">
-<span>def <span class="ident">new</span></span>(<span>ty: SExpr, *args: SExpr) -> SExpr</span>
-</code></dt>
-<dd>
-<section class="desc"><p>It's made for supporting javascript style new.</p>
-<p>e.g., for following JS code</p>
-<pre><code class="javascript">    function MyType(x, y) {
-        this.x = x
-        this.y = y
-    }
-    inst = new MyType(1, 2)
-</code></pre>
-<p>you can use this PySExpr expression to build</p>
-<pre><code class="python">    block(
-        define(
-            &quot;MyType&quot;, [&quot;x&quot;, &quot;y&quot;],
-            block(set_index(var(&quot;this&quot;), const(&quot;x&quot;), var(&quot;x&quot;)),
-                  set_index(var(&quot;this&quot;), const(&quot;y&quot;), var(&quot;y&quot;)),
-                  this)),
-        assign(&quot;inst&quot;, new(var(&quot;MyType&quot;), const(1), const(2))))
-</code></pre></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def new(ty: SExpr, *args: SExpr) -&gt; SExpr:
-    &#34;&#34;&#34;
-    It&#39;s made for supporting javascript style new.
-
-    e.g., for following JS code
-    ```javascript
-        function MyType(x, y) {
-            this.x = x
-            this.y = y
-        }
-        inst = new MyType(1, 2)
-    ```
-    you can use this PySExpr expression to build
-    ```python
-        block(
-            define(
-                &#34;MyType&#34;, [&#34;x&#34;, &#34;y&#34;],
-                block(set_index(var(&#34;this&#34;), const(&#34;x&#34;), var(&#34;x&#34;)),
-                      set_index(var(&#34;this&#34;), const(&#34;y&#34;), var(&#34;y&#34;)),
-                      this)),
-            assign(&#34;inst&#34;, new(var(&#34;MyType&#34;), const(1), const(2))))
-    ```
-    &#34;&#34;&#34;
-    return (&#39;new&#39;, ty, *args)</code></pre>
 </details>
 </dd>
 <dt id="py_sexpr.terms.record"><code class="name flex">
@@ -1061,7 +980,6 @@ and <code>dict['.t']</code> is the type.</p>
 <li><code><a title="py_sexpr.terms.loop" href="#py_sexpr.terms.loop">loop</a></code></li>
 <li><code><a title="py_sexpr.terms.metadata" href="#py_sexpr.terms.metadata">metadata</a></code></li>
 <li><code><a title="py_sexpr.terms.mktuple" href="#py_sexpr.terms.mktuple">mktuple</a></code></li>
-<li><code><a title="py_sexpr.terms.new" href="#py_sexpr.terms.new">new</a></code></li>
 <li><code><a title="py_sexpr.terms.record" href="#py_sexpr.terms.record">record</a></code></li>
 <li><code><a title="py_sexpr.terms.ret" href="#py_sexpr.terms.ret">ret</a></code></li>
 <li><code><a title="py_sexpr.terms.set_attr" href="#py_sexpr.terms.set_attr">set_attr</a></code></li>
