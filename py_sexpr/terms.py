@@ -33,14 +33,12 @@ __all__ = [
     'record',
     'lens',
     'throw',
-    'this',
     'isa',
     'cmp',
     'uop',
     'binop',
     'document',
     'metadata',
-    'new',
     'var',
     'mktuple',
     'set_item',
@@ -54,7 +52,6 @@ __all__ = [
     'loop',
     'ret',
 ]
-THIS_NAME = ".this"
 
 if __debug__:
     """
@@ -81,9 +78,8 @@ def assign(n: str, value: SExpr) -> SExpr:
     return 'assign', n, value
 
 
-def define(func_name: Optional[str], args: List[str], body):
-    args.append(THIS_NAME)
-    return "func", args, body, func_name, [const(None)]
+def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: List[SExpr]=()):
+    return "func", args, body, func_name, defaults
 
 
 def const(constant: SExpr) -> SExpr:
@@ -113,6 +109,10 @@ def throw(value: SExpr) -> SExpr:
     return 'throw', value
 
 
+key_of_record_type = '.t'
+"""used by `isa` indicating which key of a record used for representing its type"""
+
+
 def isa(value: SExpr, ty: SExpr) -> SExpr:
     """Check if the left is instance of the right.
 
@@ -126,7 +126,7 @@ def isa(value: SExpr, ty: SExpr) -> SExpr:
 
     Inheritance feature is omitted, due to the lack of use cases.
     """
-    lhs = ('call', ('get_attr', value, 'get'), const('.t'))
+    lhs = ('call', ('get_attr', value, 'get'), const(key_of_record_type))
     return 'cmp', lhs, Compare.IS, ty
 
 
@@ -144,32 +144,6 @@ def binop(l: SExpr, op: BinOp, r: SExpr) -> SExpr:
 
 def document(doc: str, term: SExpr) -> SExpr:
     return 'doc', doc, term
-
-
-def new(ty: SExpr, *args: SExpr) -> SExpr:
-    """
-    It's made for supporting javascript style new.
-
-    e.g., for following JS code
-    ```javascript
-        function MyType(x, y) {
-            this.x = x
-            this.y = y
-        }
-        inst = new MyType(1, 2)
-    ```
-    you can use this PySExpr expression to build
-    ```python
-        block(
-            define(
-                "MyType", ["x", "y"],
-                block(set_index(var("this"), const("x"), var("x")),
-                      set_index(var("this"), const("y"), var("y")),
-                      this)),
-            assign("inst", new(var("MyType"), const(1), const(2))))
-    ```
-    """
-    return ('new', ty, *args)
 
 
 def var(n: str) -> SExpr:
@@ -273,6 +247,3 @@ def metadata(line: int, column: int, filename: str, term: SExpr) -> SExpr:
     """
     return 'line', line, ('filename', filename, term)
 
-
-this = var(THIS_NAME)  # type: SExpr
-"""Javascript style `this` object"""

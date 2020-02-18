@@ -1,6 +1,6 @@
 from py_sexpr.terms import *
 from py_sexpr.stack_vm.emit import module_code
-import dis
+
 main = define(
     "main", [],
     block(
@@ -25,17 +25,6 @@ f = lambda x: 'result {}'.format(x)
 assert (eval(module_code(main),
              dict(f=f, add=lambda a, b: a + list(b), x=list(x),
                   g=eval(add1))) == f([x[0] + 2, 1, 1]))
-
-main = block(
-    define(
-        "MyType", ["x", "y"],
-        block(set_item(this, const("x"), var("x")),
-              set_item(this, const("y"), var("y")), this)),
-    assign("inst", new(var("MyType"), const(1), const(2))),
-    isa(var("inst"), var("MyType")))
-
-code = module_code(main)
-assert eval(code) is True
 
 xs = []
 
@@ -139,7 +128,7 @@ code = module_code(main)
 # dis.dis(code)
 assert eval(code) == dict(a=1, b=3)
 
-main = set_attr(var("o"), 'h', 1)
+main = block(set_attr(var("o"), 'h', 1), get_attr(var("o"), 'h'))
 code = module_code(main)
 
 
@@ -148,7 +137,7 @@ class O:
     pass
 
 
-exec(code, dict(o=O))
+assert eval(code, dict(o=O)) == 1
 assert getattr(O, 'h') == 1
 
 main = define(
@@ -191,3 +180,17 @@ main = uop(UOp.INVERT, const(5))
 
 code = module_code(main)
 assert eval(code) == ~5
+
+
+main = define(None, ["x"], var("x"), [1])
+
+code = module_code(main)
+assert eval(code)() == 1
+
+
+main = block(define("f", [], var("f"), ), var("f"))
+
+code = module_code(main)
+f = eval(code)
+assert f() == f
+
