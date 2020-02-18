@@ -33,7 +33,6 @@ __all__ = [
     'record',
     'lens',
     'throw',
-    'this',
     'isa',
     'cmp',
     'uop',
@@ -53,8 +52,7 @@ __all__ = [
     'ite',
     'loop',
     'ret',
-]
-THIS_NAME = ".this"
+ ]
 
 if __debug__:
     """
@@ -81,9 +79,8 @@ def assign(n: str, value: SExpr) -> SExpr:
     return 'assign', n, value
 
 
-def define(func_name: Optional[str], args: List[str], body):
-    args.append(THIS_NAME)
-    return "func", args, body, func_name, [const(None)]
+def define(func_name: Optional[str], args: List[str], body: SExpr, defaults: Union[List[SExpr], Tuple[SExpr, ...]]=()):
+    return "func", args, body, func_name, defaults
 
 
 def const(constant: SExpr) -> SExpr:
@@ -272,7 +269,3 @@ def metadata(line: int, column: int, filename: str, term: SExpr) -> SExpr:
     """Set metadata to s-expressions.
     """
     return 'line', line, ('filename', filename, term)
-
-
-this = var(THIS_NAME)  # type: SExpr
-"""Javascript style `this` object"""

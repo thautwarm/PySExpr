@@ -28,9 +28,9 @@ assert (eval(module_code(main),
 
 main = block(
     define(
-        "MyType", ["x", "y"],
-        block(set_item(this, const("x"), var("x")),
-              set_item(this, const("y"), var("y")), this)),
+        "MyType", ["x", "y", "this"],
+        block(set_item(var("this"), const("x"), var("x")),
+              set_item(var("this"), const("y"), var("y")), var("this"))),
     assign("inst", new(var("MyType"), const(1), const(2))),
     isa(var("inst"), var("MyType")))
 
@@ -191,3 +191,16 @@ main = uop(UOp.INVERT, const(5))
 
 code = module_code(main)
 assert eval(code) == ~5
+
+
+main = define(None, ["x"], var("x"), [1])
+
+code = module_code(main)
+assert eval(code)() == 1
+
+
+main = block(define("f", [], var("f"), ), var("f"))
+
+code = module_code(main)
+f = eval(code)
+assert f() == f
