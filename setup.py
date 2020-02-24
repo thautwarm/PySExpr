@@ -4,7 +4,7 @@ from pathlib import Path
 with Path('README.md').open() as readme:
     readme = readme.read()
 
-version = "0.3"
+version = "0.4"
 
 setup(
     name='pysexpr',
@@ -15,7 +15,7 @@ setup(
     long_description=readme,
     long_description_content_type="text/markdown",
     license='mit',
-    python_requires='>=3.6.0',
+    python_requires='>=3.5.0',
     url='https://github.com/thautawarm/PySExpr',
     author='thautawarm',
     author_email='twshere@outlook.com',
