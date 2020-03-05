@@ -1,0 +1,1 @@
+pip uninstall pysexpr -y && devp clean && python setup.py install

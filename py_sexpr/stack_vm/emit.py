@@ -4,13 +4,14 @@ from typing import List, Dict, Callable, Optional, Set, Union
 from enum import Enum
 from functools import lru_cache
 from py_sexpr.stack_vm import instructions as I
-from py_sexpr.stack_vm.blockaddr import NamedLabel
+from py_sexpr.stack_vm.blockaddr import NamedLabel, merge_labels
 from sys import version_info
+
 PY38 = version_info >= (3, 8)
 PY35 = version_info < (3, 6)
 _app = lambda arg: lambda f: f(arg)
 
-RECORD_TYPE_FIELD = '.t'
+RECORD_TYPE_FIELD = ".t"
 
 
 class NamedObj:
@@ -38,9 +39,9 @@ def _new_structural_label(s):
 
 
 class SymType(Enum):
-    cell = 'cell'
-    glob = 'global'
-    bound = 'bound'
+    cell = "cell"
+    glob = "global"
+    bound = "bound"
 
 
 @lru_cache()
@@ -66,6 +67,7 @@ class Analysed:
     - `free`: free variables captured from outer scopes.
     - `bound`: bound variables created in current scope.
     """
+
     syms_free = None  # type: Dict[str, Sym]
     syms_bound = None  # type: Dict[str, Sym]
 
@@ -87,6 +89,7 @@ class ScopeSolver:
     """We use a simple scoping rule, that all assignments enter symbols
     locally, i.e., free variables are readonly beyond where it's defined.
     """
+
     n_enter = attr.ib()  # type: Set[str]
     n_require = attr.ib()  # type:  Set[str]
     parent = attr.ib()  # type: Optional['ScopeSolver']
@@ -122,10 +125,7 @@ class ScopeSolver:
         if self.parent is None:
             analysed.syms_bound = {}
         else:
-            analysed.syms_bound = {
-                k: Sym(k, SymType.bound, analysed)
-                for k in n_enter
-            }
+            analysed.syms_bound = {k: Sym(k, SymType.bound, analysed) for k in n_enter}
         analysed.syms_free = {}
 
         n_require = self.n_require.difference(n_enter)
@@ -170,7 +170,12 @@ class Builder:
         self.builders.append(_set_lineno(self.st.line, other))
 
     def build(self):
-        seq = sum((b() for b in self.builders), [])
+        seq = []
+        for i, b in enumerate(self.builders):
+            seq.extend(b())
+            if i % 50 == 49:
+                print(i)
+
         n = len(seq)
         Instr = BC.Instr
 
@@ -180,12 +185,11 @@ class Builder:
             n = len(seq)
             while i < n:
                 each = seq[i]
-                if isinstance(each, Instr) and each.name.startswith('LOAD_'):
+                if isinstance(each, Instr) and each.name.startswith("LOAD_"):
                     nxt = i + 1
                     if nxt < n:
                         nxt_instr = seq[nxt]
-                        if isinstance(nxt_instr,
-                                      Instr) and nxt_instr.name == 'POP_TOP':
+                        if isinstance(nxt_instr, Instr) and nxt_instr.name == "POP_TOP":
                             i = nxt + 1
                             continue
                 yield each
@@ -199,11 +203,7 @@ class Builder:
         return seq
 
     def inside(self):
-        return Builder(
-            self.sc.sub_scope(),
-            [],
-            self.st.copy(),
-        )
+        return Builder(self.sc.sub_scope(), [], self.st.copy(),)
 
     def eval(self, term):
         if isinstance(term, tuple):
@@ -330,14 +330,16 @@ class Builder:
         n = len(args) + 1
 
         # initialize this object
-        self << (lambda: [
-            I.BUILD_MAP(0),
-            I.CALL_FUNCTION(n),
-            I.DUP(),
-            I.ROT3(),
-            I.LOAD_CONST(RECORD_TYPE_FIELD),
-            I.STORE_SUBSCR(),
-        ])
+        self << (
+            lambda: [
+                I.BUILD_MAP(0),
+                I.CALL_FUNCTION(n),
+                I.DUP(),
+                I.ROT3(),
+                I.LOAD_CONST(RECORD_TYPE_FIELD),
+                I.STORE_SUBSCR(),
+            ]
+        )
 
     def un(self, op: I.UOp, term):
         """emit unary operation"""
@@ -419,11 +421,14 @@ class Builder:
 
         self._bind(n, bound=False)
         self.eval(body)
-        self << (lambda: [
-            I.POP_TOP(),
-            I.JUMP_ABSOLUTE(label_iter), label_end,
-            I.LOAD_CONST(None)
-        ])
+        self << (
+            lambda: [
+                I.POP_TOP(),
+                I.JUMP_ABSOLUTE(label_iter),
+                label_end,
+                I.LOAD_CONST(None),
+            ]
+        )
 
     def ret(self, v):
         self.eval(v)
@@ -454,11 +459,7 @@ class Builder:
         self.eval(body)
         self << (lambda: [I.JUMP_ABSOLUTE(label_setup), label_end])
 
-    def func(self,
-             args: List[str],
-             body,
-             name: str = None,
-             defaults: list = ()):
+    def func(self, args: List[str], body, name: str = None, defaults: list = ()):
         line = self.st.line
         filename = self.st.filename
         doc = self.st.doc
@@ -468,7 +469,7 @@ class Builder:
             anonymous = False
             self.sc.enter(name)
         else:
-            name = 'lambda:{}'.format(line)
+            name = "lambda:{}".format(line)
 
         if defaults:  # if any default arguments
             if PY35:
@@ -506,10 +507,7 @@ class Builder:
             frees = list(sub_a.syms_free)
 
             # get all cell names from bound variables
-            cells = [
-                n for n, sym in sub_a.syms_bound.items()
-                if sym.ty is SymType.cell
-            ]
+            cells = [n for n, sym in sub_a.syms_bound.items() if sym.ty is SymType.cell]
 
             if frees:  # handle closure conversions
                 if not PY35:
@@ -525,14 +523,18 @@ class Builder:
 
             # create code object of subroutine
             instructions = sub.build()
-            py_code = make_code_obj(name, filename, line, doc, args, frees,
-                                    cells, instructions)
-            ins.extend([
-                I.LOAD_CONST(py_code),
-                I.LOAD_CONST(name),
-                I.MAKE_CLOSURE(mk_fn_flag)
-                if PY35 and frees else I.MAKE_FUNCTION(mk_fn_flag),
-            ])
+            py_code = make_code_obj(
+                name, filename, line, doc, args, frees, cells, instructions
+            )
+            ins.extend(
+                [
+                    I.LOAD_CONST(py_code),
+                    I.LOAD_CONST(name),
+                    I.MAKE_CLOSURE(mk_fn_flag)
+                    if PY35 and frees
+                    else I.MAKE_FUNCTION(mk_fn_flag),
+                ]
+            )
 
             # if not anonymous function,
             # we shall assign the function to a variable
@@ -553,14 +555,22 @@ class Builder:
         self << build_mk_func
 
 
-def make_code_obj(name: str, filename: str, lineno: int, doc: str,
-                  args: List[str], frees: List[str], cells: List[str],
-                  instructions: List[BC.Instr]):
+def make_code_obj(
+    name: str,
+    filename: str,
+    lineno: int,
+    doc: str,
+    args: List[str],
+    frees: List[str],
+    cells: List[str],
+    instructions: List[BC.Instr],
+):
     """Create code object from given metadata and instructions
     """
     if not instructions:
         instructions.append(I.LOAD_CONST(None))
     instructions.append(I.RETURN_VALUE())
+    instructions = list(merge_labels(instructions))
 
     bc_code = BC.Bytecode(instructions)
     bc_code.name = name
@@ -571,23 +581,26 @@ def make_code_obj(name: str, filename: str, lineno: int, doc: str,
     bc_code.argcount = len(bc_code.argnames)
     bc_code.freevars.extend(frees)
     bc_code.cellvars.extend(cells)
-
     stack_size = bc_code.compute_stacksize()
+
     c_code = bc_code.to_concrete_bytecode()
     c_code.flags = BC.flags.infer_flags(c_code)
     py_code = c_code.to_code(stacksize=stack_size)
     return py_code
 
 
-def module_code(sexpr,
-                name: str = "<unknown>",
-                filename: str = "<unknown>",
-                lineno: int = 1,
-                doc: str = ""):
+def module_code(
+    sexpr,
+    name: str = "<unknown>",
+    filename: str = "<unknown>",
+    lineno: int = 1,
+    doc: str = "",
+):
     """Create a module's code object from given metadata and s-expression.
     """
-    module_builder = Builder(ScopeSolver.outermost(), [],
-                             SharedState(doc, lineno, filename))
+    module_builder = Builder(
+        ScopeSolver.outermost(), [], SharedState(doc, lineno, filename)
+    )
 
     # incompletely build instruction
     module_builder.eval(sexpr)

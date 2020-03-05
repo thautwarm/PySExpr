@@ -1,27 +1,26 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 
-with Path('README.md').open() as readme:
+with Path("README.md").open() as readme:
     readme = readme.read()
 
-version = "0.4"
+version = "0.5"
 
 setup(
-    name='pysexpr',
+    name="pysexpr",
     version=version if isinstance(version, str) else str(version),
-    keywords=
-    "Python, LISP s-expressions, expression-first, compiler, bytecode, metaprogramming",
+    keywords="Python, LISP s-expressions, expression-first, compiler, bytecode, metaprogramming",
     description="Best s-expression builder targeting Python bytecode",
     long_description=readme,
     long_description_content_type="text/markdown",
-    license='mit',
-    python_requires='>=3.5.0',
-    url='https://github.com/thautawarm/PySExpr',
-    author='thautawarm',
-    author_email='twshere@outlook.com',
+    license="mit",
+    python_requires=">=3.5.0",
+    url="https://github.com/thautawarm/PySExpr",
+    author="thautawarm",
+    author_email="twshere@outlook.com",
     packages=find_packages(),
     entry_points={"console_scripts": []},
-    install_requires=['attrs', 'bytecode>=0.10.0'],
+    install_requires=["attrs", "bytecode>=0.10.0"],
     platforms="any",
     classifiers=[
         "Programming Language :: Python :: 3.5",
