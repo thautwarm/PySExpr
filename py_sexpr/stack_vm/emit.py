@@ -170,11 +170,10 @@ class Builder:
         self.builders.append(_set_lineno(self.st.line, other))
 
     def build(self):
+        # TODO: detect why `sum(..., [])` not work here
         seq = []
-        for i, b in enumerate(self.builders):
+        for b in self.builders:
             seq.extend(b())
-            if i % 50 == 49:
-                print(i)
 
         n = len(seq)
         Instr = BC.Instr
