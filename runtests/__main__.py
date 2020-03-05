@@ -205,3 +205,12 @@ code = module_code(main)
 f = eval(code)
 
 assert f() == f
+
+def deep_ite(depth):
+    expr = 'good'
+    for each in range(depth):
+        expr = ite(False, each, expr)
+    return expr
+main = deep_ite(100)
+code = module_code(main)
+assert eval(code) == "good"
