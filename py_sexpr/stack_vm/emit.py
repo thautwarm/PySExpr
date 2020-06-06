@@ -16,6 +16,7 @@ RECORD_TYPE_FIELD = ".t"
 
 
 def scheduling(application):
+    GeneratorType = types.GeneratorType
     coroutines = [application]
     append = coroutines.append
     pop = coroutines.pop
@@ -24,14 +25,14 @@ def scheduling(application):
         end = coroutines[-1]
         try:
             value = end.send(last)
-            if isinstance(value, types.GeneratorType):
+            if isinstance(value, GeneratorType):
                 append(value)
                 last = None
             else:
                 last = value
                 pop()
         except StopIteration as e:
-            if isinstance(e.value, types.GeneratorType):
+            if isinstance(e.value, GeneratorType):
                 append(e.value)
                 last = None
             else:
