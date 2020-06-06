@@ -4,7 +4,7 @@ from pathlib import Path
 with Path("README.md").open() as readme:
     readme = readme.read()
 
-version = "0.5"
+version = "0.6"
 
 setup(
     name="pysexpr",
