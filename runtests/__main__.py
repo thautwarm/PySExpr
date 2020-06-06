@@ -18,13 +18,7 @@ main = define(
 )
 
 
-def main2():
-    print(1 if 1 > 2 else 2)
-    return 1
-
-
-print(dis.dis(main2))
-print(eval(module_code(main))() == 1)
+assert eval(module_code(main))() == 1
 
 main = call(
     var("f"),
