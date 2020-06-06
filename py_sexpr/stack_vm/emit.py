@@ -6,12 +6,39 @@ from functools import lru_cache
 from py_sexpr.stack_vm import instructions as I
 from py_sexpr.stack_vm.blockaddr import NamedLabel, merge_labels
 from sys import version_info
+import types
 
 PY38 = version_info >= (3, 8)
 PY35 = version_info < (3, 6)
 _app = lambda arg: lambda f: f(arg)
 
 RECORD_TYPE_FIELD = ".t"
+
+
+def scheduling(application):
+    GeneratorType = types.GeneratorType
+    coroutines = [application]
+    append = coroutines.append
+    pop = coroutines.pop
+    last = None
+    while coroutines:
+        end = coroutines[-1]
+        try:
+            value = end.send(last)
+            if isinstance(value, GeneratorType):
+                append(value)
+                last = None
+            else:
+                last = value
+                pop()
+        except StopIteration as e:
+            if isinstance(e.value, GeneratorType):
+                append(e.value)
+                last = None
+            else:
+                pop()
+                last = e.value
+    return last
 
 
 class NamedObj:
@@ -207,14 +234,17 @@ class Builder:
     def eval(self, term):
         if isinstance(term, tuple):
             hd, *tl = term
-            return getattr(self, hd)(*tl)
+            if hd == "eval":
+                return (yield self.eval(*tl))
+            else:
+                return getattr(self, hd)(*tl)
 
         return self.const(term)
 
     def eval_all(self, terms):
         eval = self.eval
         for each in terms:
-            eval(each)
+            yield eval(each)
 
     def const(self, value):
         def build():
@@ -223,8 +253,8 @@ class Builder:
         self << build
 
     def call(self, f, *args):
-        self.eval(f)
-        self.eval_all(args)
+        yield self.eval(f)
+        yield self.eval_all(args)
         n = len(args)
 
         def build():
@@ -254,7 +284,7 @@ class Builder:
         self << build
 
     def tuple(self, *elts):
-        self.eval_all(elts)
+        yield self.eval_all(elts)
         n = len(elts)
         self << (lambda: [I.BUILD_TUPLE(n)])
 
@@ -265,49 +295,49 @@ class Builder:
         elif PY35:
             eval = self.eval
             for key, val in kwargs:
-                eval(key)
-                eval(val)
+                yield eval(key)
+                yield eval(val)
             self << (lambda: [I.BUILD_MAP(n)])
         else:
             keys, vals = zip(*kwargs)
-            self.eval_all(vals)
+            yield self.eval_all(vals)
             self.const(keys)
             self << (lambda: [I.BUILD_CONST_KET_MAP(n)])
 
     def lens(self, l, r):
-        self.eval(l)
-        self.eval(r)
+        yield self.eval(l)
+        yield self.eval(r)
         self << (lambda: [I.BUILD_MAP_UNPACK(2)])
 
     def assign_star(self, n: str, v):
-        self.eval(v)
+        yield self.eval(v)
         self._bind(n, True)
         self << (lambda: [I.LOAD_CONST(None)])
 
     def assign(self, n: str, v):
-        self.eval(v)
+        yield self.eval(v)
         self._bind(n, False)
         self << (lambda: [I.LOAD_CONST(None)])
 
     def get_attr(self, val, n: str):
-        self.eval(val)
+        yield self.eval(val)
         self << (lambda: [I.LOAD_ATTR(n)])
 
     def set_attr(self, base, n: str, val):
-        self.eval(val)
-        self.eval(base)
+        yield self.eval(val)
+        yield self.eval(base)
         self << (lambda: [I.STORE_ATTR(n), I.LOAD_CONST(None)])
 
     def get_item(self, base, item: str):
-        self.eval(base)
-        self.eval(item)
+        yield self.eval(base)
+        yield self.eval(item)
 
         self << (lambda: [I.BINARY(I.BinOp.SUBSCR)])
 
     def set_item(self, base, item, val):
-        self.eval(val)
-        self.eval(base)
-        self.eval(item)
+        yield self.eval(val)
+        yield self.eval(base)
+        yield self.eval(item)
         self << (lambda: [I.STORE_SUBSCR(), I.LOAD_CONST(None)])
 
     def new(self, ty, *args):
@@ -320,12 +350,12 @@ class Builder:
         register allocation, hence I'm quite proud
         of this idea :)
         """
-        self.eval(ty)
+        yield self.eval(ty)
 
         # build this object
         self << (lambda: [I.DUP()])
 
-        self.eval_all(args)
+        yield self.eval_all(args)
         n = len(args) + 1
 
         # initialize this object
@@ -342,18 +372,18 @@ class Builder:
 
     def un(self, op: I.UOp, term):
         """emit unary operation"""
-        self.eval(term)
+        yield self.eval(term)
         self << (lambda: [I.UNARY(op)])
 
     def bin(self, l, op: I.BinOp, r):
         """emit binary operation"""
-        self.eval(l)
-        self.eval(r)
+        yield self.eval(l)
+        yield self.eval(r)
         self << (lambda: [I.BINARY(op)])
 
     def cmp(self, l, op: BC.Compare, r):
-        self.eval(l)
-        self.eval(r)
+        yield self.eval(l)
+        yield self.eval(r)
         self << (lambda: [I.COMPARE_OP(op)])
 
     def _bind(self, n: str, bound: bool):
@@ -384,42 +414,42 @@ class Builder:
             return self.const(None)
         *init, end = suite
         for each in init:
-            self.eval(each)
+            yield self.eval(each)
             self << (lambda: [I.POP_TOP()])
-        self.eval(end)
+        yield self.eval(end)
 
     def doc(self, doc: str, it):
         self.st.doc = doc
-        return self.eval(it)
+        return (yield self.eval(it))
 
     def line(self, line: int, it):
         self.st.line = line
-        return self.eval(it)
+        return (yield self.eval(it))
 
     def filename(self, fname: str, it):
         self.st.filename = fname
-        return self.eval(it)
+        return (yield self.eval(it))
 
     def ite(self, cond, true_clause, false_clause):
         label_true = _new_unique_label("if.true")
         label_end = _new_unique_label("if.end")
 
-        self.eval(cond)
+        yield self.eval(cond)
         self << (lambda: [I.POP_JUMP_IF_TRUE(label_true)])
-        self.eval(false_clause)
+        yield self.eval(false_clause)
         self << (lambda: [I.JUMP_ABSOLUTE(label_end), label_true])
-        self.eval(true_clause)
+        yield self.eval(true_clause)
         self << (lambda: [label_end])
 
     def for_in(self, n: str, seq, body):
         label_end = _new_unique_label("end.loop")
         label_iter = _new_unique_label("iter.loop")
 
-        self.eval(seq)
+        yield self.eval(seq)
         self << (lambda: [I.GET_ITER(), label_iter, I.FOR_ITER(label_end)])
 
         self._bind(n, bound=False)
-        self.eval(body)
+        yield self.eval(body)
         self << (
             lambda: [
                 I.POP_TOP(),
@@ -430,11 +460,11 @@ class Builder:
         )
 
     def ret(self, v):
-        self.eval(v)
+        yield self.eval(v)
         self << (lambda: [I.RETURN_VALUE(), I.LOAD_CONST(None)])
 
     def throw(self, v):
-        self.eval(v)
+        yield self.eval(v)
         self << (lambda: [I.RAISE_VARARGS(1)])
         self.const(None)
 
@@ -453,9 +483,9 @@ class Builder:
         label_end = _new_unique_label("while.end")
 
         self << (lambda: [I.LOAD_CONST(None), label_setup])
-        self.eval(cond)
+        yield self.eval(cond)
         self << (lambda: [I.POP_JUMP_IF_FALSE(label_end), I.POP_TOP()])
-        self.eval(body)
+        yield self.eval(body)
         self << (lambda: [I.JUMP_ABSOLUTE(label_setup), label_end])
 
     def func(self, args: List[str], body, name: str = None, defaults: list = ()):
@@ -474,12 +504,12 @@ class Builder:
             if PY35:
                 mk_fn_flag = len(defaults)
                 for each in defaults:
-                    self.eval(each)
+                    yield self.eval(each)
             else:
                 mk_fn_flag |= I.MK_FN_HAS_DEFAULTS
 
                 for each in defaults:
-                    self.eval(each)
+                    yield self.eval(each)
                 n_defaults = len(defaults)
 
                 def build_defaults():
@@ -495,7 +525,7 @@ class Builder:
         for each in args:
             sub_sc_enter(each)
 
-        sub.eval(body)
+        yield sub.eval(body)
 
         analysed = self.sc.output
 
@@ -602,7 +632,7 @@ def module_code(
     )
 
     # incompletely build instruction
-    module_builder.eval(sexpr)
+    scheduling(module_builder.eval(sexpr))
 
     # resolve symbols, complete building requirements
     module_builder.sc.resolve()
